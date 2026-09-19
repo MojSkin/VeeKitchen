@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\InventoryController;
+use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\PurchaseOrderController;
 use App\Http\Controllers\Admin\TableController;
 use App\Http\Controllers\Auth\LoginController;
@@ -69,6 +70,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
         ->name('admin.inventory.items.waste');
     Route::post('/products/{product}/recipe', [InventoryController::class, 'saveRecipe'])
         ->name('admin.products.recipe.save');
+
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])
+        ->name('admin.notifications.read-all');
 
     Route::get('/purchase-orders', [PurchaseOrderController::class, 'index'])->name('admin.purchase-orders');
     Route::post('/purchase-orders/{order}/submit', [PurchaseOrderController::class, 'submit'])
