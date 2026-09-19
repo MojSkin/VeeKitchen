@@ -23,6 +23,7 @@ class CostComponent extends Model
         'label',
         'type',
         'value',
+        'is_cost',
         'position',
     ];
 
@@ -31,6 +32,7 @@ class CostComponent extends Model
         return [
             'type' => CostComponentType::class,
             'value' => 'integer',
+            'is_cost' => 'boolean',
             'position' => 'integer',
         ];
     }
