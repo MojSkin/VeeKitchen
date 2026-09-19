@@ -80,13 +80,19 @@ class PurchaseOrderService
     }
 
     /**
-     * Add one item's quantity to stock and ledger it.
+     * Add one item's quantity to stock and ledger it. The item's unit cost
+     * is refreshed to this PO's per-unit price — it feeds cost pricing.
      */
     protected function receiveItem(PurchaseOrder $order, PurchaseOrderItem $item, ?User $actor): void
     {
         $material = $item->inventoryItem()->lockForUpdate()->firstOrFail();
 
         $material->current_stock = (float) $material->current_stock + (float) $item->quantity;
+
+        if ($item->unit_cost > 0) {
+            $material->unit_cost = $item->unit_cost;
+        }
+
         $material->save();
 
         StockMovement::create([

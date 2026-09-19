@@ -18,6 +18,7 @@ class InventoryItem extends Model
         'branch_id',
         'name',
         'unit',
+        'unit_cost',
         'current_stock',
         'low_stock_threshold',
         'qr_label',
@@ -28,6 +29,7 @@ class InventoryItem extends Model
     {
         return [
             'unit' => MeasurementUnit::class,
+            'unit_cost' => 'integer',
             'current_stock' => 'decimal:3',
             'low_stock_threshold' => 'decimal:3',
             'is_active' => 'boolean',

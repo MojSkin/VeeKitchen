@@ -31,6 +31,11 @@ Direct pushes to `main` or `production` never happen; merges from `testing` only
 - Models `InventoryItem`, `ProductRecipe`, `StockMovement` with relations, casts, and factories (+ `lowStock`, `withoutQr`, `consumption`, `purchase` states); `Order::stockMovements()` relation.
 - Phase 2 test suite: 9 new feature tests (deduction, multi-line aggregation, idempotent replay, recipe-less products, shortfall rollback, low-stock detection, cancellation return) — 45 tests green overall.
 
+### Added (Phase 2 — cost pricing)
+- `CostCalculator`: material cost from the recipe (quantity × the material's `unit_cost`), then the product's cost components applied in `position` order — fixed Toman or percent (basis points) on the running amount. Returns `material_cost`, `cost_price` and `suggested_sale_price`, each passing through the 100-Toman ceiling (§5) exactly once at the end.
+- `inventory_items.unit_cost` (last purchase cost) — refreshed automatically when a purchase order is received, so pricing follows real supplier prices; `cost_components.is_cost` flags whether a component inflates the cost price (packaging/overhead) or only the sale price (management profit/tax).
+- 7 new feature tests (material cost, component chain in position order, compounding percents on the running amount, no-recipe products, ceiling compliance, PO-received price refresh, end-to-end margherita economics) — 80 tests green overall.
+
 ### Added (Phase 2 — purchase receiving, waste & low-stock alerts)
 - `PurchaseOrderService`: `submit()` (draft → ordered, refuses empty orders), `receive()` (ordered → received inside a locked transaction — stock rises per item with a `purchase` ledger row; double-receiving is impossible via the status guard), and `cancel()` (draft/ordered only).
 - `InventoryService::logWaste()`: row-locked stock check (waste can never exceed stock), a `WasteLog` record with reason/expiry, a `waste` ledger row, and alert evaluation.
