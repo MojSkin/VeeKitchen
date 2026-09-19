@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\StockMovementType;
 use App\Models\Branch;
 use App\Models\StockMovement;
+use Illuminate\Support\Carbon;
 
 /**
  * Read-only warehouse reporting. The append-only StockMovement ledger is
@@ -14,19 +15,23 @@ use App\Models\StockMovement;
 class WarehouseReportService
 {
     /**
-     * Today's ledger movements for a branch, grouped by movement type:
-     * a type-level summary plus the item lines behind each type.
+     * Ledger movements for a branch between two day boundaries (inclusive),
+     * grouped by movement type: a type-level summary plus the item lines
+     * behind each type.
      *
-     * "Today" follows the application timezone — the same day boundary
+     * Boundaries follow the application timezone — the same day boundary
      * the order counter and payment timestamps use.
      *
-     * @return array{types: array<int, array{type: string, label: string, total: float, movements: int, items: array<int, array{name: string, unit_label: string, total: float}>}>, movement_count: int, generated_at: string}
+     * @param  Carbon  $from  inclusive start-of-day boundary
+     * @param  Carbon  $to  inclusive end-of-day boundary
+     * @return array{types: array<int, array{type: string, label: string, total: float, movements: int, items: array<int, array{name: string, unit_label: string, total: float}>}>, movement_count: int, generated_at: string, from: string, to: string}
      */
-    public function todayByType(Branch $branch): array
+    public function rangeByType(Branch $branch, Carbon $from, Carbon $to): array
     {
         $movements = StockMovement::query()
             ->whereHas('inventoryItem', fn ($query) => $query->where('branch_id', $branch->id))
-            ->where('created_at', '>=', now()->startOfDay())
+            ->where('created_at', '>=', $from->copy()->startOfDay())
+            ->where('created_at', '<=', $to->copy()->endOfDay())
             ->with('inventoryItem')
             ->orderBy('created_at')
             ->get();
@@ -81,6 +86,18 @@ class WarehouseReportService
             'types' => $types->values()->all(),
             'movement_count' => $movements->count(),
             'generated_at' => now()->toIso8601String(),
+            'from' => $from->copy()->startOfDay()->toIso8601String(),
+            'to' => $to->copy()->endOfDay()->toIso8601String(),
         ];
+    }
+
+    /**
+     * Today-only convenience wrapper.
+     *
+     * @return array{types: array<int, array{type: string, label: string, total: float, movements: int, items: array<int, array{name: string, unit_label: string, total: float}>}>, movement_count: int, generated_at: string, from: string, to: string}
+     */
+    public function todayByType(Branch $branch): array
+    {
+        return $this->rangeByType($branch, now()->startOfDay(), now());
     }
 }
