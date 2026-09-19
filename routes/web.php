@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\PurchaseOrderController;
 use App\Http\Controllers\Admin\TableController;
+use App\Http\Controllers\Admin\WarehouseReportController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Cashier\CashierController;
 use App\Http\Controllers\Customer\MenuController;
@@ -61,6 +62,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
         ->name('admin.tables.rotate');
 
     Route::get('/inventory', [InventoryController::class, 'index'])->name('admin.inventory');
+    Route::get('/inventory/report', [WarehouseReportController::class, 'index'])->name('admin.inventory.report');
     Route::post('/inventory/items', [InventoryController::class, 'storeItem'])->name('admin.inventory.items.store');
     Route::post('/inventory/items/{item}/adjust', [InventoryController::class, 'adjustStock'])
         ->name('admin.inventory.items.adjust');
