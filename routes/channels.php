@@ -15,6 +15,12 @@ Broadcast::channel('branch.{branchId}.kitchen', function ($user, int $branchId) 
         && BranchAccess::belongsToBranch($user->role, $user->branch_id, $branchId);
 });
 
+/** Inventory board (admins only; staff of the branch pass via BranchAccess). */
+Broadcast::channel('branch.{branchId}.inventory', function ($user, int $branchId) {
+    return $user->role === UserRole::Admin
+        && BranchAccess::belongsToBranch($user->role, $user->branch_id, $branchId);
+});
+
 /** Cashiers and admins of the branch. */
 Broadcast::channel('branch.{branchId}.cashier', function ($user, int $branchId) {
     return in_array($user->role, [UserRole::Cashier, UserRole::Admin], true)

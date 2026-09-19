@@ -2,9 +2,12 @@
 
 namespace Database\Seeders;
 
+use App\Enums\MeasurementUnit;
 use App\Models\Branch;
+use App\Models\InventoryItem;
 use App\Models\MenuCategory;
 use App\Models\Product;
+use App\Models\ProductRecipe;
 use App\Models\RestaurantTable;
 use App\Models\Setting;
 use App\Models\User;
@@ -109,5 +112,45 @@ class DatabaseSeeder extends Seeder
         Setting::put($branch->id, 'tts_voice', 'auto');
         Setting::put($branch->id, 'printer_connection', 'browser');
         Setting::put($branch->id, 'order_number_prefix', '');
+
+        // Warehouse materials with realistic stock levels; the second entry
+        // sits right on its alert threshold so the inventory board shows a
+        // live low-stock vial out of the box.
+        $materials = [
+            ['آرد گندم', MeasurementUnit::Kilogram, 80.0, 20.0],
+            ['پنیر موزارلا', MeasurementUnit::Kilogram, 4.0, 4.0],
+            ['گوشت چرخ‌کرده', MeasurementUnit::Kilogram, 25.0, 10.0],
+            ['فیله مرغ', MeasurementUnit::Kilogram, 18.0, 8.0],
+            ['سس گوجه', MeasurementUnit::Liter, 12.0, 3.0],
+            ['قارچ', MeasurementUnit::Gram, 6000.0, 2000.0],
+            ['نان بریوش', MeasurementUnit::Piece, 40.0, 10.0],
+            ['قوطی نوشابه', MeasurementUnit::Piece, 120.0, 24.0],
+        ];
+
+        foreach ($materials as [$name, $unit, $stock, $threshold]) {
+            InventoryItem::factory()->withoutQr()->create([
+                'branch_id' => $branch->id,
+                'name' => $name,
+                'unit' => $unit,
+                'current_stock' => $stock,
+                'low_stock_threshold' => $threshold,
+            ]);
+        }
+
+        // One worked example: the margherita consumes flour, mozzarella, sauce.
+        $margherita = Product::query()->where('name', 'پیتزا مارگاریتا')->firstOrFail();
+        $recipeMap = [
+            'آرد گندم' => 0.4,
+            'پنیر موزارلا' => 0.15,
+            'سس گوجه' => 0.1,
+        ];
+
+        foreach ($recipeMap as $materialName => $perUnit) {
+            ProductRecipe::create([
+                'product_id' => $margherita->id,
+                'inventory_item_id' => InventoryItem::query()->where('name', $materialName)->firstOrFail()->id,
+                'quantity_per_unit' => $perUnit,
+            ]);
+        }
     }
 }
