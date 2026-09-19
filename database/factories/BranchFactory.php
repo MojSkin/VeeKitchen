@@ -11,14 +11,18 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class BranchFactory extends Factory
 {
     /**
-     * Define the model's default state.
-     *
      * @return array<string, mixed>
      */
     public function definition(): array
     {
+        $name = 'شعبه '.$this->faker->unique()->city();
+
         return [
-            //
+            'name' => $name,
+            'slug' => $this->faker->unique()->slug(2),
+            'phone' => '021-88'.$this->faker->numerify('######'),
+            'address' => $this->faker->streetAddress(),
+            'is_active' => true,
         ];
     }
 }
