@@ -70,6 +70,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
         ->name('admin.inventory.items.waste');
     Route::post('/products/{product}/recipe', [InventoryController::class, 'saveRecipe'])
         ->name('admin.products.recipe.save');
+    Route::get('/products/{product}/recipe-versions', [InventoryController::class, 'recipeVersions'])
+        ->name('admin.products.recipe-versions');
 
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])
         ->name('admin.notifications.read-all');

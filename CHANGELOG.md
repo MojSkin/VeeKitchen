@@ -18,6 +18,14 @@ A version is **released** only when this cycle completes:
 
 Direct pushes to `main` or `production` never happen; merges from `testing` only.
 
+## [Unreleased]
+
+### Added (Phase 2 — recipe version history)
+- Every recipe save now freezes an immutable snapshot in `product_recipe_versions`: the recipe lines (material name, per-unit amount, unit label), each material's `unit_cost` at save time, the ordered cost-component chain, and the full pricing output of `CostCalculator` (material/cost/suggested-sale) — past figures can no longer drift when stock prices change later.
+- `RecipeVersionService::record()` runs in the same transaction as the recipe save; versions are numbered per product.
+- Admin history page (`admin/products/{product}/recipe-versions`, admin-only): version list with material/cost/sale figures, an A/B compare mode with a line-level diff (added/removed/quantity-changed lines) and before/after price deltas.
+- 6 new feature tests (snapshot immutability, per-product numbering, endpoint wiring on save, listing order, admin-only guard, empty-recipe snapshot) — 101 tests green overall.
+
 ## [0.2.0] — 2026-09-19
 
 ### Added (Phase 2 — inventory & recipes core)
