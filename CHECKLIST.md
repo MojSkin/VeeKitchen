@@ -45,6 +45,16 @@
 - [ ] صفحه Dashboard و منوی ناوبری بین پنل‌ها
 - [ ] Wake Lock برای نمایشگر تحویل (جلوگیری از خاموشی صفحه)
 
+## فاز ۳ — مالی: تخفیف، شیفت و تسویه صندوق 🚧
+
+> برنامه: docs/PHASE-3-PLAN.md (نوشته شد؛ در انتظار تایید کارفرما برای ترتیب گام‌ها)
+
+- [ ] گام ۱ — دیتابیس و دامنهٔ تخفیف (discounts + DiscountService + اتصال به Quote/Order + مقیاس کسر انبار)
+- [ ] گام ۲ — UI تخفیف (DiscountForm ادمین + DiscountBadge منو + سبد)
+- [ ] گام ۳ — شیفت و تسویه صندوق (staff_shifts + cash_movements + ShiftService + ShiftPanel + قلاب پرداخت)
+- [ ] گام ۴ — خط لولهٔ پایان روز (EndOfDay) + KPI شیفت در داشبورد
+- [ ] گام ۵ — ~۲۵–۳۰ تست + Pint + build + مرج development + انتشار v0.4.0
+
 ## انتشارها
 
 - [x] v0.2.0 — ۲۰۲۶-۰۹-۱۹: فاز ۱ + هستهٔ فاز ۲ روی main تگ خورد (جریان کامل: development → testing → تست‌های سبز → main + production)
