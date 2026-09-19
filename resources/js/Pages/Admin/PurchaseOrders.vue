@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue';
-import { router } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { faDigits, formatToman } from '@/lib/format';
 
@@ -71,6 +71,12 @@ function formatDay(iso) {
         <div class="mx-auto max-w-6xl px-4 py-6">
             <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
                 <h1 class="text-2xl font-bold">سفارش‌های خرید</h1>
+                <Link
+                    :href="route('admin.purchase-orders.create')"
+                    class="rounded-xl bg-saffron-500 px-4 py-2 text-sm font-bold text-white transition hover:bg-saffron-600"
+                >
+                    + سفارش جدید
+                </Link>
                 <div class="flex gap-2 text-xs">
                     <span
                         v-for="status in statuses"

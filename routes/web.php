@@ -77,6 +77,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
         ->name('admin.notifications.read-all');
 
     Route::get('/purchase-orders', [PurchaseOrderController::class, 'index'])->name('admin.purchase-orders');
+    Route::get('/purchase-orders/new', [PurchaseOrderController::class, 'create'])->name('admin.purchase-orders.create');
+    Route::post('/purchase-orders', [PurchaseOrderController::class, 'store'])->name('admin.purchase-orders.store');
     Route::post('/purchase-orders/{order}/submit', [PurchaseOrderController::class, 'submit'])
         ->name('admin.purchase-orders.submit');
     Route::post('/purchase-orders/{order}/receive', [PurchaseOrderController::class, 'receive'])

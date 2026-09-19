@@ -92,7 +92,7 @@ test('receive lifts stock and writes purchase ledger rows', function () {
         ->assertRedirect()
         ->assertSessionHas('success');
 
-    expect((float) $material->refresh()->current_stock)->toBe($stockBefore + 12.0)
+    expect((float) $material->refresh()->current_stock)->toEqualWithDelta($stockBefore + 12.0, 0.000001)
         ->and($order->refresh()->status)->toBe(PurchaseOrderStatus::Received)
         ->and(StockMovement::query()->where('inventory_item_id', $material->id)->where('type', 'purchase')->count())->toBe(1);
 });

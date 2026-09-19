@@ -20,6 +20,11 @@ Direct pushes to `main` or `production` never happen; merges from `testing` only
 
 ## [Unreleased]
 
+### Added (Phase 2 — new purchase order form)
+- The procurement board gained a «+ سفارش جدید» action leading to `admin/purchase-orders/new` (admin-only): pick an active supplier, add item lines (material, quantity, per-unit cost), and save a draft. Unit costs prefill from each material's last purchase price and stay editable; a live running total mirrors the backend arithmetic; a material used on one line is disabled on the others.
+- `PurchaseOrderService::create()` builds the draft with its lines inside a transaction (line totals filled immediately, supplier must be active), so drafts show a meaningful total before submission and flow straight into the existing submit → receive machine.
+- 7 new feature tests (service-level creation with cost fallback and totals, inactive-supplier refusal, admin-only form payload, endpoint validation incl. empty orders / unknown materials / zero quantities, duplicate-material rejection, draft-then-submit flow) — 108 tests green overall.
+
 ### Added (Phase 2 — recipe version history)
 - Every recipe save now freezes an immutable snapshot in `product_recipe_versions`: the recipe lines (material name, per-unit amount, unit label), each material's `unit_cost` at save time, the ordered cost-component chain, and the full pricing output of `CostCalculator` (material/cost/suggested-sale) — past figures can no longer drift when stock prices change later.
 - `RecipeVersionService::record()` runs in the same transaction as the recipe save; versions are numbered per product.
