@@ -9,7 +9,10 @@ use App\Models\Branch;
 use App\Models\InventoryItem;
 use App\Models\Product;
 use App\Models\ProductRecipe;
+use App\Models\PurchaseOrder;
 use App\Models\StockMovement;
+use App\Services\InventoryService;
+use App\Services\PurchaseOrderService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -20,6 +23,11 @@ use Inertia\Response;
 
 class InventoryController extends Controller
 {
+    public function __construct(
+        protected InventoryService $inventory,
+        protected PurchaseOrderService $purchaseOrders,
+    ) {}
+
     /**
      * The warehouse workbench: live material board + product recipes.
      */
@@ -179,5 +187,37 @@ class InventoryController extends Controller
         $label = $item->is_active ? 'فعال' : 'غیرفعال';
 
         return back()->with('success', "متریال «{$item->name}» {$label} شد.");
+    }
+
+    /**
+     * Record waste for a material: stock drops, ledger + waste log fill.
+     */
+    public function storeWaste(Request $request, InventoryItem $item): RedirectResponse
+    {
+        $validated = $request->validate([
+            'quantity' => ['required', 'numeric', 'gt:0'],
+            'reason' => ['required', 'string', 'max:255'],
+            'expired_on' => ['nullable', 'date', 'before_or_equal:today'],
+        ]);
+
+        $this->inventory->logWaste(
+            $item,
+            (float) $validated['quantity'],
+            $validated['reason'],
+            $request->user(),
+            $validated['expired_on'] ?? null,
+        );
+
+        return back()->with('success', "ضایعات «{$item->name}» ثبت شد.");
+    }
+
+    /**
+     * Receive a submitted purchase order: stock rises, ledger fills.
+     */
+    public function receivePurchaseOrder(Request $request, PurchaseOrder $order): RedirectResponse
+    {
+        $this->purchaseOrders->receive($order, $request->user());
+
+        return back()->with('success', "سفارش خرید شماره {$order->id} دریافت و موجودی‌ها به‌روز شد.");
     }
 }
