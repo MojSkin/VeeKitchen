@@ -14,7 +14,11 @@
 - [x] کپی اسکیل‌ها: persian-writing، ui-ux-pro-max، frontend-design
 - [x] ثبت قوانین گیت در .ai/rules
 - [x] README فارسی + CHECKLIST + CHANGELOG
-- [ ] ساخت برنچ‌های development / testing / production و تنظیم پوش اولیه ⬅️ *در همین تسک*
+- [x] ساخت برنچ‌های development / testing / production و پوش اولیه به origin
+
+## مستندسازی و نگهداشت
+
+- [x] بازبینی README و CHANGELOG با قوانین گیت (.ai/rules/git.md) و اصلاح ناهماهنگی‌ها
 
 ## فاز ۱ — هستهٔ سفارش / پرداخت / KDS / Real-time
 
