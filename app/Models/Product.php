@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
 {
@@ -47,6 +48,22 @@ class Product extends Model
     public function menuCategory(): BelongsTo
     {
         return $this->belongsTo(MenuCategory::class);
+    }
+
+    /**
+     * @return HasMany<ProductRecipe, $this>
+     */
+    public function recipes(): HasMany
+    {
+        return $this->hasMany(ProductRecipe::class);
+    }
+
+    /**
+     * @return HasMany<CostComponent, $this>
+     */
+    public function costComponents(): HasMany
+    {
+        return $this->hasMany(CostComponent::class)->orderBy('position');
     }
 
     /**

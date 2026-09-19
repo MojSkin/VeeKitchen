@@ -31,6 +31,13 @@ Direct pushes to `main` or `production` never happen; merges from `testing` only
 - Models `InventoryItem`, `ProductRecipe`, `StockMovement` with relations, casts, and factories (+ `lowStock`, `withoutQr`, `consumption`, `purchase` states); `Order::stockMovements()` relation.
 - Phase 2 test suite: 9 new feature tests (deduction, multi-line aggregation, idempotent replay, recipe-less products, shortfall rollback, low-stock detection, cancellation return) — 45 tests green overall.
 
+### Added (Phase 2 — warehouse entities)
+- Migrations: `suppliers`, `purchase_orders` (status machine draft → ordered → received/cancelled, receive metadata), `purchase_order_items` (quantity + unit cost), `waste_logs` (reason + expiry date), `cost_components` (ordered fixed-Toman or basis-point percent surcharges on material cost).
+- Models `Supplier`, `PurchaseOrder` (with `recalculateTotal()`), `PurchaseOrderItem`, `WasteLog`, `CostComponent`; enums `PurchaseOrderStatus` and `CostComponentType`; factories with Persian demo data and helper states.
+- Referential protection for warehouse history: supplier/material rows referenced by purchase orders or waste logs, and products carrying recipes or cost components, can no longer be hard-deleted (`restrictOnDelete`); `product_recipes.product_id` hardened from cascade to restrict accordingly.
+- `Product::recipes()` and `Product::costComponents()` relations (components sorted by position).
+- 9 new feature tests (PO totals, status machine, FK protection, basis-point percent round-trip, per-product grouping) — 54 tests green overall.
+
 ### Added (Phase 1 — order/payment/KDS/real-time core)
 - Middleware stack completed: `role` guard, Inertia shared props (auth user, flash), auth/guest redirects.
 - `App\Services\OrderService` — the single gateway for order state:
