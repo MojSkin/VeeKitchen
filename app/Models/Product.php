@@ -67,6 +67,14 @@ class Product extends Model
     }
 
     /**
+     * @return HasMany<ProductRecipeVersion, $this>
+     */
+    public function versions(): HasMany
+    {
+        return $this->hasMany(ProductRecipeVersion::class);
+    }
+
+    /**
      * Only products the customer can actually order right now.
      *
      * @param  Builder<Product>  $query

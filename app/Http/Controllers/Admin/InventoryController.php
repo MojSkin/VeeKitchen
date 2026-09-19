@@ -9,9 +9,11 @@ use App\Models\Branch;
 use App\Models\InventoryItem;
 use App\Models\Product;
 use App\Models\ProductRecipe;
+use App\Models\ProductRecipeVersion;
 use App\Models\StockMovement;
 use App\Services\CostCalculator;
 use App\Services\InventoryService;
+use App\Services\RecipeVersionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -24,6 +26,7 @@ class InventoryController extends Controller
 {
     public function __construct(
         protected InventoryService $inventory,
+        protected RecipeVersionService $recipeVersions,
     ) {}
 
     /**
@@ -187,7 +190,7 @@ class InventoryController extends Controller
             ]);
         }
 
-        DB::transaction(function () use ($product, $lines): void {
+        DB::transaction(function () use ($product, $lines, $request): void {
             $product->recipes()->delete();
 
             foreach ($lines as $line) {
@@ -197,9 +200,45 @@ class InventoryController extends Controller
                     'quantity_per_unit' => (float) $line['quantity_per_unit'],
                 ]);
             }
+
+            // History: freeze the new state (lines + unit costs + cost chain)
+            // as the next sequential version of this product's recipe.
+            $this->recipeVersions->record($product, $request->user());
         });
 
         return back()->with('success', "فرمول «{$product->name}» ذخیره شد.");
+    }
+
+    /**
+     * A product's recipe version history.
+     */
+    public function recipeVersions(Product $product): Response
+    {
+        $product->loadMissing('recipes.inventoryItem');
+
+        $versions = $product->versions()
+            ->latest('version_number')
+            ->get()
+            ->map(fn (ProductRecipeVersion $version) => [
+                'id' => $version->id,
+                'version_number' => $version->version_number,
+                'lines' => $version->lines,
+                'components' => $version->components ?? [],
+                'material_cost' => $version->material_cost,
+                'cost_price' => $version->cost_price,
+                'suggested_sale_price' => $version->suggested_sale_price,
+                'saved_at' => $version->created_at?->toISOString(),
+                'author' => $version->author?->name,
+            ]);
+
+        return Inertia::render('Admin/RecipeVersions', [
+            'product' => [
+                'id' => $product->id,
+                'name' => $product->name,
+                'sale_price' => $product->price,
+            ],
+            'versions' => $versions,
+        ]);
     }
 
     /**
