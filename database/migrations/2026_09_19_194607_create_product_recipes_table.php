@@ -10,8 +10,10 @@ return new class extends Migration
     {
         Schema::create('product_recipes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('inventory_item_id')->constrained('inventory_items')->cascadeOnDelete();
+
+            /** Recipe history must survive product/menu edits. */
+            $table->foreignId('product_id')->constrained()->restrictOnDelete();
+            $table->foreignId('inventory_item_id')->constrained('inventory_items')->restrictOnDelete();
 
             /** Material amount consumed to produce ONE unit of the product. */
             $table->decimal('quantity_per_unit', 12, 3);

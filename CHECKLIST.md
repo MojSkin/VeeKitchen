@@ -58,7 +58,9 @@
 - [x] کسر خودکار متریال هنگام markPaid از طریق InventoryService::deductForOrder — idempotent با کلید یکتای دفتر کل؛ کسری موجودی کل تراکنش پرداخت را rollback می‌کند
 - [x] بازگشت متریال به انبار هنگام کنسل کردن سفارشِ پرداخت‌شده (returnForCancelledOrder)
 - [x] ۹ تست فیچر جدید (کسر، تجمیع چند خط، idempotency، محصول بی‌فرمول، کسری موجودی، هشدار موجودی کم، بازگشت کنسلی) — مجموع ۴۵ تست سبز
-- [ ] مایگریشن‌های تکمیلی: cost_components، suppliers، purchase_orders، waste_logs
+- [x] مایگریشن‌های تکمیلی: suppliers، purchase_orders + purchase_order_items، waste_logs، cost_components
+- [x] مدل‌ها و enumهای تکمیلی: Supplier، PurchaseOrder (دستگاه وضعیت Draft→Ordered→Received/Cancelled)، PurchaseOrderItem، WasteLog، CostComponent (درصد بر حسب بیس‌پوینت) + PurchaseOrderStatus و CostComponentType
+- [x] دفاع در سطح دیتابیس: FK های restrict برای حفظ تاریخچهٔ انبار (supplier، متریال، محصول با فرمول/اجزای هزینه)
+- [ ] سرویس دریافت خرید (افزایش موجودی + StockMovement) و ثبت Waste
 - [ ] قیمت تمام‌شده (Cost Price) و قیمت فروش پیشنهادی از فرمول + اجزای هزینه
-- [ ] سرویس خرید/رسید انبار و ثبت Waste
 - [ ] UI مدیریت انبار و فرمول تولید در پنل ادمین
