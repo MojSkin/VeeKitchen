@@ -4,9 +4,12 @@ namespace App\Services;
 
 use App\Enums\PurchaseOrderStatus;
 use App\Events\StockChanged;
+use App\Models\Branch;
+use App\Models\InventoryItem;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
 use App\Models\StockMovement;
+use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -22,6 +25,50 @@ class PurchaseOrderService
     public function __construct(
         protected InventoryService $inventory,
     ) {}
+
+    /**
+     * Create a draft purchase order with its item lines.
+     *
+     * Each line's unit cost defaults to the material's last purchase cost
+     * unless the buyer overrides it; totals are filled immediately so the
+     * draft board shows a meaningful figure before submission.
+     *
+     * @param  array<int, array{inventory_item_id: int, quantity: float|int|string, unit_cost?: int|string|null}>  $lines
+     */
+    public function create(Branch $branch, Supplier $supplier, array $lines, ?User $actor = null, ?string $notes = null): PurchaseOrder
+    {
+        if (! $supplier->is_active) {
+            throw new InvalidArgumentException("تامین‌کننده «{$supplier->name}» غیرفعال است.");
+        }
+
+        return DB::transaction(function () use ($branch, $supplier, $lines, $actor, $notes): PurchaseOrder {
+            $order = PurchaseOrder::create([
+                'branch_id' => $branch->id,
+                'supplier_id' => $supplier->id,
+                'created_by' => $actor?->id,
+                'status' => PurchaseOrderStatus::Draft,
+                'total' => 0,
+                'notes' => $notes,
+            ]);
+
+            foreach ($lines as $line) {
+                $material = InventoryItem::query()->whereKey($line['inventory_item_id'])->firstOrFail();
+                $unitCost = (int) (($line['unit_cost'] ?? null) !== null ? $line['unit_cost'] : $material->unit_cost);
+
+                PurchaseOrderItem::create([
+                    'purchase_order_id' => $order->id,
+                    'inventory_item_id' => $material->id,
+                    'quantity' => (float) $line['quantity'],
+                    'unit_cost' => $unitCost,
+                    'line_total' => (int) round((float) $line['quantity'] * $unitCost),
+                ]);
+            }
+
+            $order->recalculateTotal();
+
+            return $order->refresh();
+        });
+    }
 
     /**
      * Send a draft order to the supplier.
