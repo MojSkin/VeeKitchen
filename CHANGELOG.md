@@ -20,6 +20,11 @@ Direct pushes to `main` or `production` never happen; merges from `testing` only
 
 ## [Unreleased]
 
+### Added (Phase 2 — admin dashboard)
+- Admin dashboard page (`admin/dashboard`, linked as «داشبورد» from the admin nav): a 14-day sales chart (hand-rolled SVG line/area — daily revenue + order counts, tooltip per point, zero days stay on the axis), today's KPI cards (paid revenue, placed orders, average ticket), the open-order pipeline (awaiting payment → ready), the dining-room table snapshot, and a low-stock mini-board with per-material threshold bars linking to the inventory panel.
+- Revenue truth comes from `payments.paid_at` (joined through the branch's orders); the day boundary follows the app timezone, and an empty branch renders an all-zero dashboard without errors.
+- 6 new feature tests (admin-only guard, today KPIs incl. yesterday isolation, exact 14-day span with zero days, low-stock filtering, pipeline/table counts, empty-branch zeroing) — 128 tests green overall.
+
 ### Added (Phase 2 — draft purchase order editing)
 - Drafts are editable until submitted: the procurement board shows an edit action on drafts (`is_editable` in the payload) leading to `admin/purchase-orders/{id}/edit` (admin-only, 403 for non-drafts) with the form prefilled — supplier, notes, and every line.
 - `PurchaseOrderService::updateDraft()` replaces the whole line set inside a locked transaction with a fresh status re-check, so an order submitted between page load and save can never be rewritten; supplier swap and notes update, line totals and the order total are recomputed, and omitted unit costs fall back to the material's last purchase price.
