@@ -31,6 +31,13 @@ Direct pushes to `main` or `production` never happen; merges from `testing` only
 - Models `InventoryItem`, `ProductRecipe`, `StockMovement` with relations, casts, and factories (+ `lowStock`, `withoutQr`, `consumption`, `purchase` states); `Order::stockMovements()` relation.
 - Phase 2 test suite: 9 new feature tests (deduction, multi-line aggregation, idempotent replay, recipe-less products, shortfall rollback, low-stock detection, cancellation return) — 45 tests green overall.
 
+### Added (Phase 2 — purchase receiving, waste & low-stock alerts)
+- `PurchaseOrderService`: `submit()` (draft → ordered, refuses empty orders), `receive()` (ordered → received inside a locked transaction — stock rises per item with a `purchase` ledger row; double-receiving is impossible via the status guard), and `cancel()` (draft/ordered only).
+- `InventoryService::logWaste()`: row-locked stock check (waste can never exceed stock), a `WasteLog` record with reason/expiry, a `waste` ledger row, and alert evaluation.
+- **Low-stock alerts**: `LowStockAlert` database notification to all branch admins whenever stock crosses down to/below the threshold — fired from payment deduction and waste; `notifications` table migration added.
+- Admin endpoints `POST /admin/inventory/items/{item}/waste` and `POST /admin/purchase-orders/{order}/receive` (role-guarded); the inventory board gained a waste form per material (amount, reason, optional expiry date).
+- 10 new feature tests (receive machine + double-receive guard, waste ledger/limits, alert firing from waste and from payment deduction, endpoint guards) — 73 tests green overall.
+
 ### Added (Phase 2 — admin inventory & recipe UI)
 - Admin inventory workbench (`admin/inventory`, admin-only): material board with `StockVial` glass meters — a filled tube with a dashed threshold marker and green/amber/red tone — manual stock correction (positive or negative deltas, always ledgered as `adjustment`), new-material creation, activation toggle, and a per-product recipe editor (add/remove lines, item + amount per unit, duplicate guard).
 - `StockChanged` broadcast on the new private `branch.{id}.inventory` channel fires from payment deduction, cancellation returns, and manual adjustments — the board repaints the affected vial live without a refresh; `AppLayout` gained a role-aware nav bar (tables / inventory / cashier for admins).
