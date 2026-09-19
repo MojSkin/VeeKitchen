@@ -20,6 +20,12 @@ Direct pushes to `main` or `production` never happen; merges from `testing` only
 
 ## [Unreleased]
 
+### Added (Phase 2 — draft purchase order editing)
+- Drafts are editable until submitted: the procurement board shows an edit action on drafts (`is_editable` in the payload) leading to `admin/purchase-orders/{id}/edit` (admin-only, 403 for non-drafts) with the form prefilled — supplier, notes, and every line.
+- `PurchaseOrderService::updateDraft()` replaces the whole line set inside a locked transaction with a fresh status re-check, so an order submitted between page load and save can never be rewritten; supplier swap and notes update, line totals and the order total are recomputed, and omitted unit costs fall back to the material's last purchase price.
+- The create and edit forms share one `usePurchaseOrderForm` composable and a `PurchaseOrderFormFields` component (duplicate-material guard, cost prefill, live total); update goes through `PUT admin/purchase-orders/{order}` with Inertia method spoofing.
+- 10 new feature tests (line-set replacement + totals, supplier preservation, ordered/received/cancelled refusal incl. a stale-page scenario and a no-op integrity check, prefill payload, admin-only + 403 guards, endpoint validation, edit-then-submit flow, board flag) — 122 tests green overall.
+
 ### Added (Phase 2 — today warehouse report)
 - Admin report page (`admin/inventory/report`, admin-only, linked from the nav as «گزارش انبار»): today's StockMovement ledger aggregated by movement type. A balance pipe sums inflow (purchase + returns + positive adjustments) against outflow (consumption + waste + negative adjustments) with the net day figure; each type renders its own section with movement count, signed type total, and per-material lines (sorted by magnitude) in the material's unit.
 - `WarehouseReportService::todayByType()` reads the append-only ledger as the single source of truth with the app-timezone day boundary; zero-activity types still appear for a complete picture.
