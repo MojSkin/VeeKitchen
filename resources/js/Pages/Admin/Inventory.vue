@@ -443,13 +443,21 @@ function itemUnitLabel(id) {
                                     </span>
                                 </div>
                             </div>
-                            <button
-                                type="button"
-                                class="glass-flat shrink-0 cursor-pointer rounded-xl px-4 py-2 text-sm transition hover:bg-white/10"
-                                @click="startRecipe(product)"
-                            >
-                                ویرایش فرمول
-                            </button>
+                            <div class="flex shrink-0 flex-col gap-2">
+                                <button
+                                    type="button"
+                                    class="glass-flat cursor-pointer rounded-xl px-4 py-2 text-sm transition hover:bg-white/10"
+                                    @click="startRecipe(product)"
+                                >
+                                    ویرایش فرمول
+                                </button>
+                                <a
+                                    :href="route('admin.products.recipe-versions', product.id)"
+                                    class="cursor-pointer text-center text-xs opacity-50 transition hover:opacity-90"
+                                >
+                                    تاریخچه
+                                </a>
+                            </div>
                         </div>
 
                         <div
