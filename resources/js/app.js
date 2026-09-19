@@ -3,7 +3,7 @@ import './echo';
 import { createApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
-import { ZiggyVue } from 'ziggy-js/vue';
+import { ZiggyVue } from 'ziggy-js';
 import { registerServiceWorker } from './pwa';
 
 const appName = import.meta.env.VITE_APP_NAME || 'وی‌کیچن';

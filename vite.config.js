@@ -29,7 +29,7 @@ export default defineConfig(({ mode }) => {
         },
         server: {
             host: 'localhost',
-            port: Number(env.VITE_PORT ?? 5180),
+            port: Number(env.VITE_PORT ?? 8120),
             strictPort: true,
             hmr: {
                 host: 'localhost',
