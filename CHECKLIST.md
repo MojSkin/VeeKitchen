@@ -15,28 +15,37 @@
 - [x] ثبت قوانین گیت در .ai/rules
 - [x] README فارسی + CHECKLIST + CHANGELOG
 - [x] ساخت برنچ‌های development / testing / production و پوش اولیه به origin
+- [x] بازبینی README و CHANGELOG با قوانین گیت و اصلاح ناهماهنگی‌ها
+- [x] تگ v0.1.0 روی کامیت پایه main
 
-## مستندسازی و نگهداشت
+## فاز ۱ — هستهٔ سفارش / پرداخت / KDS / Real-time ✅
 
-- [x] بازبینی README و CHANGELOG با قوانین گیت (.ai/rules/git.md) و اصلاح ناهماهنگی‌ها
+> برنامه: docs/PHASE-1-PLAN.md — روی برنچ feature/phase1-order-core اجرا و به development مرج شد.
 
-## فاز ۱ — هستهٔ سفارش / پرداخت / KDS / Real-time
+- [x] گام ۰ — میدلورها (role, auth, guest, Inertia sharing) + لاگین/خروج
+- [x] گام ۱ — Factoryها (همه ۸ مدل) + DatabaseSeeder (شعبه، کاربران، منو، میزها)
+- [x] گام ۲ — مدل‌ها با روابط/casts + OrderService (place/markPaid/transition) + QuoteService
+- [x] گام ۳ — OrderPlaced/OrderPaid/OrderStatusChanged + مجوز کانال‌ها (BranchAccess helper)
+- [x] گام ۴ — منوی عمومی/میز، رزرو QR، سبد localStorage، ثبت سفارش با throttle، پیگیری زنده
+- [x] گام ۵ — صندوق: صف «منتظر پرداخت»، دریافت وجه، رسید ۸۰mm، تکرار اعلان، آزادسازی میز
+- [x] گام ۶ — KDS دوستونه با رنگ فوریت زمانی و اکشن‌های start/ready
+- [x] گام ۷ — نمایشگر تحویل عمومی + TTS (Web Speech با fallback فایل صوتی)
+- [x] گام ۸ — شبکه میزها + صفحه QR + چرخش توکن
+- [x] گام ۹ — ۳۶ تست (Money، ثبت سفارش، جریان پرداخت، ترنزیشن‌ها، مجوز کانال‌ها) — همه سبز
+- [x] گام ۱۰ — Build سبز، Pint، سه کامیت مرحله‌ای، مرج به development، پوش
 
-> برنامه کامل: docs/PHASE-1-PLAN.md — پس از تایید کارفرما گام‌به‌گام تیک می‌خورد.
+## 🐛 باگ‌های امنیتی رفع‌شده حین تست
 
-- [ ] گام ۰ — میدلورها، لاگین، HandleInertiaRequests
-- [ ] گام ۱ — Factory و Seeder
-- [ ] گام ۲ — مدل‌ها + OrderService + QuoteService
-- [ ] گام ۳ — رویدادهای Broadcast + مجوز کانال‌ها
-- [ ] گام ۴ — جریان مشتری (QR → منو → سبد → ثبت)
-- [ ] گام ۵ — صندوق (پرداخت، شماره‌گذاری، رسید HTML)
-- [ ] گام ۶ — KDS آشپزخانه
-- [ ] گام ۷ — نمایشگر «آماده تحویل» + TTS
-- [ ] گام ۸ — پنل میزها با QR
-- [ ] گام ۹ — تست‌های Feature/Unit
-- [ ] گام ۱۰ — جمع‌بندی، Pint، کامیت مرحله‌ای
+- [x] مجوز کانال `order.{id}`: مقایسه `$user?->id === $order->customer_id` با کاربر مهمان (null) همیشه false بود ولی مقایسه null===null در مسیر دیگری true می‌داد — با چک صریح not-null رفع شد.
 
-## پشتیبانی از VeePanel (منبع قابل استفاده)
+## ⏳ پیگیری‌های بعدی فاز ۱ (اختیاری/تزئینی)
 
-- [ ] تصمیم: کپی کامپوننت‌های موردنیاز از VeePanel (مثل VeeButton، VeeDialog، VeeDataTable) هنگام ساخت صفحات پنل — در گام‌های ۵ تا ۸ فاز ۱
-- [ ] بررسی composableهای قابل استفاده: useVeeServerErrors، useVeeToast
+- [ ] فایل‌های صوتی واقعی `public/audio/tts/*.mp3` (اعداد فارسی) — TTS فعلاً فقط speech mode دارد و fallback منتظر فایل‌هاست
+- [ ] اتصال Echo در Cashier برای آپدیت زنده صف «منتظر پرداخت» (الان فقط `.order.placed` → reload)
+- [ ] صفحه Dashboard و منوی ناوبری بین پنل‌ها
+- [ ] Wake Lock برای نمایشگر تحویل (جلوگیری از خاموشی صفحه)
+
+## فاز ۲ — انبار و فرمول تولید
+
+- [ ] مایگریشن‌ها: inventory_items، product_recipes، cost_components، suppliers، purchase_orders، waste_logs، stock_movements
+- [ ] کسر خودکار متریال هنگام markPaid (idempotent از طریق StockMovement)
