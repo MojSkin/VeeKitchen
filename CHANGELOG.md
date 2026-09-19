@@ -18,6 +18,13 @@ A version is **released** only when this cycle completes:
 
 Direct pushes to `main` or `production` never happen; merges from `testing` only.
 
+## [Unreleased]
+
+### Added (Phase 2 — today warehouse report)
+- Admin report page (`admin/inventory/report`, admin-only, linked from the nav as «گزارش انبار»): today's StockMovement ledger aggregated by movement type. A balance pipe sums inflow (purchase + returns + positive adjustments) against outflow (consumption + waste + negative adjustments) with the net day figure; each type renders its own section with movement count, signed type total, and per-material lines (sorted by magnitude) in the material's unit.
+- `WarehouseReportService::todayByType()` reads the append-only ledger as the single source of truth with the app-timezone day boundary; zero-activity types still appear for a complete picture.
+- 4 new feature tests (type grouping with signed per-item aggregation, yesterday isolation, admin-only guard, payload shape) — 112 tests green overall.
+
 ## [0.3.0] — 2026-09-20
 
 ### Added (Phase 2 — new purchase order form)
