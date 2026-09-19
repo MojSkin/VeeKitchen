@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php -v)",
+      "Bash(composer -V)",
+      "Bash(npm -v)",
+      "Bash(mysql --version)",
+      "Bash(composer create-project *)",
+      "Bash(composer require *)",
+      "Bash(php artisan *)",
+      "Bash(npm install *)",
+      "Bash(node -e \"const p=require\\('./package.json'\\);console.log\\(JSON.stringify\\({...p.dependencies,...p.devDependencies},null,1\\)\\)\")",
+      "Bash(node -e \"console.log\\(require\\('./node_modules/@inertiajs/vue3/package.json'\\).version\\)\")",
+      "Bash(node -e \"console.log\\(require\\('./node_modules/vue/package.json'\\).version\\)\")"
+    ]
+  }
+}

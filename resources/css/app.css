@@ -1,0 +1,180 @@
+@import '@fontsource-variable/vazirmatn';
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+    --font-sans: 'Vazirmatn Variable', 'Vazirmatn', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+        'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Saffron — primary brand accent */
+    --color-saffron-50: #fff8ed;
+    --color-saffron-100: #ffefd4;
+    --color-saffron-200: #ffdba8;
+    --color-saffron-300: #ffc171;
+    --color-saffron-400: #ff9d38;
+    --color-saffron-500: #fe8012;
+    --color-saffron-600: #ef6508;
+    --color-saffron-700: #c64c09;
+    --color-saffron-800: #9d3c10;
+    --color-saffron-900: #7e3310;
+    --color-saffron-950: #441806;
+
+    /* Pistachio — secondary accent, used for "ready"/success states */
+    --color-pistachio-50: #f1fcf5;
+    --color-pistachio-100: #dff9e8;
+    --color-pistachio-200: #c0f1d2;
+    --color-pistachio-300: #8ee5ae;
+    --color-pistachio-400: #55d083;
+    --color-pistachio-500: #2eb662;
+    --color-pistachio-600: #20944d;
+    --color-pistachio-700: #1c7440;
+    --color-pistachio-800: #1b5c36;
+    --color-pistachio-900: #184c2f;
+    --color-pistachio-950: #072a17;
+
+    /* Night — the plum/indigo canvas the glass sits on */
+    --color-night-50: #f5f5fa;
+    --color-night-100: #e9e9f2;
+    --color-night-200: #d3d3e4;
+    --color-night-300: #b0b0cd;
+    --color-night-400: #8686b1;
+    --color-night-500: #676798;
+    --color-night-600: #53537d;
+    --color-night-700: #444465;
+    --color-night-800: #2c2c43;
+    --color-night-900: #1c1c2c;
+    --color-night-950: #0e0e18;
+
+    --radius-glass: 1.25rem;
+
+    --shadow-glass: 0 8px 32px -8px rgb(14 14 24 / 0.35), 0 2px 8px -2px rgb(14 14 24 / 0.2);
+    --shadow-glass-lg: 0 24px 64px -16px rgb(14 14 24 / 0.45), 0 4px 16px -4px rgb(14 14 24 / 0.25);
+
+    --ease-glass: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+    :root {
+        --glass-tint: 255 255 255;
+        --glass-alpha: 0.62;
+        --glass-border: 255 255 255;
+        --glass-border-alpha: 0.7;
+        --glass-blur: 20px;
+        color-scheme: light;
+    }
+
+    .dark {
+        --glass-tint: 255 255 255;
+        --glass-alpha: 0.06;
+        --glass-border: 255 255 255;
+        --glass-border-alpha: 0.12;
+        --glass-blur: 24px;
+        color-scheme: dark;
+    }
+
+    html {
+        -webkit-tap-highlight-color: transparent;
+        scrollbar-gutter: stable;
+    }
+
+    body {
+        @apply min-h-dvh bg-night-50 font-sans text-night-900 antialiased;
+        @apply dark:bg-night-950 dark:text-night-50;
+        text-wrap: pretty;
+    }
+
+    /* Aurora wash behind every screen — what makes the glass read as glass. */
+    body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        background:
+            radial-gradient(60rem 40rem at 15% -10%, var(--color-saffron-200) 0%, transparent 60%),
+            radial-gradient(50rem 36rem at 95% 5%, var(--color-pistachio-200) 0%, transparent 55%),
+            radial-gradient(45rem 45rem at 50% 110%, var(--color-night-200) 0%, transparent 60%);
+        opacity: 0.75;
+    }
+
+    .dark body::before {
+        background:
+            radial-gradient(60rem 40rem at 15% -10%, var(--color-saffron-900) 0%, transparent 60%),
+            radial-gradient(50rem 36rem at 95% 5%, var(--color-pistachio-950) 0%, transparent 55%),
+            radial-gradient(45rem 45rem at 50% 110%, var(--color-night-800) 0%, transparent 60%);
+        opacity: 0.85;
+    }
+
+    /* Persian digits everywhere numbers are rendered as text. */
+    :lang(fa) {
+        font-variant-numeric: tabular-nums;
+    }
+
+    ::selection {
+        @apply bg-saffron-300/60 text-night-950;
+    }
+
+    *:focus-visible {
+        @apply outline-2 outline-offset-2 outline-saffron-500;
+    }
+}
+
+@utility glass {
+    background-color: rgb(var(--glass-tint) / var(--glass-alpha));
+    border: 1px solid rgb(var(--glass-border) / var(--glass-border-alpha));
+    backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+    box-shadow: var(--shadow-glass);
+}
+
+@utility glass-flat {
+    background-color: rgb(var(--glass-tint) / calc(var(--glass-alpha) * 0.6));
+    border: 1px solid rgb(var(--glass-border) / calc(var(--glass-border-alpha) * 0.7));
+    backdrop-filter: blur(calc(var(--glass-blur) * 0.6)) saturate(150%);
+    -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.6)) saturate(150%);
+}
+
+@utility glass-raised {
+    background-color: rgb(var(--glass-tint) / calc(var(--glass-alpha) * 1.15));
+    border: 1px solid rgb(var(--glass-border) / var(--glass-border-alpha));
+    backdrop-filter: blur(calc(var(--glass-blur) * 1.4)) saturate(200%);
+    -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 1.4)) saturate(200%);
+    box-shadow: var(--shadow-glass-lg);
+}
+
+/* Hairline highlight along the top edge, the way real glass catches light. */
+@utility glass-sheen {
+    position: relative;
+    isolation: isolate;
+
+    &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        pointer-events: none;
+        background: linear-gradient(to bottom, rgb(255 255 255 / 0.35), transparent 35%);
+        mix-blend-mode: overlay;
+    }
+}
+
+@utility safe-bottom {
+    padding-bottom: max(env(safe-area-inset-bottom), 0.75rem);
+}
+
+@utility safe-top {
+    padding-top: max(env(safe-area-inset-top), 0.75rem);
+}
+
+@utility no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
