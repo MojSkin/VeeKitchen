@@ -27,6 +27,7 @@ class OrderService
 {
     public function __construct(
         protected QuoteService $quotes,
+        protected InventoryService $inventory,
     ) {}
 
     /**
@@ -122,12 +123,18 @@ class OrderService
             $order->paid_at = now();
             $order->save();
 
-            $order->payments()->create([
+            $payment = $order->payments()->create([
                 'received_by' => $receiver?->id ?? Auth::id(),
                 'method' => $method,
                 'amount' => $order->total,
                 'paid_at' => $order->paid_at,
             ]);
+
+            // Phase 2 — deduct recipe materials from the warehouse ledger.
+            // Runs inside the same transaction; a stock shortfall rolls the
+            // whole payment back.
+            $order->loadMissing('items');
+            $this->inventory->deductForOrder($order, $payment, $receiver);
 
             OrderPaid::dispatch($order);
 
@@ -173,6 +180,7 @@ class OrderService
         $order->save();
 
         if ($target === OrderStatus::Cancelled) {
+            $this->inventory->returnForCancelledOrder($order, $actor);
             $this->freeTableIfIdle($order);
         }
 
