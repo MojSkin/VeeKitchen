@@ -10,6 +10,7 @@ use App\Models\InventoryItem;
 use App\Models\Product;
 use App\Models\ProductRecipe;
 use App\Models\StockMovement;
+use App\Services\CostCalculator;
 use App\Services\InventoryService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -41,6 +42,7 @@ class InventoryController extends Controller
                 'name' => $item->name,
                 'unit' => $item->unit->value,
                 'unit_label' => $item->unit->label(),
+                'unit_cost' => $item->unit_cost,
                 'current_stock' => (float) $item->current_stock,
                 'low_stock_threshold' => (float) $item->low_stock_threshold,
                 'is_low' => $item->isLowStock(),
@@ -48,21 +50,25 @@ class InventoryController extends Controller
                 'qr_label' => $item->qr_label,
             ]);
 
+        $calculator = app(CostCalculator::class);
+
         $products = Product::query()
             ->where('branch_id', $branch->id)
             ->orderBy('name')
-            ->with('recipes.inventoryItem')
+            ->with(['recipes.inventoryItem', 'costComponents'])
             ->get()
-            ->map(fn (Product $product) => [
+            ->map(fn (Product $product) => array_merge([
                 'id' => $product->id,
                 'name' => $product->name,
+                'sale_price' => $product->price,
                 'recipes' => $product->recipes->map(fn (ProductRecipe $recipe) => [
                     'inventory_item_id' => $recipe->inventory_item_id,
                     'name' => $recipe->inventoryItem->name,
                     'unit_label' => $recipe->inventoryItem->unit->label(),
+                    'unit_cost' => $recipe->inventoryItem->unit_cost,
                     'quantity_per_unit' => (float) $recipe->quantity_per_unit,
                 ])->values(),
-            ]);
+            ], $this->costSummary($calculator, $product)));
 
         return Inertia::render('Admin/Inventory', [
             'branch' => ['id' => $branch->id, 'name' => $branch->name],
@@ -71,6 +77,29 @@ class InventoryController extends Controller
             'units' => collect(MeasurementUnit::cases())
                 ->map(fn (MeasurementUnit $unit) => ['value' => $unit->value, 'label' => $unit->label()]),
         ]);
+    }
+
+    /**
+     * The pricing block shared by the board and the recipe editor.
+     *
+     * @return array<string, mixed>
+     */
+    protected function costSummary(CostCalculator $calculator, Product $product): array
+    {
+        $cost = $calculator->forProduct($product);
+
+        return [
+            'material_cost' => $cost['material_cost']->toman,
+            'cost_price' => $cost['cost_price']->toman,
+            'suggested_sale_price' => $cost['suggested_sale_price']->toman,
+            'components' => collect($cost['components'])->map(fn (array $component) => [
+                'label' => $component['label'],
+                'type' => $component['type'],
+                'value' => $component['value'],
+                'amount' => $component['amount']->toman,
+                'running' => $component['running']->toman,
+            ])->values(),
+        ];
     }
 
     /**

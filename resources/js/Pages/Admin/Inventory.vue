@@ -3,7 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { router, usePage } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import StockVial from '@/Components/StockVial.vue';
-import { faDigits } from '@/lib/format';
+import { faDigits, formatToman } from '@/lib/format';
 
 const props = defineProps({
     branch: { type: Object, required: true },
@@ -145,6 +145,25 @@ function submitNewItem() {
         },
     );
 }
+
+/* ── Cost preview ────────────────────────────────────────────── */
+
+/**
+ * Live material cost of the recipe being edited: Σ(line qty × unit cost).
+ * Components apply on top of it in the saved chain; this is just the base.
+ */
+const liveMaterialCost = computed(() => {
+    if (editingProductId.value === null) {
+        return 0;
+    }
+
+    return recipeLines.value.reduce((total, line) => {
+        const item = items.value.find((candidate) => candidate.id === Number(line.inventory_item_id));
+        const quantity = parseFloat(line.quantity_per_unit) || 0;
+
+        return total + (item ? item.unit_cost * quantity : 0);
+    }, 0);
+});
 
 /* ── Recipe editor ───────────────────────────────────────────── */
 
@@ -390,8 +409,8 @@ function itemUnitLabel(id) {
                         :key="product.id"
                         class="glass rounded-glass p-4"
                     >
-                        <div class="flex items-center justify-between gap-3">
-                            <div>
+                        <div class="flex flex-wrap items-center justify-between gap-3">
+                            <div class="min-w-0">
                                 <h3 class="font-bold">{{ product.name }}</h3>
                                 <p class="mt-0.5 text-xs opacity-60">
                                     <template v-if="product.recipes.length === 0">
@@ -401,6 +420,28 @@ function itemUnitLabel(id) {
                                         {{ product.recipes.map((line) => line.name).join('، ') }}
                                     </template>
                                 </p>
+                                <div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+                                    <span class="opacity-60">
+                                        متریال:
+                                        <b class="opacity-100">{{ formatToman(product.material_cost) }}</b>
+                                    </span>
+                                    <span class="opacity-60">
+                                        تمام‌شده:
+                                        <b class="text-saffron-600 dark:text-saffron-400">{{ formatToman(product.cost_price) }}</b>
+                                    </span>
+                                    <span class="opacity-60">
+                                        فروش پیشنهادی:
+                                        <b class="text-pistachio-600 dark:text-pistachio-400">{{ formatToman(product.suggested_sale_price) }}</b>
+                                    </span>
+                                    <span
+                                        v-if="product.sale_price > 0 && product.cost_price > 0"
+                                        class="font-bold"
+                                        :class="product.sale_price >= product.cost_price ? 'text-pistachio-600 dark:text-pistachio-400' : 'text-red-500'"
+                                    >
+                                        حاشیه:
+                                        {{ faDigits(Math.round(((product.sale_price - product.cost_price) / product.sale_price) * 100)) }}٪
+                                    </span>
+                                </div>
                             </div>
                             <button
                                 type="button"
@@ -461,6 +502,18 @@ function itemUnitLabel(id) {
                                     حذف
                                 </button>
                             </div>
+
+                            <p class="glass-flat rounded-xl px-3 py-2 text-xs">
+                                هزینهٔ متریال این ترکیب:
+                                <b>{{ formatToman(liveMaterialCost) }}</b>
+                                تومان
+                                <template v-if="product.components.length > 0">
+                                    <span class="opacity-60">
+                                        + اجزا ({{ product.components.map((component) => component.label).join('، ') }})
+                                        طبق زنجیرهٔ ذخیره‌شده اعمال می‌شود
+                                    </span>
+                                </template>
+                            </p>
 
                             <div class="flex flex-wrap gap-2 pt-1">
                                 <button

@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Enums\MeasurementUnit;
 use App\Models\Branch;
+use App\Models\CostComponent;
 use App\Models\InventoryItem;
 use App\Models\MenuCategory;
 use App\Models\Product;
@@ -155,6 +156,19 @@ class DatabaseSeeder extends Seeder
                 'quantity_per_unit' => $perUnit,
             ]);
         }
+
+        // Purchase costs for the recipe materials, then a worked cost chain:
+        // packaging (cost-bearing) → 30% management profit → 9% tax.
+        InventoryItem::query()->where('name', 'آرد گندم')->update(['unit_cost' => 60_000]);
+        InventoryItem::query()->where('name', 'پنیر موزارلا')->update(['unit_cost' => 320_000]);
+        InventoryItem::query()->where('name', 'سس گوجه')->update(['unit_cost' => 180_000]);
+
+        CostComponent::factory()->forProduct($margherita)->costBearing()->fixed(4_000)
+            ->create(['label' => 'بسته‌بندی', 'position' => 1]);
+        CostComponent::factory()->forProduct($margherita)->percent(30)
+            ->create(['label' => 'سود مدیریت', 'position' => 2]);
+        CostComponent::factory()->forProduct($margherita)->percent(9)
+            ->create(['label' => 'مالیات بر ارزش افزوده', 'position' => 3]);
 
         // Two purchase orders so the procurement board is alive on first run:
         // one draft awaiting submission, one already with the supplier.
