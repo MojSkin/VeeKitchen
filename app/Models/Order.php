@@ -97,6 +97,14 @@ class Order extends Model
     }
 
     /**
+     * @return HasMany<StockMovement, $this>
+     */
+    public function stockMovements(): HasMany
+    {
+        return $this->hasMany(StockMovement::class);
+    }
+
+    /**
      * The tracked total as a Money value object.
      */
     public function totalMoney(): Money

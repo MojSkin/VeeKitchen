@@ -45,7 +45,16 @@
 - [ ] صفحه Dashboard و منوی ناوبری بین پنل‌ها
 - [ ] Wake Lock برای نمایشگر تحویل (جلوگیری از خاموشی صفحه)
 
-## فاز ۲ — انبار و فرمول تولید
+## فاز ۲ — انبار و فرمول تولید 🚧
 
-- [ ] مایگریشن‌ها: inventory_items، product_recipes، cost_components، suppliers، purchase_orders، waste_logs، stock_movements
-- [ ] کسر خودکار متریال هنگام markPaid (idempotent از طریق StockMovement)
+> هستهٔ انبار روی برنچ feature/phase2-inventory-core پیاده شد و به development مرج شد.
+
+- [x] مایگریشن‌های هستهٔ انبار: inventory_items (واحد، موجودی، آستانه هشدار، qr_label)، product_recipes (مقدار مصرف به‌ازای هر واحد محصول)، stock_movements (دفتر کلید لاگ‌محور با کلید یکتای payment_id + inventory_item_id)
+- [x] مدل‌ها و enumها: InventoryItem، ProductRecipe، StockMovement، MeasurementUnit، StockMovementType + فکتوری و استیت‌های کمکی
+- [x] کسر خودکار متریال هنگام markPaid از طریق InventoryService::deductForOrder — idempotent با کلید یکتای دفتر کل؛ کسری موجودی کل تراکنش پرداخت را rollback می‌کند
+- [x] بازگشت متریال به انبار هنگام کنسل کردن سفارشِ پرداخت‌شده (returnForCancelledOrder)
+- [x] ۹ تست فیچر جدید (کسر، تجمیع چند خط، idempotency، محصول بی‌فرمول، کسری موجودی، هشدار موجودی کم، بازگشت کنسلی) — مجموع ۴۵ تست سبز
+- [ ] مایگریشن‌های تکمیلی: cost_components، suppliers، purchase_orders، waste_logs
+- [ ] قیمت تمام‌شده (Cost Price) و قیمت فروش پیشنهادی از فرمول + اجزای هزینه
+- [ ] سرویس خرید/رسید انبار و ثبت Waste
+- [ ] UI مدیریت انبار و فرمول تولید در پنل ادمین
