@@ -2,7 +2,7 @@
 import { computed, ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { faDigits } from '@/lib/format';
+import { faDigits, formatToman } from '@/lib/format';
 
 const props = defineProps({
     range: { type: Object, required: true },
@@ -237,6 +237,25 @@ function refresh() {
                         </p>
                     </div>
                 </div>
+
+                <!-- Rial value of the range's turnover -->
+                <div
+                    v-if="report.inflow_value > 0 || report.outflow_value > 0"
+                    class="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-white/10 pt-4 text-sm"
+                >
+                    <p class="opacity-70">
+                        ارزش خروجی:
+                        <strong class="text-red-500 dark:text-red-400">{{ formatToman(report.outflow_value) }}</strong>
+                        تومان
+                        <span class="opacity-50">(مصرف + ضایعات)</span>
+                    </p>
+                    <p class="opacity-70">
+                        ارزش ورودی:
+                        <strong class="text-pistachio-600 dark:text-pistachio-400">{{ formatToman(report.inflow_value) }}</strong>
+                        تومان
+                        <span class="opacity-50">(خرید + بازگشت + اصلاح)</span>
+                    </p>
+                </div>
             </section>
 
             <!-- Per-type breakdown -->
@@ -262,7 +281,8 @@ function refresh() {
                         <thead>
                             <tr class="text-xs opacity-50">
                                 <th class="pb-2 text-right font-medium">متریال</th>
-                                <th class="pb-2 text-left font-medium">جمع مقدار</th>
+                                <th class="pb-2 text-right font-medium">جمع مقدار</th>
+                                <th class="pb-2 text-left font-medium">ارزش ریالی</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -272,9 +292,15 @@ function refresh() {
                                 class="border-t border-white/5"
                             >
                                 <td class="py-2 font-bold">{{ item.name }}</td>
-                                <td class="py-2 text-left">
+                                <td class="py-2">
                                     {{ quantity(item.total) }}
                                     <span class="opacity-50">{{ item.unit_label }}</span>
+                                </td>
+                                <td class="py-2 text-left">
+                                    <span v-if="item.value > 0" :title="`بر اساس آخرین قیمت خرید`">
+                                        {{ formatToman(item.value) }} تومان
+                                    </span>
+                                    <span v-else class="opacity-40">—</span>
                                 </td>
                             </tr>
                         </tbody>

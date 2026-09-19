@@ -20,6 +20,10 @@ Direct pushes to `main` or `production` never happen; merges from `testing` only
 
 ## [Unreleased]
 
+### Added (Phase 2 — rial value in the warehouse report)
+- The warehouse report now prices the turnover: every type table gained an «ارزش ریالی» column (|quantity| × the material's last purchase `unit_cost`, always a positive Toman figure — money direction is carried by the type, not a minus sign; materials without a recorded cost show «—»), rows sort by value instead of raw quantity, and a summary strip under the balance pipe totals the range's outflow (consumption + waste) against inflow (purchase + returns + adjustments).
+- 1 new feature test (per-item/type values with a zero-cost material and the outflow/inflow totals) — 133 tests green overall.
+
 ### Added (Phase 2 — warehouse report date ranges)
 - The warehouse report gained a date-range selector: presets «امروز» / «۷ روز گذشته» / «این هفته» (Saturday-start, Jalali standard) / «این ماه» / «بازهٔ دلخواه» with from/to date inputs. Custom ranges tolerate swapped bounds and fall back to today on garbled dates; a 92-day cap keeps a runaway range from dragging the whole ledger into memory. The page reloads the report and range props in place (Inertia partial reload) and the header/labels follow the active range.
 - `WarehouseReportService::rangeByType(branch, from, to)` generalizes the today report to arbitrary inclusive day boundaries (the report payload now carries `from`/`to`); `todayByType` remains as a thin wrapper.
