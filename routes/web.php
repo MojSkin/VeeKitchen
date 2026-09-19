@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\InventoryController;
+use App\Http\Controllers\Admin\PurchaseOrderController;
 use App\Http\Controllers\Admin\TableController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Cashier\CashierController;
@@ -66,10 +67,16 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
         ->name('admin.inventory.items.toggle');
     Route::post('/inventory/items/{item}/waste', [InventoryController::class, 'storeWaste'])
         ->name('admin.inventory.items.waste');
-    Route::post('/purchase-orders/{order}/receive', [InventoryController::class, 'receivePurchaseOrder'])
-        ->name('admin.purchase-orders.receive');
     Route::post('/products/{product}/recipe', [InventoryController::class, 'saveRecipe'])
         ->name('admin.products.recipe.save');
+
+    Route::get('/purchase-orders', [PurchaseOrderController::class, 'index'])->name('admin.purchase-orders');
+    Route::post('/purchase-orders/{order}/submit', [PurchaseOrderController::class, 'submit'])
+        ->name('admin.purchase-orders.submit');
+    Route::post('/purchase-orders/{order}/receive', [PurchaseOrderController::class, 'receive'])
+        ->name('admin.purchase-orders.receive');
+    Route::post('/purchase-orders/{order}/cancel', [PurchaseOrderController::class, 'cancel'])
+        ->name('admin.purchase-orders.cancel');
 });
 
 // ── Public pickup display (no login) ────────────────────────────────────────
