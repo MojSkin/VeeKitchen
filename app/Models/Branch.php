@@ -66,4 +66,12 @@ class Branch extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    /**
+     * @return HasMany<InventoryItem, $this>
+     */
+    public function inventoryItems(): HasMany
+    {
+        return $this->hasMany(InventoryItem::class);
+    }
 }

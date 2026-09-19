@@ -31,6 +31,13 @@ Direct pushes to `main` or `production` never happen; merges from `testing` only
 - Models `InventoryItem`, `ProductRecipe`, `StockMovement` with relations, casts, and factories (+ `lowStock`, `withoutQr`, `consumption`, `purchase` states); `Order::stockMovements()` relation.
 - Phase 2 test suite: 9 new feature tests (deduction, multi-line aggregation, idempotent replay, recipe-less products, shortfall rollback, low-stock detection, cancellation return) — 45 tests green overall.
 
+### Added (Phase 2 — admin inventory & recipe UI)
+- Admin inventory workbench (`admin/inventory`, admin-only): material board with `StockVial` glass meters — a filled tube with a dashed threshold marker and green/amber/red tone — manual stock correction (positive or negative deltas, always ledgered as `adjustment`), new-material creation, activation toggle, and a per-product recipe editor (add/remove lines, item + amount per unit, duplicate guard).
+- `StockChanged` broadcast on the new private `branch.{id}.inventory` channel fires from payment deduction, cancellation returns, and manual adjustments — the board repaints the affected vial live without a refresh; `AppLayout` gained a role-aware nav bar (tables / inventory / cashier for admins).
+- `InventoryController` with `role:admin` guard, branch scoping, validation, `StockMovement` records for every correction, and `StockChanged` dispatch; `Branch::inventoryItems()` relation.
+- Seeder now provisions 8 Persian materials (mozzarella sits exactly on its alert threshold to demo a live low-stock vial) and a worked margherita recipe (flour 0.4 kg, mozzarella 0.15 kg, sauce 0.1 l per unit).
+- 9 new feature tests (guards, listing payload, adjustment ledger + event, negative-stock rejection, recipe replace semantics, duplicate-line guard, payment → stock event) — 63 tests green overall.
+
 ### Added (Phase 2 — warehouse entities)
 - Migrations: `suppliers`, `purchase_orders` (status machine draft → ordered → received/cancelled, receive metadata), `purchase_order_items` (quantity + unit cost), `waste_logs` (reason + expiry date), `cost_components` (ordered fixed-Toman or basis-point percent surcharges on material cost).
 - Models `Supplier`, `PurchaseOrder` (with `recalculateTotal()`), `PurchaseOrderItem`, `WasteLog`, `CostComponent`; enums `PurchaseOrderStatus` and `CostComponentType`; factories with Persian demo data and helper states.
