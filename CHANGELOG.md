@@ -31,6 +31,10 @@ Direct pushes to `main` or `production` never happen; merges from `testing` only
 - Models `InventoryItem`, `ProductRecipe`, `StockMovement` with relations, casts, and factories (+ `lowStock`, `withoutQr`, `consumption`, `purchase` states); `Order::stockMovements()` relation.
 - Phase 2 test suite: 9 new feature tests (deduction, multi-line aggregation, idempotent replay, recipe-less products, shortfall rollback, low-stock detection, cancellation return) — 45 tests green overall.
 
+### Added (Phase 2 — cost display on the product form)
+- The admin inventory board now shows pricing on every product card: material cost, cost price, suggested sale price (all 100-Toman-ceilinged) and the margin percentage against the real sale price (green when healthy, red when selling below cost). The recipe editor gained the full component breakdown (packaging → management profit → tax, each step's amount and running total) plus a **live material-cost preview** that recalculates as lines are edited. Board payload exposes `unit_cost` for materials and recipes; the seeder ships a worked margherita cost chain (4,000 packaging + 30% profit + 9% tax).
+- 3 new feature tests (payload summary, ceiling compliance, unit-cost exposure) — 90 tests green overall.
+
 ### Added (Phase 2 — admin purchase orders board)
 - Admin purchase orders page (`admin/purchase-orders`, admin-only): per-order cards with supplier, status chip and status counters, contextual actions — submit-to-supplier on drafts, «دریافت شد» on submitted orders (stock rises), cancel on draft/ordered — plus an expandable item-lines table; stale-status actions return a friendly flash error instead of an exception. The receive endpoint moved from `InventoryController` to the dedicated `PurchaseOrderController`; the `AppLayout` nav gained a «خرید» link and the seeder ships two demo orders.
 - 7 new feature tests (guards, payload, submit/receive/cancel incl. stale-status refusals) — 87 tests green overall.
