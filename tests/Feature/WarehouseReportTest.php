@@ -67,6 +67,41 @@ test('the service groups today movements by type with signed totals and per-item
         ->and($byType['return']['total'])->toBe(0.0);
 });
 
+test('rial values follow the material unit cost and are always positive', function () {
+    [$branch] = reportLab();
+    $service = app(WarehouseReportService::class);
+
+    $flour = ledgerMaterial($branch, 'آرد گندم', MeasurementUnit::Kilogram);
+    $flour->update(['unit_cost' => 60_000]);
+
+    $cheese = ledgerMaterial($branch, 'پنیر موزارلا', MeasurementUnit::Kilogram);
+    $cheese->update(['unit_cost' => 320_000]);
+
+    // Freebie with no recorded cost yet — value must be zero, never negative.
+    $free = ledgerMaterial($branch, 'رب گوجه', MeasurementUnit::Liter);
+    $free->update(['unit_cost' => 0]);
+
+    ledger($branch, $flour, 'consumption', -0.4);   // 24_000
+    ledger($branch, $flour, 'consumption', -0.15);  // 9_000
+    ledger($branch, $cheese, 'consumption', -0.3);  // 96_000
+    ledger($branch, $flour, 'purchase', 20.0);      // 1_200_000
+    ledger($branch, $cheese, 'adjustment', -1.0);   // 320_000
+    ledger($branch, $free, 'consumption', -2.0);    // 0
+
+    $report = $service->todayByType($branch);
+    $byType = collect($report['types'])->keyBy('type');
+
+    expect($byType['consumption']['items'][0]['name'])->toBe('پنیر موزارلا')
+        ->and($byType['consumption']['items'][0]['value'])->toBe(96_000)
+        ->and($byType['consumption']['items'][1]['value'])->toBe(33_000)
+        ->and($byType['consumption']['items'][2]['value'])->toBe(0)
+        ->and($byType['consumption']['value'])->toBe(129_000)
+        ->and($byType['purchase']['value'])->toBe(1_200_000)
+        ->and($byType['adjustment']['value'])->toBe(320_000)
+        ->and($report['outflow_value'])->toBe(129_000)
+        ->and($report['inflow_value'])->toBe(1_520_000);
+});
+
 test('yesterday rows never leak into the today report', function () {
     [$branch] = reportLab();
     $service = app(WarehouseReportService::class);

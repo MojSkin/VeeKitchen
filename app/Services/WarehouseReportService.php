@@ -24,7 +24,7 @@ class WarehouseReportService
      *
      * @param  Carbon  $from  inclusive start-of-day boundary
      * @param  Carbon  $to  inclusive end-of-day boundary
-     * @return array{types: array<int, array{type: string, label: string, total: float, movements: int, items: array<int, array{name: string, unit_label: string, total: float}>}>, movement_count: int, generated_at: string, from: string, to: string}
+     * @return array{types: array<int, array{type: string, label: string, total: float, movements: int, value: int, items: array<int, array{name: string, unit_label: string, total: float, value: int}>}>, movement_count: int, generated_at: string, from: string, to: string, inflow_value: int, outflow_value: int}
      */
     public function rangeByType(Branch $branch, Carbon $from, Carbon $to): array
     {
@@ -38,13 +38,17 @@ class WarehouseReportService
 
         // Group by type first, then per material inside each type. Quantities
         // keep their ledger sign — consumption/waste are negative — so each
-        // type's `total` shows the real net effect on the warehouse.
+        // type's `total` shows the real net effect on the warehouse. `value`
+        // fields are always positive Toman figures (|quantity| × unit_cost):
+        // negative quantities are money flowing OUT of the warehouse, so the
+        // UI colours them by the type's direction, not by a minus sign.
         $types = collect(StockMovementType::cases())
             ->map(fn (StockMovementType $type): array => [
                 'type' => $type->value,
                 'label' => $type->label(),
                 'total' => 0.0,
                 'movements' => 0,
+                'value' => 0,
                 'items' => [],
             ])
             ->keyBy('type');
@@ -53,9 +57,11 @@ class WarehouseReportService
             $type = $types[$movement->type->value];
             $amount = (float) $movement->quantity;
             $item = $movement->inventoryItem;
+            $value = (int) round(abs($amount) * (float) $item->unit_cost);
 
             $type['total'] += $amount;
             $type['movements'] += 1;
+            $type['value'] += $value;
 
             $lineKey = $item->name;
             $items = collect($type['items']);
@@ -67,20 +73,27 @@ class WarehouseReportService
                     'name' => $item->name,
                     'unit_label' => $item->unit->label(),
                     'total' => $amount,
+                    'value' => $value,
                 ]);
             } else {
                 $items->transform(fn (array $line) => $line['name'] === $lineKey
-                    ? ['name' => $line['name'], 'unit_label' => $line['unit_label'], 'total' => $line['total'] + $amount]
+                    ? ['name' => $line['name'], 'unit_label' => $line['unit_label'], 'total' => $line['total'] + $amount, 'value' => $line['value'] + $value]
                     : $line);
             }
 
             $type['items'] = $items
-                ->sortByDesc(fn (array $line) => abs((float) $line['total']))
+                ->sortByDesc(fn (array $line) => $line['value'])
                 ->values()
                 ->all();
 
             $types[$movement->type->value] = $type;
         }
+
+        $outflowValue = collect([StockMovementType::Consumption, StockMovementType::Waste])
+            ->sum(fn (StockMovementType $type) => $types[$type->value]['value']);
+
+        $inflowValue = collect([StockMovementType::Purchase, StockMovementType::Return, StockMovementType::Adjustment])
+            ->sum(fn (StockMovementType $type) => $types[$type->value]['value']);
 
         return [
             'types' => $types->values()->all(),
@@ -88,6 +101,8 @@ class WarehouseReportService
             'generated_at' => now()->toIso8601String(),
             'from' => $from->copy()->startOfDay()->toIso8601String(),
             'to' => $to->copy()->endOfDay()->toIso8601String(),
+            'outflow_value' => $outflowValue,
+            'inflow_value' => $inflowValue,
         ];
     }
 
