@@ -20,6 +20,17 @@ Direct pushes to `main` or `production` never happen; merges from `testing` only
 
 ## [Unreleased]
 
+### Added (Phase 2 — inventory & recipes core)
+- Warehouse migrations: `inventory_items` (unit, current stock, low-stock threshold, unique QR label), `product_recipes` (material amount per product unit), `stock_movements` (append-only ledger with a unique `(payment_id, inventory_item_id)` consumption key).
+- `App\Services\InventoryService`:
+  - `deductForOrder()` — auto-deducts recipe materials when an order is paid; **idempotent via the unique ledger key**, so a replayed payment never deducts twice.
+  - A stock shortfall rolls back the entire payment transaction (no payment record, no status change).
+  - `returnForCancelledOrder()` — paid-then-cancelled orders return their materials to stock, also guarded against double-return.
+- `OrderService::markPaid()` now records the payment and deducts materials inside the same locked transaction; `transition()` to `Cancelled` triggers the stock return.
+- New enums: `MeasurementUnit` (g/kg/ml/l/piece with compatible-unit conversion helpers) and `StockMovementType` (purchase/consumption/waste/adjustment/return).
+- Models `InventoryItem`, `ProductRecipe`, `StockMovement` with relations, casts, and factories (+ `lowStock`, `withoutQr`, `consumption`, `purchase` states); `Order::stockMovements()` relation.
+- Phase 2 test suite: 9 new feature tests (deduction, multi-line aggregation, idempotent replay, recipe-less products, shortfall rollback, low-stock detection, cancellation return) — 45 tests green overall.
+
 ### Added (Phase 1 — order/payment/KDS/real-time core)
 - Middleware stack completed: `role` guard, Inertia shared props (auth user, flash), auth/guest redirects.
 - `App\Services\OrderService` — the single gateway for order state:
