@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
+use App\Services\WarehouseReportExportService;
 use App\Services\WarehouseReportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class WarehouseReportController extends Controller
 {
@@ -17,6 +19,7 @@ class WarehouseReportController extends Controller
 
     public function __construct(
         protected WarehouseReportService $reports,
+        protected WarehouseReportExportService $exports,
     ) {}
 
     /**
@@ -38,6 +41,33 @@ class WarehouseReportController extends Controller
             'range' => $range,
             'report' => $report,
         ]);
+    }
+
+    /**
+     * File exports of the same report: `format=xlsx` streams an Excel
+     * workbook, `format=print` returns a self-contained print page.
+     */
+    public function export(Request $request): StreamedResponse
+    {
+        $branch = Branch::query()->orderBy('id')->firstOrFail();
+
+        [$from, $to] = $this->resolveRange($request);
+
+        if ($request->query('format') === 'print') {
+            return response()->streamDownload(
+                fn () => print $this->exports->printView($branch, $from, $to),
+                'warehouse-report.html',
+                ['Content-Type' => 'text/html; charset=UTF-8'],
+            );
+        }
+
+        $filename = $this->exports->filename($branch, $from, $to);
+
+        return response()->streamDownload(
+            fn () => print $this->exports->xlsx($branch, $from, $to),
+            $filename,
+            ['Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+        );
     }
 
     /**

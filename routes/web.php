@@ -65,6 +65,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
 
     Route::get('/inventory', [InventoryController::class, 'index'])->name('admin.inventory');
     Route::get('/inventory/report', [WarehouseReportController::class, 'index'])->name('admin.inventory.report');
+    Route::get('/inventory/report/export', [WarehouseReportController::class, 'export'])->name('admin.inventory.report.export');
     Route::post('/inventory/items', [InventoryController::class, 'storeItem'])->name('admin.inventory.items.store');
     Route::post('/inventory/items/{item}/adjust', [InventoryController::class, 'adjustStock'])
         ->name('admin.inventory.items.adjust');
