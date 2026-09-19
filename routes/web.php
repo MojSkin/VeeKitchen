@@ -64,6 +64,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
         ->name('admin.inventory.items.adjust');
     Route::post('/inventory/items/{item}/toggle', [InventoryController::class, 'toggleItem'])
         ->name('admin.inventory.items.toggle');
+    Route::post('/inventory/items/{item}/waste', [InventoryController::class, 'storeWaste'])
+        ->name('admin.inventory.items.waste');
+    Route::post('/purchase-orders/{order}/receive', [InventoryController::class, 'receivePurchaseOrder'])
+        ->name('admin.purchase-orders.receive');
     Route::post('/products/{product}/recipe', [InventoryController::class, 'saveRecipe'])
         ->name('admin.products.recipe.save');
 });
