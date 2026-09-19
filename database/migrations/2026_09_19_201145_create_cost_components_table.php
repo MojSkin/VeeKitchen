@@ -19,6 +19,9 @@ return new class extends Migration
             $table->string('label');
             $table->string('type')->default(CostComponentType::Fixed->value);
             $table->unsignedBigInteger('value')->comment('Fixed: Toman; Percent: basis points, 100 = 1%');
+
+            /** True when the component inflates the COST PRICE, not just the sale price. */
+            $table->boolean('is_cost')->default(false);
             $table->unsignedInteger('position')->default(0);
             $table->timestamps();
 

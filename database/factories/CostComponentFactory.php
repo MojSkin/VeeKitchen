@@ -24,6 +24,7 @@ class CostComponentFactory extends Factory
             'label' => $this->faker->unique()->randomElement($labels),
             'type' => $this->faker->randomElement([CostComponentType::Fixed, CostComponentType::Percent]),
             'value' => $this->faker->randomElement([10_000, 20_000, 500, 900]),
+            'is_cost' => false,
             'position' => $this->faker->numberBetween(0, 20),
         ];
     }
@@ -36,6 +37,11 @@ class CostComponentFactory extends Factory
     public function fixed(int $toman): static
     {
         return $this->state(fn () => ['type' => CostComponentType::Fixed, 'value' => $toman]);
+    }
+
+    public function costBearing(): static
+    {
+        return $this->state(fn () => ['is_cost' => true]);
     }
 
     public function percent(float $percent): static
