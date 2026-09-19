@@ -90,6 +90,41 @@ function toggleItem(item) {
     );
 }
 
+const wasteForms = ref({});
+
+function wasteFor(item) {
+    if (!wasteForms.value[item.id]) {
+        wasteForms.value[item.id] = { quantity: '', reason: '', expired_on: '' };
+    }
+
+    return wasteForms.value[item.id];
+}
+
+function submitWaste(item) {
+    const form = wasteFor(item);
+    busyItemId.value = item.id;
+
+    router.post(
+        route('admin.inventory.items.waste', item.id),
+        {
+            quantity: form.quantity,
+            reason: form.reason,
+            expired_on: form.expired_on || null,
+        },
+        {
+            preserveScroll: true,
+            onSuccess: () => {
+                form.quantity = '';
+                form.reason = '';
+                form.expired_on = '';
+            },
+            onFinish: () => {
+                busyItemId.value = null;
+            },
+        },
+    );
+}
+
 const newItem = ref({ name: '', unit: 'kg', current_stock: '', low_stock_threshold: '' });
 const addingItem = ref(false);
 
@@ -251,6 +286,43 @@ function itemUnitLabel(id) {
                                     @click="toggleItem(item)"
                                 >
                                     {{ item.is_active ? 'غیرفعال کردن' : 'فعال کردن' }}
+                                </button>
+                            </div>
+                        </details>
+
+                        <details class="mt-2">
+                            <summary class="cursor-pointer text-xs opacity-60 transition hover:opacity-90">
+                                ثبت ضایعات
+                            </summary>
+                            <div class="mt-2 space-y-2">
+                                <input
+                                    v-model="wasteFor(item).quantity"
+                                    type="number"
+                                    step="0.001"
+                                    min="0.001"
+                                    placeholder="مقدار ضایعات"
+                                    class="glass-flat w-full rounded-xl px-3 py-2 text-sm outline-none"
+                                    dir="ltr"
+                                >
+                                <input
+                                    v-model="wasteFor(item).reason"
+                                    type="text"
+                                    placeholder="دلیل (مثلاً تاریخ انقضا)"
+                                    class="glass-flat w-full rounded-xl px-3 py-2 text-sm outline-none"
+                                >
+                                <input
+                                    v-model="wasteFor(item).expired_on"
+                                    type="date"
+                                    class="glass-flat w-full rounded-xl px-3 py-2 text-sm outline-none"
+                                    aria-label="تاریخ انقضا (اختیاری)"
+                                >
+                                <button
+                                    type="button"
+                                    class="w-full cursor-pointer rounded-xl bg-red-500/90 px-3 py-2 text-sm font-bold text-white transition hover:bg-red-600 disabled:opacity-40"
+                                    :disabled="busyItemId === item.id"
+                                    @click="submitWaste(item)"
+                                >
+                                    ثبت ضایعات و کسر موجودی
                                 </button>
                             </div>
                         </details>

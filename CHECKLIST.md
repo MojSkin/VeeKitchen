@@ -62,5 +62,7 @@
 - [x] مدل‌ها و enumهای تکمیلی: Supplier، PurchaseOrder (دستگاه وضعیت Draft→Ordered→Received/Cancelled)، PurchaseOrderItem، WasteLog، CostComponent (درصد بر حسب بیس‌پوینت) + PurchaseOrderStatus و CostComponentType
 - [x] دفاع در سطح دیتابیس: FK های restrict برای حفظ تاریخچهٔ انبار (supplier، متریال، محصول با فرمول/اجزای هزینه)
 - [x] UI مدیریت انبار و فرمول تولید در پنل ادمین: صفحهٔ admin/inventory با کارت‌های StockVial (سنجاق موجودی + خط نشانگر آستانه)، اصلاح موجودی با ثبت در دفتر کل، افزودن/فعال‌سازی متریال، ویرایشگر فرمول محصول؛ به‌روزرسانی زنده با کانال branch.{id}.inventory و رویداد StockChanged (کسر پرداخت هم اکنون broadcast می‌شود)
-- [ ] سرویس دریافت خرید (افزایش موجودی + StockMovement) و ثبت Waste
+- [x] سرویس رسید خرید: PurchaseOrderService با submit/receive/cancel — دریافت فقط از وضعیت Ordered، داخل تراکنش قفل‌شده، با ردیف Purchase در دفتر کل و broadcast
+- [x] ثبت ضایعات: InventoryService::logWaste — کسر موجودی با قفل ردیف، ردیف Waste در دفتر کل، ثبت WasteLog، و رد موجودی منفی
+- [x] هشدار موجودی کم: نوتیفیکیشن دیتابیسی LowStockAlert برای ادمین‌های شعبه هنگام عبور موجودی به زیر آستانه (پس از کسر پرداخت و ضایعات)
 - [ ] قیمت تمام‌شده (Cost Price) و قیمت فروش پیشنهادی از فرمول + اجزای هزینه
