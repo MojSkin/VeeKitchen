@@ -5,7 +5,18 @@ All notable changes to **VeeKitchen** are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-> نسخه بعدی بر اساس این فایل تگ می‌خورد. برای انتخاب نسخهٔ هر انتشار، از کارفرما پرسیده می‌شود.
+> نسخهٔ بعدی بر اساس این فایل تگ می‌خورد. برای انتخاب نسخهٔ هر انتشار، از کارفرما پرسیده می‌شود — هرگز حدس زده نمی‌شود.
+
+## Release workflow
+
+A version is **released** only when this cycle completes:
+
+1. Feature branch merged into `development` → `development` merged into `testing`.
+2. Full test suite green on `testing`.
+3. `testing` merged into `main` **and** `production`.
+4. The `Unreleased` section below is renamed to the new version with its date, and the version is **tagged on `main`** (e.g. `v0.2.0`).
+
+Direct pushes to `main` or `production` never happen; merges from `testing` only.
 
 ## [Unreleased]
 
@@ -19,6 +30,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - README replaced (stock Laravel → project-specific, Persian).
+- README and CHANGELOG aligned with the git workflow rules (branch diagram with tag/release flow, roadmap carries version tags, demo accounts flagged as pending the seeder).
+
+### Docs
+- `README.md` — branch model section now documents the full release flow (`development → testing → main + production → tag`).
 
 ## [0.1.0] — 2026-09-19 (Initial)
 
@@ -34,3 +49,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Route `/` now renders the Inertia `Welcome` page (the deleted `welcome` Blade view broke the app and tests).
 - `ziggy-js` import moved from the removed `ziggy-js/vue` subpath to the module root (2.x exports).
 - Empty `.vue` page stubs replaced with minimal valid SFCs so `vite build` passes; added `pwa.js` service-worker registrar.
+
+[Unreleased]: https://github.com/MojSkin/VeeKitchen/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/MojSkin/VeeKitchen/commits/v0.1.0
