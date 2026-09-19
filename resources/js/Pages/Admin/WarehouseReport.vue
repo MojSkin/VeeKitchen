@@ -139,6 +139,19 @@ const rangeHeadline = computed(() => {
 function refresh() {
     reload({ range: activePreset.value });
 }
+
+/**
+ * Export links carry the *server-resolved* bounds of the visible report
+ * (not the raw preset) so the file always matches what's on screen.
+ */
+function exportUrl(format) {
+    return route('admin.inventory.report.export', {
+        format,
+        range: props.range.preset,
+        from: toDateInput(props.range.from),
+        to: toDateInput(props.range.to),
+    });
+}
 </script>
 
 <template>
@@ -199,15 +212,34 @@ function refresh() {
                 </div>
             </section>
 
-            <section v-if="activePreset !== 'today'" class="mb-4 text-left">
-                <button
-                    type="button"
-                    class="glass-flat cursor-pointer rounded-xl px-4 py-2 text-xs transition hover:bg-white/10"
-                    :disabled="applying"
-                    @click="refresh"
-                >
-                    به‌روزرسانی
-                </button>
+            <section class="mb-4 text-left">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <button
+                        type="button"
+                        class="glass-flat cursor-pointer rounded-xl px-4 py-2 text-xs transition hover:bg-white/10"
+                        :disabled="applying"
+                        @click="refresh"
+                    >
+                        به‌روزرسانی
+                    </button>
+
+                    <div class="flex flex-wrap items-center gap-2">
+                        <a
+                            :href="exportUrl('xlsx')"
+                            class="glass-flat cursor-pointer rounded-xl px-4 py-2 text-xs font-bold transition hover:bg-white/10"
+                        >
+                            دانلود اکسل (XLSX)
+                        </a>
+                        <a
+                            :href="exportUrl('print')"
+                            target="_blank"
+                            rel="noopener"
+                            class="glass-flat cursor-pointer rounded-xl px-4 py-2 text-xs font-bold transition hover:bg-white/10"
+                        >
+                            نسخهٔ چاپی
+                        </a>
+                    </div>
+                </div>
             </section>
 
             <!-- Balance pipe -->

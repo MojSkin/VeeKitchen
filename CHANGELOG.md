@@ -20,6 +20,11 @@ Direct pushes to `main` or `production` never happen; merges from `testing` only
 
 ## [Unreleased]
 
+### Added (Phase 2 — warehouse report XLSX & print export)
+- The warehouse report gained file exports of exactly what's on screen: `GET admin/inventory/report/export?format=xlsx` streams an Excel workbook (sheet «خلاصه» with the range bounds, ledger row count, outflow/inflow values and the per-type summary; sheet «اقلام» with one row per material line) and `format=print` opens a self-contained A4 print document (RTL, print CSS, auto print dialog, valuation footnote). Both honor the active date range, are admin-only, and the XLSX filename carries the range (`warehouse-report-2026-09-20.xlsx` / `..._from_to.xlsx`).
+- New dependency: `phpoffice/phpspreadsheet` (v5.10, MIT) — added with the product owner's approval for Excel output.
+- 4 new feature tests (workbook round-trip via the PhpSpreadsheet reader incl. RTL sheets and Persian headers, print HTML contents, custom-range bounds in payload + filename, admin-only guard) — 137 tests green overall.
+
 ### Added (Phase 2 — rial value in the warehouse report)
 - The warehouse report now prices the turnover: every type table gained an «ارزش ریالی» column (|quantity| × the material's last purchase `unit_cost`, always a positive Toman figure — money direction is carried by the type, not a minus sign; materials without a recorded cost show «—»), rows sort by value instead of raw quantity, and a summary strip under the balance pipe totals the range's outflow (consumption + waste) against inflow (purchase + returns + adjustments).
 - 1 new feature test (per-item/type values with a zero-cost material and the outflow/inflow totals) — 133 tests green overall.
