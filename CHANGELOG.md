@@ -31,6 +31,10 @@ Direct pushes to `main` or `production` never happen; merges from `testing` only
 - Models `InventoryItem`, `ProductRecipe`, `StockMovement` with relations, casts, and factories (+ `lowStock`, `withoutQr`, `consumption`, `purchase` states); `Order::stockMovements()` relation.
 - Phase 2 test suite: 9 new feature tests (deduction, multi-line aggregation, idempotent replay, recipe-less products, shortfall rollback, low-stock detection, cancellation return) — 45 tests green overall.
 
+### Added (Phase 2 — low-stock alert counter)
+- Admin top-bar bell (`StockAlertBell`): unread low-stock alert counter with a red badge, an expandable list of the latest alerts (title, message, relative time), «همه خوانده شد» (`POST /admin/notifications/read-all`), and **live refresh** — the bell re-pulls the shared `stockAlerts` prop whenever the branch's `branch.{id}.inventory` channel reports a stock move. The shared Inertia prop ships only to admins (count + 6 latest); everyone else gets `null`.
+- 5 new feature tests (admin-only prop and endpoint, counter raise/clear, end-to-end payment → alert → read-all) — 95 tests green overall.
+
 ### Added (Phase 2 — cost display on the product form)
 - The admin inventory board now shows pricing on every product card: material cost, cost price, suggested sale price (all 100-Toman-ceilinged) and the margin percentage against the real sale price (green when healthy, red when selling below cost). The recipe editor gained the full component breakdown (packaging → management profit → tax, each step's amount and running total) plus a **live material-cost preview** that recalculates as lines are edited. Board payload exposes `unit_cost` for materials and recipes; the seeder ships a worked margherita cost chain (4,000 packaging + 30% profit + 9% tax).
 - 3 new feature tests (payload summary, ceiling compliance, unit-cost exposure) — 90 tests green overall.
