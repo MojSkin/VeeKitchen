@@ -5,10 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\PurchaseOrderStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
+use App\Models\InventoryItem;
 use App\Models\PurchaseOrder;
+use App\Models\Supplier;
 use App\Services\PurchaseOrderService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 use InvalidArgumentException;
@@ -58,6 +61,78 @@ class PurchaseOrderController extends Controller
                     'label' => $status->label(),
                 ]),
         ]);
+    }
+
+    /**
+     * The new-order form: active suppliers + purchasable materials with
+     * their units and last purchase costs.
+     */
+    public function create(): Response
+    {
+        $branch = Branch::query()->orderBy('id')->firstOrFail();
+
+        return Inertia::render('Admin/PurchaseOrderCreate', [
+            'suppliers' => Supplier::query()->where('is_active', true)->orderBy('name')->get()
+                ->map(fn (Supplier $supplier) => [
+                    'id' => $supplier->id,
+                    'name' => $supplier->name,
+                ]),
+            'items' => InventoryItem::query()
+                ->where('branch_id', $branch->id)
+                ->where('is_active', true)
+                ->orderBy('name')
+                ->get()
+                ->map(fn (InventoryItem $item) => [
+                    'id' => $item->id,
+                    'name' => $item->name,
+                    'unit_label' => $item->unit->label(),
+                    'unit_cost' => $item->unit_cost,
+                ]),
+        ]);
+    }
+
+    /**
+     * Store a new draft purchase order with its lines.
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'supplier_id' => ['required', 'integer', 'exists:suppliers,id'],
+            'notes' => ['nullable', 'string', 'max:1000'],
+            'lines' => ['required', 'array', 'min:1'],
+            'lines.*.inventory_item_id' => ['required', 'integer', 'exists:inventory_items,id'],
+            'lines.*.quantity' => ['required', 'numeric', 'gt:0'],
+            'lines.*.unit_cost' => ['nullable', 'integer', 'min:0'],
+        ]);
+
+        $lines = collect($validated['lines']);
+
+        if ($lines->pluck('inventory_item_id')->duplicates()->isNotEmpty()) {
+            throw ValidationException::withMessages([
+                'lines' => 'هر متریال فقط یک‌بار در سفارش می‌آید؛ برای اصلاح مقدار همان خط را ویرایش کنید.',
+            ]);
+        }
+
+        $branch = Branch::query()->orderBy('id')->firstOrFail();
+        $supplier = Supplier::query()->findOrFail((int) $validated['supplier_id']);
+
+        try {
+            $order = $this->purchaseOrders->create(
+                $branch,
+                $supplier,
+                $validated['lines'],
+                $request->user(),
+                $validated['notes'] ?? null,
+            );
+        } catch (InvalidArgumentException $e) {
+            return back()
+                ->withErrors(['supplier_id' => $e->getMessage()])
+                ->withInput();
+        }
+
+        return redirect()
+            ->route('admin.purchase-orders')
+            ->with('success', "پیش‌نویس سفارش خرید برای «{$supplier->name}» ساخته شد.");
     }
 
     /**
