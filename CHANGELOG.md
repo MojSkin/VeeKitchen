@@ -18,7 +18,7 @@ A version is **released** only when this cycle completes:
 
 Direct pushes to `main` or `production` never happen; merges from `testing` only.
 
-## [Unreleased]
+## [0.2.0] — 2026-09-19
 
 ### Added (Phase 2 — inventory & recipes core)
 - Warehouse migrations: `inventory_items` (unit, current stock, low-stock threshold, unique QR label), `product_recipes` (material amount per product unit), `stock_movements` (append-only ledger with a unique `(payment_id, inventory_item_id)` consumption key).
@@ -81,5 +81,6 @@ Direct pushes to `main` or `production` never happen; merges from `testing` only
 - `ziggy-js` import moved from the removed `ziggy-js/vue` subpath to the module root (2.x exports).
 - Empty `.vue` page stubs replaced with minimal valid SFCs so `vite build` passes; added `pwa.js` service-worker registrar.
 
-[Unreleased]: https://github.com/MojSkin/VeeKitchen/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/MojSkin/VeeKitchen/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/MojSkin/VeeKitchen/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/MojSkin/VeeKitchen/commits/v0.1.0
