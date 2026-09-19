@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\OrderStatus;
 use App\Enums\StockMovementType;
+use App\Events\StockChanged;
 use App\Models\InventoryItem;
 use App\Models\Order;
 use App\Models\Payment;
@@ -55,6 +56,7 @@ class InventoryService
             if ($deducted !== null) {
                 $item->current_stock = (float) $item->current_stock + $deducted;
                 $item->save();
+                StockChanged::dispatch($item->refresh());
             }
         }
     }
@@ -102,6 +104,7 @@ class InventoryService
 
             $item->current_stock = (float) $item->current_stock + $requirement['amount'];
             $item->save();
+            StockChanged::dispatch($item->refresh());
 
             StockMovement::create([
                 'inventory_item_id' => $item->id,
