@@ -9,10 +9,8 @@ use App\Models\Branch;
 use App\Models\InventoryItem;
 use App\Models\Product;
 use App\Models\ProductRecipe;
-use App\Models\PurchaseOrder;
 use App\Models\StockMovement;
 use App\Services\InventoryService;
-use App\Services\PurchaseOrderService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -25,7 +23,6 @@ class InventoryController extends Controller
 {
     public function __construct(
         protected InventoryService $inventory,
-        protected PurchaseOrderService $purchaseOrders,
     ) {}
 
     /**
@@ -209,15 +206,5 @@ class InventoryController extends Controller
         );
 
         return back()->with('success', "ضایعات «{$item->name}» ثبت شد.");
-    }
-
-    /**
-     * Receive a submitted purchase order: stock rises, ledger fills.
-     */
-    public function receivePurchaseOrder(Request $request, PurchaseOrder $order): RedirectResponse
-    {
-        $this->purchaseOrders->receive($order, $request->user());
-
-        return back()->with('success', "سفارش خرید شماره {$order->id} دریافت و موجودی‌ها به‌روز شد.");
     }
 }

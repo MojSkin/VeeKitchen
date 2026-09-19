@@ -8,8 +8,11 @@ use App\Models\InventoryItem;
 use App\Models\MenuCategory;
 use App\Models\Product;
 use App\Models\ProductRecipe;
+use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderItem;
 use App\Models\RestaurantTable;
 use App\Models\Setting;
+use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -152,5 +155,25 @@ class DatabaseSeeder extends Seeder
                 'quantity_per_unit' => $perUnit,
             ]);
         }
+
+        // Two purchase orders so the procurement board is alive on first run:
+        // one draft awaiting submission, one already with the supplier.
+        $flour = InventoryItem::query()->where('name', 'آرد گندم')->firstOrFail();
+        $cheese = InventoryItem::query()->where('name', 'پنیر موزارلا')->firstOrFail();
+        $supplier = Supplier::factory()->create(['name' => 'پخش مواد غذایی نور']);
+
+        $draft = PurchaseOrder::factory()->for($branch)->for($supplier)->create([
+            'created_by' => User::query()->where('email', 'admin@veekitchen.local')->firstOrFail(),
+            'notes' => 'برای پوشش هفتهٔ آینده',
+        ]);
+        PurchaseOrderItem::factory()->forOrder($draft)->forItem($flour, 30.0, 62_000)->create();
+        PurchaseOrderItem::factory()->forOrder($draft)->forItem($cheese, 8.0, 340_000)->create();
+        $draft->recalculateTotal();
+
+        $ordered = PurchaseOrder::factory()->ordered()->for($branch)->for($supplier)->create([
+            'created_by' => User::query()->where('email', 'admin@veekitchen.local')->firstOrFail(),
+        ]);
+        PurchaseOrderItem::factory()->forOrder($ordered)->forItem($cheese, 10.0, 330_000)->create();
+        $ordered->recalculateTotal();
     }
 }
