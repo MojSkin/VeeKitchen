@@ -20,6 +20,11 @@ Direct pushes to `main` or `production` never happen; merges from `testing` only
 
 ## [Unreleased]
 
+### Added (Phase 2 — warehouse report date ranges)
+- The warehouse report gained a date-range selector: presets «امروز» / «۷ روز گذشته» / «این هفته» (Saturday-start, Jalali standard) / «این ماه» / «بازهٔ دلخواه» with from/to date inputs. Custom ranges tolerate swapped bounds and fall back to today on garbled dates; a 92-day cap keeps a runaway range from dragging the whole ledger into memory. The page reloads the report and range props in place (Inertia partial reload) and the header/labels follow the active range.
+- `WarehouseReportService::rangeByType(branch, from, to)` generalizes the today report to arbitrary inclusive day boundaries (the report payload now carries `from`/`to`); `todayByType` remains as a thin wrapper.
+- 4 new feature tests (last7 span incl. day-3 vs day-8 isolation, Saturday week start, custom bounds with a 00:00 day boundary, garbled-date fallback + swapped-range tolerance) — 132 tests green overall.
+
 ### Added (Phase 2 — admin dashboard)
 - Admin dashboard page (`admin/dashboard`, linked as «داشبورد» from the admin nav): a 14-day sales chart (hand-rolled SVG line/area — daily revenue + order counts, tooltip per point, zero days stay on the axis), today's KPI cards (paid revenue, placed orders, average ticket), the open-order pipeline (awaiting payment → ready), the dining-room table snapshot, and a low-stock mini-board with per-material threshold bars linking to the inventory panel.
 - Revenue truth comes from `payments.paid_at` (joined through the branch's orders); the day boundary follows the app timezone, and an empty branch renders an all-zero dashboard without errors.

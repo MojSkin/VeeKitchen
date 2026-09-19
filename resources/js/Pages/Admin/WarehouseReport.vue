@@ -1,13 +1,84 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { faDigits } from '@/lib/format';
 
 const props = defineProps({
-    branch: { type: Object, required: true },
+    range: { type: Object, required: true },
     report: { type: Object, required: true },
 });
+
+/* ── Range selector ───────────────────────────────────────────── */
+
+const presets = [
+    { value: 'today', label: 'امروز' },
+    { value: 'last7', label: '۷ روز گذشته' },
+    { value: 'week', label: 'این هفته' },
+    { value: 'month', label: 'این ماه' },
+    { value: 'custom', label: 'بازهٔ دلخواه' },
+];
+
+const activePreset = ref(props.range.preset);
+const customFrom = ref(toDateInput(props.report.from));
+const customTo = ref(toDateInput(props.report.to));
+const applying = ref(false);
+
+function toDateInput(iso) {
+    return new Date(iso).toISOString().slice(0, 10);
+}
+
+function isoOf(dateInput) {
+    const [year, month, day] = dateInput.split('-').map(Number);
+
+    return new Date(Date.UTC(year, month - 1, day, 12)).toISOString();
+}
+
+function applyPreset(preset) {
+    if (preset === 'custom') {
+        activePreset.value = 'custom';
+
+        return; // Wait for the user to pick dates and press «اعمال».
+    }
+
+    activePreset.value = preset;
+    reload({ range: preset });
+}
+
+function applyCustom() {
+    if (!customFrom.value || !customTo.value) {
+        return;
+    }
+
+    reload({ range: 'custom', from: customFrom.value, to: customTo.value });
+}
+
+function reload(params) {
+    applying.value = true;
+
+    router.get(
+        route('admin.inventory.report'),
+        params,
+        {
+            preserveScroll: true,
+            preserveState: true,
+            only: ['range', 'report'],
+            onFinish: () => {
+                applying.value = false;
+            },
+        },
+    );
+}
+
+// Keep local inputs in sync when the server resolves a different range.
+watch(
+    () => props.range,
+    (next) => {
+        activePreset.value = next.preset;
+        customFrom.value = toDateInput(next.from);
+        customTo.value = toDateInput(next.to);
+    },
+);
 
 /* ── Day balance pipe (signature) ─────────────────────────────── */
 
@@ -47,43 +118,110 @@ function quantity(amount) {
     return (amount < 0 ? '−' : amount > 0 ? '+' : '') + faDigits(value);
 }
 
+function formatDay(iso) {
+    const date = new Date(iso);
+
+    return faDigits(`${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`);
+}
+
+const rangeHeadline = computed(() => {
+    if (props.range.preset === 'today') {
+        return 'گزارش انبار — امروز';
+    }
+
+    if (props.range.preset === 'custom') {
+        return `گزارش انبار — از ${formatDay(props.range.from)} تا ${formatDay(props.range.to)}`;
+    }
+
+    return `گزارش انبار — ${props.range.label}`;
+});
+
 function refresh() {
-    router.reload({ only: ['report'], preserveScroll: true });
+    reload({ range: activePreset.value });
 }
 </script>
 
 <template>
     <AppLayout>
         <div class="mx-auto max-w-5xl px-4 py-6">
-            <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
-                <div>
-                    <h1 class="text-2xl font-bold">گزارش انبار — امروز</h1>
-                    <p class="mt-1 text-sm opacity-60">
-                        گردش امروز انبار «{{ branch.name }}» به تفکیک نوع حرکت ·
-                        {{ faDigits(report.movement_count) }} ردیف دفتر کل
-                    </p>
+            <header class="mb-4">
+                <h1 class="text-2xl font-bold">{{ rangeHeadline }}</h1>
+                <p class="mt-1 text-sm opacity-60">
+                    گردش انبار به تفکیک نوع حرکت ·
+                    {{ faDigits(report.movement_count) }} ردیف دفتر کل
+                </p>
+            </header>
+
+            <!-- Range controls -->
+            <section class="glass mb-4 rounded-glass p-4">
+                <div class="flex flex-wrap items-center gap-2">
+                    <button
+                        v-for="preset in presets"
+                        :key="preset.value"
+                        type="button"
+                        class="glass-flat cursor-pointer rounded-xl px-3 py-1.5 text-xs font-bold transition disabled:cursor-default"
+                        :class="activePreset === preset.value ? 'ring-1 ring-saffron-400/70' : 'hover:bg-white/10'"
+                        :disabled="applying"
+                        @click="applyPreset(preset.value)"
+                    >
+                        {{ preset.label }}
+                    </button>
                 </div>
+
+                <div
+                    v-if="activePreset === 'custom'"
+                    class="mt-3 flex flex-wrap items-end gap-2 border-t border-white/10 pt-3"
+                >
+                    <label class="block">
+                        <span class="mb-1 block text-xs opacity-60">از تاریخ</span>
+                        <input
+                            v-model="customFrom"
+                            type="date"
+                            class="glass-flat rounded-xl px-3 py-2 text-sm outline-none"
+                        >
+                    </label>
+                    <label class="block">
+                        <span class="mb-1 block text-xs opacity-60">تا تاریخ</span>
+                        <input
+                            v-model="customTo"
+                            type="date"
+                            class="glass-flat rounded-xl px-3 py-2 text-sm outline-none"
+                        >
+                    </label>
+                    <button
+                        type="button"
+                        class="cursor-pointer rounded-xl bg-saffron-500 px-4 py-2 text-sm font-bold text-white transition hover:bg-saffron-600 disabled:opacity-40"
+                        :disabled="applying || !customFrom || !customTo"
+                        @click="applyCustom"
+                    >
+                        اعمال
+                    </button>
+                </div>
+            </section>
+
+            <section v-if="activePreset !== 'today'" class="mb-4 text-left">
                 <button
                     type="button"
-                    class="glass-flat cursor-pointer rounded-xl px-4 py-2 text-sm font-bold transition hover:bg-white/10"
+                    class="glass-flat cursor-pointer rounded-xl px-4 py-2 text-xs transition hover:bg-white/10"
+                    :disabled="applying"
                     @click="refresh"
                 >
                     به‌روزرسانی
                 </button>
-            </header>
+            </section>
 
             <!-- Balance pipe -->
             <section class="glass mb-6 rounded-glass p-5">
                 <div class="flex flex-wrap items-center gap-3">
                     <div class="min-w-28 flex-1 rounded-2xl bg-pistachio-500/15 p-4 text-center">
-                        <p class="text-xs opacity-60">ورودی امروز</p>
+                        <p class="text-xs opacity-60">ورودی بازه</p>
                         <p class="mt-1 text-2xl font-bold text-pistachio-600 dark:text-pistachio-400">
                             {{ quantity(inflow) }}
                         </p>
                     </div>
                     <div class="text-2xl opacity-30" aria-hidden="true">←</div>
                     <div class="min-w-28 flex-1 rounded-2xl bg-red-500/15 p-4 text-center">
-                        <p class="text-xs opacity-60">خروجی امروز</p>
+                        <p class="text-xs opacity-60">خروجی بازه</p>
                         <p class="mt-1 text-2xl font-bold text-red-500 dark:text-red-400">
                             {{ quantity(-outflow) }}
                         </p>
@@ -147,7 +285,7 @@ function refresh() {
                     v-if="!hasMovements"
                     class="glass rounded-glass p-8 text-center opacity-60"
                 >
-                    امروز حرکتی در انبار ثبت نشده است.
+                    در این بازه حرکتی در انبار ثبت نشده است.
                 </p>
             </div>
         </div>

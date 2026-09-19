@@ -108,5 +108,98 @@ test('the page payload carries the branch, type summary and generated timestamp'
     expect($props['branch']['name'])->toBe($branch->name)
         ->and($props['report']['movement_count'])->toBe(1)
         ->and($props['report']['generated_at'])->toBeString()
+        ->and($props['range']['preset'])->toBe('today')
         ->and(collect($props['report']['types'])->firstWhere('type', 'waste')['items'][0]['total'])->toBe(-2.0);
+});
+
+test('the last7 preset spans seven days including older rows', function () {
+    [$branch, $admin] = reportLab();
+
+    $flour = ledgerMaterial($branch, 'آرد گندم', MeasurementUnit::Kilogram);
+
+    // Three days ago: inside last7 but outside today.
+    ledger($branch, $flour, 'consumption', -1.5);
+    StockMovement::query()->latest('id')->first()->forceFill(['created_at' => now()->subDays(3)])->save();
+    // Eight days ago: outside last7.
+    ledger($branch, $flour, 'waste', -9.0);
+    StockMovement::query()->latest('id')->first()->forceFill(['created_at' => now()->subDays(8)])->save();
+
+    $props = $this->actingAs($admin)
+        ->get(route('admin.inventory.report', ['range' => 'last7']))
+        ->viewData('page')['props'];
+
+    expect($props['range']['preset'])->toBe('last7')
+        ->and($props['report']['movement_count'])->toBe(1)
+        ->and(collect($props['report']['types'])->firstWhere('type', 'consumption')['movements'])->toBe(1);
+});
+
+test('the week preset starts on Saturday', function () {
+    [$branch, $admin] = reportLab();
+
+    $props = $this->actingAs($admin)
+        ->get(route('admin.inventory.report', ['range' => 'week']))
+        ->viewData('page')['props'];
+
+    $from = new DateTime($props['range']['from']);
+    $to = new DateTime($props['range']['to']);
+
+    expect((int) $from->format('N'))->toBe(6) // ISO: Saturday
+        ->and($props['range']['preset'])->toBe('week')
+        ->and($to->getTimestamp())->toBeGreaterThanOrEqual($from->getTimestamp());
+});
+
+test('the custom preset bounds the report to the requested days', function () {
+    [$branch, $admin] = reportLab();
+
+    $flour = ledgerMaterial($branch, 'آرد گندم', MeasurementUnit::Kilogram);
+
+    // Inside the requested window (yesterday).
+    ledger($branch, $flour, 'purchase', 12.0);
+    StockMovement::query()->latest('id')->first()->forceFill(['created_at' => now()->subDay()])->save();
+    // Outside (four days ago).
+    ledger($branch, $flour, 'consumption', -3.0);
+    StockMovement::query()->latest('id')->first()->forceFill(['created_at' => now()->subDays(4)])->save();
+
+    $from = now()->subDays(2)->toDateString();
+    $to = now()->toDateString();
+
+    $props = $this->actingAs($admin)
+        ->get(route('admin.inventory.report', ['range' => 'custom', 'from' => $from, 'to' => $to]))
+        ->viewData('page')['props'];
+
+    $fromProp = new DateTime($props['range']['from']);
+
+    expect($props['range']['preset'])->toBe('custom')
+        ->and($props['range']['from'])->toContain($from)
+        ->and($props['report']['movement_count'])->toBe(1)
+        ->and(collect($props['report']['types'])->firstWhere('type', 'purchase')['items'][0]['total'])->toBe(12.0)
+        // Day boundary: the from date starts at 00:00 local.
+        ->and($fromProp->format('H:i'))->toBe('00:00');
+});
+
+test('garbled custom dates fall back to today and swapped bounds are tolerated', function () {
+    [$branch, $admin] = reportLab();
+
+    $flour = ledgerMaterial($branch, 'آرد گندم', MeasurementUnit::Kilogram);
+    ledger($branch, $flour, 'consumption', -0.5);
+
+    // Garbled from-date → today fallback.
+    $props = $this->actingAs($admin)
+        ->get(route('admin.inventory.report', ['range' => 'custom', 'from' => 'not-a-date', 'to' => '2026-13-99']))
+        ->viewData('page')['props'];
+
+    expect($props['range']['preset'])->toBe('today')
+        ->and($props['report']['movement_count'])->toBe(1);
+
+    // Swapped bounds (to < from) are tolerated, not rejected.
+    $props = $this->actingAs($admin)
+        ->get(route('admin.inventory.report', [
+            'range' => 'custom',
+            'from' => now()->toDateString(),
+            'to' => now()->subDays(2)->toDateString(),
+        ]))
+        ->viewData('page')['props'];
+
+    expect($props['range']['preset'])->toBe('custom')
+        ->and($props['report']['movement_count'])->toBe(1);
 });
