@@ -20,6 +20,12 @@ Direct pushes to `main` or `production` never happen; merges from `testing` only
 
 ## [Unreleased]
 
+### Added (Discount management panel, menu badges and demo discounts — phase 3 step 2)
+- The admin discounts board (`admin/discounts`, nav «تخفیف‌ها») lists every branch discount with its live state (active / paused / scheduled), coupon chip, scope, minimum, window, and a used-count meter. The create form covers all domain knobs (type, scope + target, code, min order, window, total & per-user ceilings); unused discounts are editable inline and deletable, while used ones lock down to pause-only so recorded usage never drifts.
+- The guest menu now shows what discounts buy: an automatic-discount banner (entire-order chips only) and a best-badge on each product card — the strongest eligible automatic discount per product (entire-order vs category vs product), rendered server-side with Persian digits so percentage and fixed amounts can never be confused client-side. Coupons stay off the public menu; paused, expired and drained discounts drop out.
+- `DiscountSeeder` (wired into `DatabaseSeeder`): an automatic 15% entire-order festival, the `WELCOME` fixed-50k coupon on the drinks category, and a 20% margherita badge expiring in a week.
+- 8 new tests: board access control and live-state presentation, automatic + coupon creation (codes upper-cased before the unique check), scope-target enforcement, duplicate-code rejection, edit/toggle/delete lifecycle, used-discount lock, menu banner/badge selection with hidden paused/expired/coupon rows, and drained-discount removal.
+
 ### Fixed (Custom-range headline could show the wrong end date)
 - The custom-range headline formatted the server's end-of-day ISO boundary with *local* date getters, so in timezones ahead of UTC the «تا …» day slid to the next day (e.g. requested تا ۱۹ rendered as تا ۲۰) while the data, URL and from/to inputs stayed on the requested day. The formatter now reads UTC parts — the same basis as the data window — and a service test locks the `to` bound to the requested date.
 

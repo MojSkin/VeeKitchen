@@ -8,6 +8,7 @@ import PublicLayout from '@/Layouts/PublicLayout.vue';
 const props = defineProps({
     table: { type: Object, default: null },
     categories: { type: Array, required: true },
+    discounts: { type: Object, default: () => ({ banner: [], product_badges: {} }) },
 });
 
 const scope = computed(() => props.table?.qr_token ?? 'public');
@@ -74,6 +75,23 @@ function placeOrder() {
                 <p class="text-xl font-bold">{{ table.label }}</p>
             </div>
 
+            <!-- Discount banner: active automatic discounts -->
+            <div
+                v-if="discounts.banner.length > 0"
+                class="glass mt-4 flex flex-wrap items-center justify-center gap-2 rounded-glass p-4"
+            >
+                <p class="text-xs font-bold text-saffron-600 dark:text-saffron-400">🎉 تخفیف‌های فعال:</p>
+                <span
+                    v-for="discount in discounts.banner"
+                    :key="discount.id"
+                    class="rounded-full bg-saffron-500/15 px-3 py-1 text-xs font-bold text-saffron-600 dark:text-saffron-400"
+                >
+                    {{ discount.label }}
+                    <template v-if="discount.scope === 'entire_order'">روی کل سفارش</template>
+                    <template v-else-if="discount.target_name">روی {{ discount.target_name }}</template>
+                </span>
+            </div>
+
             <!-- Categories -->
             <nav class="no-scrollbar mt-4 flex gap-2 overflow-x-auto pb-1">
                 <button
@@ -106,9 +124,17 @@ function placeOrder() {
                                 <h3 class="font-semibold">{{ product.name }}</h3>
                                 <p class="mt-1 text-xs opacity-70">{{ product.description }}</p>
                             </div>
-                            <p class="shrink-0 text-sm font-bold text-saffron-600 dark:text-saffron-400">
-                                {{ formatTomanWithUnit(product.price) }}
-                            </p>
+                            <div class="shrink-0 text-left">
+                                <span
+                                    v-if="discounts.product_badges[product.id]"
+                                    class="mb-1 block rounded-full bg-saffron-500 px-2 py-0.5 text-center text-[10px] font-bold text-white"
+                                >
+                                    {{ discounts.product_badges[product.id] }}
+                                </span>
+                                <p class="text-sm font-bold text-saffron-600 dark:text-saffron-400">
+                                    {{ formatTomanWithUnit(product.price) }}
+                                </p>
+                            </div>
                         </div>
                         <div class="mt-3 flex items-center justify-between">
                             <div v-if="cart.find((l) => l.productId === product.id)" class="flex items-center gap-3">

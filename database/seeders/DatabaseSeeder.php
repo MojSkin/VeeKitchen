@@ -189,5 +189,8 @@ class DatabaseSeeder extends Seeder
         ]);
         PurchaseOrderItem::factory()->forOrder($ordered)->forItem($cheese, 10.0, 330_000)->create();
         $ordered->recalculateTotal();
+
+        // Demo discounts: automatic banner, coupon, and a product badge.
+        $this->call(DiscountSeeder::class);
     }
 }
