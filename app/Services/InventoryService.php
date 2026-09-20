@@ -223,22 +223,28 @@ class InventoryService
     /**
      * All materials an order consumes, keyed and summed per item.
      *
+     * Discounts scale the deduction: a cart charged for `total ÷ subtotal`
+     * of itself only consumes that share of the real materials — nobody
+     * books a half-price order as a full-material consumption.
+     *
      * @return array<int, array{inventory_item_id: int, amount: float}>
      */
     public function requirementsFor(Order $order): array
     {
         $lines = [];
 
+        $scale = $this->discountScaleFor($order);
+
         ProductRecipe::query()
             ->whereIn('product_id', $order->items->pluck('product_id'))
             ->with('inventoryItem')
             ->get()
-            ->each(function (ProductRecipe $recipe) use (&$lines, $order): void {
+            ->each(function (ProductRecipe $recipe) use (&$lines, $order, $scale): void {
                 $orderedQuantity = (int) $order->items
                     ->where('product_id', $recipe->product_id)
                     ->sum('quantity');
 
-                $amount = (float) $recipe->quantity_per_unit * $orderedQuantity;
+                $amount = (float) $recipe->quantity_per_unit * $orderedQuantity * $scale;
 
                 $key = $recipe->inventory_item_id;
                 $lines[$key] ??= ['inventory_item_id' => $key, 'amount' => 0.0];
@@ -246,5 +252,21 @@ class InventoryService
             });
 
         return array_values($lines);
+    }
+
+    /**
+     * The share of the raw materials an order actually consumed.
+     *
+     * @phpstan-return 0.0|positive-float
+     */
+    protected function discountScaleFor(Order $order): float
+    {
+        $subtotal = (float) $order->subtotal;
+
+        if ($subtotal <= 0.0 || (float) $order->discount_total <= 0.0) {
+            return 1.0;
+        }
+
+        return max(0.0, ($subtotal - (float) $order->discount_total) / $subtotal);
     }
 }

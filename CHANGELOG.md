@@ -18,6 +18,50 @@ A version is **released** only when this cycle completes:
 
 Direct pushes to `main` or `production` never happen; merges from `testing` only.
 
+## [0.4.0] — 2026-09-20
+
+### Added (Dashboard XLSX export)
+- The admin dashboard exports itself: `GET admin/dashboard/export` (admin-only, button on the dashboard header) streams an XLSX workbook mirroring the screen — sheet «KPIها» (today's revenue/orders/average ticket, the order pipeline, the dining-room snapshot, the low-stock board with current vs threshold) and sheet «نمودار فروش» (the exact 14-day daily series incl. zero days, the period totals and the best day).
+- The dashboard's data assembly moved from the controller into `DashboardSnapshotService`, so the page and the workbook read one source and can never disagree; `DashboardExportService` renders the workbook (RTL sheets, bold headers, autosized columns).
+- Fixed a subtle PhpSpreadsheet trap found by the tests: `fromArray()`'s loose null comparison silently drops zero-valued cells — all writes now use strict null comparison so zero revenue rows survive the round-trip.
+- 7 new feature tests (workbook round-trip via the reader, KPI parity with the screen, 14-row chart shape with zero days and yesterday isolation, empty-branch zeros, admin-only guard) — 170 tests green overall.
+- The warehouse report now ships itself: a scheduled command (`reports:weekly-warehouse`, every Saturday 07:00 — the Iranian week boundary) emails each active branch's admins the turnover of the seven completed days (Sat → Fri), computed by the exact same `WarehouseReportService` aggregation the on-screen report serves, so the email can never disagree with the panel. The window never includes "today"; branches with an empty window or no admins are skipped; `--from`/`--to` overrides (with swapped-range tolerance) support manual runs.
+- The `WarehouseWeeklyReport` mailable renders a self-contained RTL email (gradient header, outflow/inflow value pipe, per-type tables with signed totals and rial values, valuation footnote, deep link to the admin report).
+- 10 new feature tests (window semantics incl. today/8-days-ago exclusion, recipients admin-only across active branches, empty/inactive/no-admin skips, overrides, HTML render, subject) — 163 tests green overall.
+- The financial loop opens with discounts: a `discounts` table (automatic or coupon code, percentage/fixed, scoped to the entire order / a menu category / a product, with min-order floor, validity window, global + per-user usage ceilings) plus `DiscountType`/`DiscountScope` enums, an eloquent model and a 9-state factory.
+- `DiscountService::bestFor()` always picks the best eligible discount for a priced cart; a coupon code only participates when it is not worse than the best automatic offer — a weaker code is rejected with a Persian message instead of being silently downgraded, and unknown/inactive codes are rejected too. Usage counting is capped at the ceiling, and reaching it notifies the branch's admins (`DiscountLimitReached` database notification).
+- `OrderService::place()` now applies the chosen discount (`discount_total` + `discount_id` on `orders`, new nullable FK migration), accepts an optional `discountCode`, and the guest order endpoint forwards a `discount_code` field.
+- Stock deduction is now discount-scaled: materials are deducted by `(subtotal − discount_total) ÷ subtotal` of the raw recipe amounts, so a half-price cart consumes half the real materials — a zero-total giveaway deducts nothing.
+- 16 new feature tests (auto/best/category scoping, coupon accept/reject/unknown, expiry, exhaustion, global + per-user ceilings with guest semantics, admin notification, zero-floor totals, scaled deduction incl. the giveaway case) — 153 tests green overall.
+- The warehouse report gained file exports of exactly what's on screen: `GET admin/inventory/report/export?format=xlsx` streams an Excel workbook (sheet «خلاصه» with the range bounds, ledger row count, outflow/inflow values and the per-type summary; sheet «اقلام» with one row per material line) and `format=print` opens a self-contained A4 print document (RTL, print CSS, auto print dialog, valuation footnote). Both honor the active date range, are admin-only, and the XLSX filename carries the range (`warehouse-report-2026-09-20.xlsx` / `..._from_to.xlsx`).
+- New dependency: `phpoffice/phpspreadsheet` (v5.10, MIT) — added with the product owner's approval for Excel output.
+- 4 new feature tests (workbook round-trip via the PhpSpreadsheet reader incl. RTL sheets and Persian headers, print HTML contents, custom-range bounds in payload + filename, admin-only guard) — 137 tests green overall.
+
+### Added (Phase 2 — rial value in the warehouse report)
+- The warehouse report now prices the turnover: every type table gained an «ارزش ریالی» column (|quantity| × the material's last purchase `unit_cost`, always a positive Toman figure — money direction is carried by the type, not a minus sign; materials without a recorded cost show «—»), rows sort by value instead of raw quantity, and a summary strip under the balance pipe totals the range's outflow (consumption + waste) against inflow (purchase + returns + adjustments).
+- 1 new feature test (per-item/type values with a zero-cost material and the outflow/inflow totals) — 133 tests green overall.
+
+### Added (Phase 2 — warehouse report date ranges)
+- The warehouse report gained a date-range selector: presets «امروز» / «۷ روز گذشته» / «این هفته» (Saturday-start, Jalali standard) / «این ماه» / «بازهٔ دلخواه» with from/to date inputs. Custom ranges tolerate swapped bounds and fall back to today on garbled dates; a 92-day cap keeps a runaway range from dragging the whole ledger into memory. The page reloads the report and range props in place (Inertia partial reload) and the header/labels follow the active range.
+- `WarehouseReportService::rangeByType(branch, from, to)` generalizes the today report to arbitrary inclusive day boundaries (the report payload now carries `from`/`to`); `todayByType` remains as a thin wrapper.
+- 4 new feature tests (last7 span incl. day-3 vs day-8 isolation, Saturday week start, custom bounds with a 00:00 day boundary, garbled-date fallback + swapped-range tolerance) — 132 tests green overall.
+
+### Added (Phase 2 — admin dashboard)
+- Admin dashboard page (`admin/dashboard`, linked as «داشبورد» from the admin nav): a 14-day sales chart (hand-rolled SVG line/area — daily revenue + order counts, tooltip per point, zero days stay on the axis), today's KPI cards (paid revenue, placed orders, average ticket), the open-order pipeline (awaiting payment → ready), the dining-room table snapshot, and a low-stock mini-board with per-material threshold bars linking to the inventory panel.
+- Revenue truth comes from `payments.paid_at` (joined through the branch's orders); the day boundary follows the app timezone, and an empty branch renders an all-zero dashboard without errors.
+- 6 new feature tests (admin-only guard, today KPIs incl. yesterday isolation, exact 14-day span with zero days, low-stock filtering, pipeline/table counts, empty-branch zeroing) — 128 tests green overall.
+
+### Added (Phase 2 — draft purchase order editing)
+- Drafts are editable until submitted: the procurement board shows an edit action on drafts (`is_editable` in the payload) leading to `admin/purchase-orders/{id}/edit` (admin-only, 403 for non-drafts) with the form prefilled — supplier, notes, and every line.
+- `PurchaseOrderService::updateDraft()` replaces the whole line set inside a locked transaction with a fresh status re-check, so an order submitted between page load and save can never be rewritten; supplier swap and notes update, line totals and the order total are recomputed, and omitted unit costs fall back to the material's last purchase price.
+- The create and edit forms share one `usePurchaseOrderForm` composable and a `PurchaseOrderFormFields` component (duplicate-material guard, cost prefill, live total); update goes through `PUT admin/purchase-orders/{order}` with Inertia method spoofing.
+- 10 new feature tests (line-set replacement + totals, supplier preservation, ordered/received/cancelled refusal incl. a stale-page scenario and a no-op integrity check, prefill payload, admin-only + 403 guards, endpoint validation, edit-then-submit flow, board flag) — 122 tests green overall.
+
+### Added (Phase 2 — today warehouse report)
+- Admin report page (`admin/inventory/report`, admin-only, linked from the nav as «گزارش انبار»): today's StockMovement ledger aggregated by movement type. A balance pipe sums inflow (purchase + returns + positive adjustments) against outflow (consumption + waste + negative adjustments) with the net day figure; each type renders its own section with movement count, signed type total, and per-material lines (sorted by magnitude) in the material's unit.
+- `WarehouseReportService::todayByType()` reads the append-only ledger as the single source of truth with the app-timezone day boundary; zero-activity types still appear for a complete picture.
+- 4 new feature tests (type grouping with signed per-item aggregation, yesterday isolation, admin-only guard, payload shape) — 112 tests green overall.
+
 ## [0.3.0] — 2026-09-20
 
 ### Added (Phase 2 — new purchase order form)
@@ -132,7 +176,8 @@ Direct pushes to `main` or `production` never happen; merges from `testing` only
 - `ziggy-js` import moved from the removed `ziggy-js/vue` subpath to the module root (2.x exports).
 - Empty `.vue` page stubs replaced with minimal valid SFCs so `vite build` passes; added `pwa.js` service-worker registrar.
 
-[Unreleased]: https://github.com/MojSkin/VeeKitchen/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/MojSkin/VeeKitchen/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/MojSkin/VeeKitchen/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/MojSkin/VeeKitchen/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/MojSkin/VeeKitchen/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/MojSkin/VeeKitchen/commits/v0.1.0
