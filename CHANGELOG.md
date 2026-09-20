@@ -18,7 +18,7 @@ A version is **released** only when this cycle completes:
 
 Direct pushes to `main` or `production` never happen; merges from `testing` only.
 
-## [Unreleased]
+## [0.4.0] — 2026-09-20
 
 ### Added (Dashboard XLSX export)
 - The admin dashboard exports itself: `GET admin/dashboard/export` (admin-only, button on the dashboard header) streams an XLSX workbook mirroring the screen — sheet «KPIها» (today's revenue/orders/average ticket, the order pipeline, the dining-room snapshot, the low-stock board with current vs threshold) and sheet «نمودار فروش» (the exact 14-day daily series incl. zero days, the period totals and the best day).
@@ -176,7 +176,8 @@ Direct pushes to `main` or `production` never happen; merges from `testing` only
 - `ziggy-js` import moved from the removed `ziggy-js/vue` subpath to the module root (2.x exports).
 - Empty `.vue` page stubs replaced with minimal valid SFCs so `vite build` passes; added `pwa.js` service-worker registrar.
 
-[Unreleased]: https://github.com/MojSkin/VeeKitchen/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/MojSkin/VeeKitchen/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/MojSkin/VeeKitchen/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/MojSkin/VeeKitchen/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/MojSkin/VeeKitchen/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/MojSkin/VeeKitchen/commits/v0.1.0
