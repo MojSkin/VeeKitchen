@@ -51,23 +51,80 @@ class PurchaseOrderService
                 'notes' => $notes,
             ]);
 
-            foreach ($lines as $line) {
-                $material = InventoryItem::query()->whereKey($line['inventory_item_id'])->firstOrFail();
-                $unitCost = (int) (($line['unit_cost'] ?? null) !== null ? $line['unit_cost'] : $material->unit_cost);
-
-                PurchaseOrderItem::create([
-                    'purchase_order_id' => $order->id,
-                    'inventory_item_id' => $material->id,
-                    'quantity' => (float) $line['quantity'],
-                    'unit_cost' => $unitCost,
-                    'line_total' => (int) round((float) $line['quantity'] * $unitCost),
-                ]);
-            }
+            $this->writeLines($order, $lines);
 
             $order->recalculateTotal();
 
             return $order->refresh();
         });
+    }
+
+    /**
+     * Replace a draft's whole line set and (optionally) swap its supplier.
+     *
+     * Locked transaction + fresh status re-check inside: an order that was
+     * submitted between page load and save can never be rewritten.
+     * Each line's unit cost defaults to the material's last purchase cost
+     * when omitted; totals are recomputed before the transaction returns.
+     *
+     * @param  array<int, array{inventory_item_id: int, quantity: float|int|string, unit_cost?: int|string|null}>  $lines
+     */
+    public function updateDraft(PurchaseOrder $order, array $lines, ?Supplier $supplier = null, ?string $notes = null): PurchaseOrder
+    {
+        return DB::transaction(function () use ($order, $lines, $supplier, $notes): PurchaseOrder {
+            $order = PurchaseOrder::query()
+                ->whereKey($order->getKey())
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($order->status !== PurchaseOrderStatus::Draft) {
+                throw new RuntimeException('فقط پیش‌نویس قابل ویرایش است؛ سفارش ثبت‌شده تغییر نمی‌کند.');
+            }
+
+            if ($supplier !== null) {
+                if (! $supplier->is_active) {
+                    throw new InvalidArgumentException("تامین‌کننده «{$supplier->name}» غیرفعال است.");
+                }
+
+                $order->supplier_id = $supplier->id;
+                $order->save();
+            }
+
+            if ($notes !== null) {
+                $order->notes = $notes;
+                $order->save();
+            }
+
+            $this->writeLines($order, $lines);
+
+            $order->recalculateTotal();
+
+            return $order->refresh();
+        });
+    }
+
+    /**
+     * Replace the whole line set of an order (delete + recreate, cheap on
+     * a cascade FK) and keep every line_total in sync.
+     *
+     * @param  array<int, array{inventory_item_id: int, quantity: float|int|string, unit_cost?: int|string|null}>  $lines
+     */
+    protected function writeLines(PurchaseOrder $order, array $lines): void
+    {
+        $order->items()->delete();
+
+        foreach ($lines as $line) {
+            $material = InventoryItem::query()->whereKey($line['inventory_item_id'])->firstOrFail();
+            $unitCost = (int) (($line['unit_cost'] ?? null) !== null ? $line['unit_cost'] : $material->unit_cost);
+
+            PurchaseOrderItem::create([
+                'purchase_order_id' => $order->id,
+                'inventory_item_id' => $material->id,
+                'quantity' => (float) $line['quantity'],
+                'unit_cost' => $unitCost,
+                'line_total' => (int) round((float) $line['quantity'] * $unitCost),
+            ]);
+        }
     }
 
     /**

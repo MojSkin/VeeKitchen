@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\PurchaseOrderController;
 use App\Http\Controllers\Admin\TableController;
+use App\Http\Controllers\Admin\WarehouseReportController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Cashier\CashierController;
 use App\Http\Controllers\Customer\MenuController;
@@ -55,12 +57,16 @@ Route::middleware(['auth', 'role:kitchen,admin'])->prefix('kitchen')->group(func
 
 // ── Admin ───────────────────────────────────────────────────────────────────
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/dashboard/export', [DashboardController::class, 'export'])->name('admin.dashboard.export');
     Route::get('/tables', [TableController::class, 'index'])->name('admin.tables');
     Route::get('/tables/{table}/qr', [TableController::class, 'qr'])->name('admin.tables.qr');
     Route::post('/tables/{table}/rotate-token', [TableController::class, 'rotateToken'])
         ->name('admin.tables.rotate');
 
     Route::get('/inventory', [InventoryController::class, 'index'])->name('admin.inventory');
+    Route::get('/inventory/report', [WarehouseReportController::class, 'index'])->name('admin.inventory.report');
+    Route::get('/inventory/report/export', [WarehouseReportController::class, 'export'])->name('admin.inventory.report.export');
     Route::post('/inventory/items', [InventoryController::class, 'storeItem'])->name('admin.inventory.items.store');
     Route::post('/inventory/items/{item}/adjust', [InventoryController::class, 'adjustStock'])
         ->name('admin.inventory.items.adjust');
@@ -79,6 +85,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/purchase-orders', [PurchaseOrderController::class, 'index'])->name('admin.purchase-orders');
     Route::get('/purchase-orders/new', [PurchaseOrderController::class, 'create'])->name('admin.purchase-orders.create');
     Route::post('/purchase-orders', [PurchaseOrderController::class, 'store'])->name('admin.purchase-orders.store');
+    Route::get('/purchase-orders/{order}/edit', [PurchaseOrderController::class, 'edit'])->name('admin.purchase-orders.edit');
+    Route::put('/purchase-orders/{order}', [PurchaseOrderController::class, 'update'])->name('admin.purchase-orders.update');
     Route::post('/purchase-orders/{order}/submit', [PurchaseOrderController::class, 'submit'])
         ->name('admin.purchase-orders.submit');
     Route::post('/purchase-orders/{order}/receive', [PurchaseOrderController::class, 'receive'])

@@ -21,6 +21,7 @@ class Order extends Model
         'customer_id',
         'guest_token',
         'guest_name',
+        'discount_id',
         'order_number',
         'status',
         'subtotal',
@@ -78,6 +79,16 @@ class Order extends Model
     public function canceller(): BelongsTo
     {
         return $this->belongsTo(User::class, 'cancelled_by');
+    }
+
+    /**
+     * The discount applied at placement time (null = no discount).
+     *
+     * @return BelongsTo<Discount, $this>
+     */
+    public function discount(): BelongsTo
+    {
+        return $this->belongsTo(Discount::class);
     }
 
     /**

@@ -123,6 +123,13 @@ function formatDay(iso) {
                         </div>
 
                         <div class="flex shrink-0 flex-wrap gap-2">
+                            <Link
+                                v-if="order.is_editable"
+                                :href="route('admin.purchase-orders.edit', order.id)"
+                                class="glass-flat cursor-pointer rounded-xl px-4 py-2 text-sm transition hover:bg-white/10"
+                            >
+                                ویرایش
+                            </Link>
                             <button
                                 v-if="order.status === 'draft'"
                                 type="button"

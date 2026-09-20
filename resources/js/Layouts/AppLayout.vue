@@ -11,8 +11,10 @@ const navLinks = computed(() => {
 
     if (role === 'admin') {
         return [
+            { href: route('admin.dashboard'), label: 'داشبورد' },
             { href: route('admin.tables'), label: 'میزها' },
             { href: route('admin.inventory'), label: 'انبار' },
+            { href: route('admin.inventory.report'), label: 'گزارش انبار' },
             { href: route('admin.purchase-orders'), label: 'خرید' },
             { href: route('cashier.index'), label: 'صندوق' },
         ];
