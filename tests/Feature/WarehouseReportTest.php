@@ -82,12 +82,12 @@ test('rial values follow the material unit cost and are always positive', functi
     $free = ledgerMaterial($branch, 'رب گوجه', MeasurementUnit::Liter);
     $free->update(['unit_cost' => 0]);
 
-    ledger($branch, $flour, 'consumption', -0.4);   // 24_000
-    ledger($branch, $flour, 'consumption', -0.15);  // 9_000
-    ledger($branch, $cheese, 'consumption', -0.3);  // 96_000
-    ledger($branch, $flour, 'purchase', 20.0);      // 1_200_000
-    ledger($branch, $cheese, 'adjustment', -1.0);   // 320_000
-    ledger($branch, $free, 'consumption', -2.0);    // 0
+    ledger($branch, $flour, 'consumption', -0.4, 60_000);   // 24_000
+    ledger($branch, $flour, 'consumption', -0.15, 60_000);  // 9_000
+    ledger($branch, $cheese, 'consumption', -0.3, 320_000); // 96_000
+    ledger($branch, $flour, 'purchase', 20.0, 60_000);      // 1_200_000
+    ledger($branch, $cheese, 'adjustment', -1.0, 320_000);  // 320_000
+    ledger($branch, $free, 'consumption', -2.0);            // 0
 
     $report = $service->todayByType($branch);
     $byType = collect($report['types'])->keyBy('type');
@@ -101,6 +101,56 @@ test('rial values follow the material unit cost and are always positive', functi
         ->and($byType['adjustment']['value'])->toBe(320_000)
         ->and($report['outflow_value'])->toBe(129_000)
         ->and($report['inflow_value'])->toBe(1_520_000);
+});
+
+test('item lines expose the effective unit cost behind their value', function () {
+    [$branch] = reportLab();
+    $service = app(WarehouseReportService::class);
+
+    $flour = ledgerMaterial($branch, 'آرد گندم', MeasurementUnit::Kilogram);
+    $cheese = ledgerMaterial($branch, 'پنیر موزارلا', MeasurementUnit::Kilogram);
+    $free = ledgerMaterial($branch, 'رب گوجه', MeasurementUnit::Liter);
+    $free->update(['unit_cost' => 0]);
+
+    // Same-material rows at one price merge to that price.
+    ledger($branch, $flour, 'consumption', -0.4, 60_000);   // 24_000
+    ledger($branch, $flour, 'consumption', -0.15, 60_000);  // 9_000
+
+    // Merged rows at two prices quote the value-weighted cost.
+    ledger($branch, $cheese, 'consumption', -1.0, 40_000);  // 40_000
+    ledger($branch, $cheese, 'consumption', -1.0, 60_000);  // 60_000
+
+    ledger($branch, $free, 'consumption', -2.0);            // no cost
+
+    $report = $service->todayByType($branch);
+    $items = collect($report['types'])->keyBy('type')['consumption']['items'];
+    $flourLine = collect($items)->firstWhere('name', 'آرد گندم');
+    $cheeseLine = collect($items)->firstWhere('name', 'پنیر موزارلا');
+    $freeLine = collect($items)->firstWhere('name', 'رب گوجه');
+
+    expect($flourLine['effective_cost'])->toBe(60_000)
+        ->and($flourLine['value'])->toBe(33_000)
+        // (40_000 + 60_000) ÷ 2 kg = 50_000 — not the last-seen price.
+        ->and($cheeseLine['effective_cost'])->toBe(50_000)
+        ->and($cheeseLine['value'])->toBe(100_000)
+        ->and($freeLine['effective_cost'])->toBeNull();
+});
+
+test('legacy rows without a snapshot fall back to the current cost', function () {
+    [$branch] = reportLab();
+    $service = app(WarehouseReportService::class);
+
+    $flour = ledgerMaterial($branch, 'آرد گندم', MeasurementUnit::Kilogram);
+    $flour->update(['unit_cost' => 70_000]);
+
+    // No explicit snapshot — the pre-snapshot era row.
+    ledger($branch, $flour, 'consumption', -0.5);
+
+    $report = $service->todayByType($branch);
+    $line = collect($report['types'])->keyBy('type')['consumption']['items'][0];
+
+    expect($line['effective_cost'])->toBe(70_000)
+        ->and($line['value'])->toBe(35_000);
 });
 
 test('yesterday rows never leak into the today report', function () {

@@ -18,6 +18,12 @@ A version is **released** only when this cycle completes:
 
 Direct pushes to `main` or `production` never happen; merges from `testing` only.
 
+## [Unreleased]
+
+### Added (Effective unit-cost column on the warehouse report)
+- Each material line in every type table now shows the **effective unit cost** behind its rial value: the value-weighted average of the row snapshots (1 kg @40k + 1 kg @60k quotes 50k, not the last-seen price), falling back to the current cost for pre-snapshot rows and «—» for un-costed materials. The value column's tooltip now explains it is `total × effective cost`, sourced from per-movement write-time snapshots.
+- 2 new service tests (weighted merge semantics + legacy fallback alongside the existing value tests).
+
 ## [0.5.0] — 2026-09-20
 
 ### Added (Warehouse report CSV export)

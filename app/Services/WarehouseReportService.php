@@ -24,7 +24,7 @@ class WarehouseReportService
      *
      * @param  Carbon  $from  inclusive start-of-day boundary
      * @param  Carbon  $to  inclusive end-of-day boundary
-     * @return array{types: array<int, array{type: string, label: string, total: float, movements: int, value: int, items: array<int, array{name: string, unit_label: string, total: float, value: int}>}>, movement_count: int, generated_at: string, from: string, to: string, inflow_value: int, outflow_value: int}
+     * @return array{types: array<int, array{type: string, label: string, total: float, movements: int, value: int, items: array<int, array{name: string, unit_label: string, total: float, value: int, effective_cost: int|null}>}>, movement_count: int, generated_at: string, from: string, to: string, inflow_value: int, outflow_value: int}
      */
     public function rangeByType(Branch $branch, Carbon $from, Carbon $to): array
     {
@@ -77,10 +77,21 @@ class WarehouseReportService
                     'unit_label' => $item->unit->label(),
                     'total' => $amount,
                     'value' => $value,
+                    'effective_cost' => $cost,
                 ]);
             } else {
                 $items->transform(fn (array $line) => $line['name'] === $lineKey
-                    ? ['name' => $line['name'], 'unit_label' => $line['unit_label'], 'total' => $line['total'] + $amount, 'value' => $line['value'] + $value]
+                    ? [
+                        'name' => $line['name'],
+                        'unit_label' => $line['unit_label'],
+                        'total' => $line['total'] + $amount,
+                        'value' => $line['value'] + $value,
+                        // Merged lines quote the value-weighted cost, not the
+                        // last-seen one: 1 kg @40k + 1 kg @60k shows 50k.
+                        'effective_cost' => ($line['value'] + $value) > 0
+                            ? (int) round(($line['value'] + $value) / max(abs($line['total'] + $amount), 0.001))
+                            : null,
+                    ]
                     : $line);
             }
 
