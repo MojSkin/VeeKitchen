@@ -18,7 +18,7 @@ A version is **released** only when this cycle completes:
 
 Direct pushes to `main` or `production` never happen; merges from `testing` only.
 
-## [Unreleased]
+## [0.5.0] — 2026-09-20
 
 ### Added (Warehouse report CSV export)
 - A third export button, «دانلود CSV», on the warehouse report: `format=csv` streams a spreadsheet-ready CSV over the selected range with the same summary/detail layout as the XLSX (type totals, then one row per material line) — including the rial value column, which now reads the historical unit-cost snapshots. A UTF-8 BOM keeps the Persian text readable when the file opens in Excel, cells follow RFC 4180 escaping, and the range-resolved filename (`warehouse-report-<from>[ _<to>].csv`) matches the on-screen report exactly.
@@ -194,7 +194,8 @@ Direct pushes to `main` or `production` never happen; merges from `testing` only
 - `ziggy-js` import moved from the removed `ziggy-js/vue` subpath to the module root (2.x exports).
 - Empty `.vue` page stubs replaced with minimal valid SFCs so `vite build` passes; added `pwa.js` service-worker registrar.
 
-[Unreleased]: https://github.com/MojSkin/VeeKitchen/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/MojSkin/VeeKitchen/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/MojSkin/VeeKitchen/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/MojSkin/VeeKitchen/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/MojSkin/VeeKitchen/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/MojSkin/VeeKitchen/compare/v0.1.0...v0.2.0
