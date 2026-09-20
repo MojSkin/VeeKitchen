@@ -24,12 +24,13 @@ function ledgerMaterial(Branch $branch, string $name, MeasurementUnit $unit): In
     ]);
 }
 
-function ledger(Branch $branch, InventoryItem $item, string $type, float $quantity): StockMovement
+function ledger(Branch $branch, InventoryItem $item, string $type, float $quantity, ?int $unitCost = null): StockMovement
 {
     return StockMovement::factory()->create([
         'inventory_item_id' => $item->id,
         'type' => $type,
         'quantity' => $quantity,
+        'unit_cost_at' => $unitCost,
     ]);
 }
 

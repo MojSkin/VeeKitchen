@@ -18,6 +18,24 @@ A version is **released** only when this cycle completes:
 
 Direct pushes to `main` or `production` never happen; merges from `testing` only.
 
+## [0.5.0] — 2026-09-20
+
+### Added (Warehouse report CSV export)
+- A third export button, «دانلود CSV», on the warehouse report: `format=csv` streams a spreadsheet-ready CSV over the selected range with the same summary/detail layout as the XLSX (type totals, then one row per material line) — including the rial value column, which now reads the historical unit-cost snapshots. A UTF-8 BOM keeps the Persian text readable when the file opens in Excel, cells follow RFC 4180 escaping, and the range-resolved filename (`warehouse-report-<from>[ _<to>].csv`) matches the on-screen report exactly.
+- 2 new feature tests: BOM + value columns with merged per-material lines, and the custom-range test asserting a five-day-old movement lands inside the window while a single-day slice excludes today-only data.
+
+### Added (Historical unit-cost snapshots on the ledger)
+- Every `stock_movements` row now freezes the Toman price it was valued at: `unit_cost_at` plus a `unit_cost_source` marker distinguishing the price actually paid (`purchase_price`) from the material's current cost at write time (`current_cost`). Rial values in the warehouse reports (and the email/XLSX exports fed by them) are historical facts now — re-running an old report reproduces the same numbers instead of silently re-valuing history with today's prices.
+- Rows written before snapshots existed keep working: the report falls back to the material's current cost, so the transition is invisible. Un-costed materials still value at zero and render «—».
+- 6 new feature tests: purchase rows snapshot the paid price, auto-deduction and waste/adjustment/return stamp the current cost at write time, legacy rows fall back, and the historic-divergence test proves an old row keeps its 150k valuation while today's row carries 210k after the price rose.
+
+### Changed (SPA routing hygiene)
+- The frontend now calls every route by its **name** through Ziggy's global `route()` — raw URL strings are gone from all Vue pages. The one unnamed route (`/`) was named `home`, completing the contract that every route is addressable by name.
+- Zero `<a>` tags remain in the SPA: all in-app navigation renders through Inertia's `<Link>` (the last offender, the cashier receipt link, is now a `Link`), and the two binary exports that previously fell back to full-page navigation (`window.location.href` on the dashboard, `:href` anchors on the warehouse report) are now `fetch()`-based blob downloads / `window.open` — the SPA state is never disturbed by a hard navigation. Verified live: clicking a nav link keeps JS state alive (no full reload) and lands on the same page the URL would.
+
+### Fixed (Admin login redirect)
+- Signing in as an admin 500'd on the redirect: `UserRole::homeRoute()` still returned the pre-dashboard `dashboard` route name while the actual route is `admin.dashboard`. The session survived the exception, so the bug hid behind manual URL navigation — now the admin lands on the admin dashboard, and a new login-redirect test locks every staff role's home route (admin, cashier) plus a guard that all home routes exist.
+
 ## [0.4.0] — 2026-09-20
 
 ### Added (Dashboard XLSX export)
@@ -176,7 +194,8 @@ Direct pushes to `main` or `production` never happen; merges from `testing` only
 - `ziggy-js` import moved from the removed `ziggy-js/vue` subpath to the module root (2.x exports).
 - Empty `.vue` page stubs replaced with minimal valid SFCs so `vite build` passes; added `pwa.js` service-worker registrar.
 
-[Unreleased]: https://github.com/MojSkin/VeeKitchen/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/MojSkin/VeeKitchen/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/MojSkin/VeeKitchen/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/MojSkin/VeeKitchen/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/MojSkin/VeeKitchen/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/MojSkin/VeeKitchen/compare/v0.1.0...v0.2.0
