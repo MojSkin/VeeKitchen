@@ -13,6 +13,7 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Models\RestaurantTable;
 use App\Models\User;
+use App\Services\Contracts\CashShiftGuard;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -30,6 +31,7 @@ class OrderService
         protected QuoteService $quotes,
         protected InventoryService $inventory,
         protected DiscountService $discounts,
+        protected CashShiftGuard $shiftGuard,
     ) {}
 
     /**
@@ -121,7 +123,19 @@ class OrderService
             throw new RuntimeException('این سفارش در وضعیت انتظار پرداخت نیست.');
         }
 
-        return DB::transaction(function () use ($order, $method, $receiver): Order {
+        // Resolved before the transaction — the session state is not
+        // available inside the closure.
+        $receiver ??= User::query()->find(Auth::id());
+
+        // Phase 3 golden rule — money only moves inside an open shift. The
+        // guard resolves (and stamps) the shift the payment belongs to.
+        // Headless payments (no acting user, e.g. console flows) settle
+        // without a shift stamp; the cashier flow always carries a user.
+        $shift = $receiver === null
+            ? null
+            : $this->shiftGuard->requireOpenShift($receiver, $order->branch_id);
+
+        return DB::transaction(function () use ($order, $method, $receiver, $shift): Order {
             // Lock the branch's pending rows so two cashiers can never draw
             // the same daily number at the same moment.
             $order = Order::query()
@@ -140,11 +154,15 @@ class OrderService
             $order->save();
 
             $payment = $order->payments()->create([
-                'received_by' => $receiver?->id ?? Auth::id(),
+                'received_by' => $receiver?->id,
                 'method' => $method,
                 'amount' => $order->total,
                 'paid_at' => $order->paid_at,
             ]);
+
+            // The audit link: every payment hangs on its shift.
+            $payment->shift_id = $shift?->id;
+            $payment->save();
 
             // Phase 2 — deduct recipe materials from the warehouse ledger.
             // Runs inside the same transaction; a stock shortfall rolls the

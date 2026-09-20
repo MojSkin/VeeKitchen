@@ -6,6 +6,7 @@ use App\Events\OrderPaid;
 use App\Models\Branch;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\StaffShift;
 use App\Models\User;
 use App\Services\OrderService;
 use Illuminate\Support\Facades\Event;
@@ -13,6 +14,11 @@ use Illuminate\Support\Facades\Event;
 test('markPaid assigns sequential daily numbers and records the payment', function () {
     $branch = Branch::factory()->create();
     $cashier = User::factory()->cashier()->forBranch($branch)->create();
+    // The phase-3 golden rule: payments hang on an open shift.
+    StaffShift::factory()->openingCash(0)->create([
+        'branch_id' => $branch->id,
+        'user_id' => $cashier->id,
+    ]);
     $product = Product::factory()->create(['branch_id' => $branch->id]);
     $service = app(OrderService::class);
 

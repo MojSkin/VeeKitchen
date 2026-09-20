@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\TableController;
 use App\Http\Controllers\Admin\WarehouseReportController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Cashier\CashierController;
+use App\Http\Controllers\Cashier\ShiftController;
 use App\Http\Controllers\Customer\MenuController;
 use App\Http\Controllers\Customer\OrderController;
 use App\Http\Controllers\Kitchen\KitchenController;
@@ -47,6 +48,11 @@ Route::middleware(['auth', 'role:cashier,admin'])->prefix('cashier')->group(func
         ->name('cashier.repeat');
     Route::post('/tables/{table}/release', [CashierController::class, 'releaseTable'])
         ->name('cashier.tables.release');
+
+    Route::get('/shift', [ShiftController::class, 'index'])->name('cashier.shift');
+    Route::post('/shift/open', [ShiftController::class, 'open'])->name('cashier.shift.open');
+    Route::post('/shift/movement', [ShiftController::class, 'movement'])->name('cashier.shift.movement');
+    Route::post('/shift/close', [ShiftController::class, 'close'])->name('cashier.shift.close');
 });
 
 // ── Kitchen display ─────────────────────────────────────────────────────────
