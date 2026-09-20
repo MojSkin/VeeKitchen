@@ -18,6 +18,11 @@ A version is **released** only when this cycle completes:
 
 Direct pushes to `main` or `production` never happen; merges from `testing` only.
 
+## [Unreleased]
+
+### Fixed (Admin login redirect)
+- Signing in as an admin 500'd on the redirect: `UserRole::homeRoute()` still returned the pre-dashboard `dashboard` route name while the actual route is `admin.dashboard`. The session survived the exception, so the bug hid behind manual URL navigation — now the admin lands on the admin dashboard, and a new login-redirect test locks every staff role's home route (admin, cashier) plus a guard that all home routes exist.
+
 ## [0.4.0] — 2026-09-20
 
 ### Added (Dashboard XLSX export)
