@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue';
+import { Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { faDigits, formatToman } from '@/lib/format';
 
@@ -87,6 +88,32 @@ function ratio(current, threshold) {
     return Math.min(100, Math.round((current / threshold) * 100));
 }
 
+/**
+ * The workbook is a streamed binary — not an Inertia visit. Fetched via
+ * JS and saved as a blob, so the SPA state (scroll, filters) is never
+ * disturbed by a full-page navigation.
+ */
+function downloadWorkbook() {
+    fetch(route('admin.dashboard.export'), {
+        credentials: 'same-origin',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+    })
+        .then((response) => {
+            if (!response.ok) throw new Error(`export failed: ${response.status}`);
+
+            return response.blob();
+        })
+        .then((blob) => {
+            const objectUrl = URL.createObjectURL(blob);
+            const anchor = document.createElement('a');
+            anchor.href = objectUrl;
+            anchor.download = 'dashboard-export.xlsx';
+            anchor.click();
+            URL.revokeObjectURL(objectUrl);
+        })
+        .catch(() => window.alert('دانلود فایل اکسل ناموفق بود. دوباره تلاش کنید.'));
+}
+
 function shortNumber(value) {
     if (value >= 1_000_000) {
         return `${faDigits((value / 1_000_000).toFixed(1))}م`;
@@ -110,13 +137,14 @@ function shortNumber(value) {
                         نگاه یک‌صفحه‌ای به فروش، آشپزخانه و انبار شعبه
                     </p>
                 </div>
-                <a
-                    :href="route('admin.dashboard.export')"
-                    class="glass rounded-glass px-4 py-2 text-sm font-bold transition hover:bg-white/10"
+                <button
+                    type="button"
+                    class="glass cursor-pointer rounded-glass px-4 py-2 text-sm font-bold transition hover:bg-white/10"
                     title="دانلود همین ارقام به‌صورت اکسل (KPIها + نمودار ۱۴ روز)"
+                    @click="downloadWorkbook"
                 >
                     دانلود اکسل (XLSX) ↓
-                </a>
+                </button>
             </header>
 
             <!-- KPI row -->
@@ -239,9 +267,9 @@ function shortNumber(value) {
             <section class="glass rounded-glass p-5">
                 <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
                     <h2 class="font-bold">موجودی کم</h2>
-                    <a :href="route('admin.inventory')" class="text-xs opacity-50 transition hover:opacity-90">
+                    <Link :href="route('admin.inventory')" class="text-xs opacity-50 transition hover:opacity-90">
                         رفتن به انبار →
-                    </a>
+                    </Link>
                 </div>
 
                 <p v-if="lowStock.length === 0" class="py-4 text-center text-sm opacity-60">

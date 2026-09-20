@@ -193,7 +193,10 @@ class PurchaseOrderService
 
         $material->current_stock = (float) $material->current_stock + (float) $item->quantity;
 
+        $paidCost = null;
+
         if ($item->unit_cost > 0) {
+            $paidCost = (int) $item->unit_cost;
             $material->unit_cost = $item->unit_cost;
         }
 
@@ -203,6 +206,7 @@ class PurchaseOrderService
             'inventory_item_id' => $material->id,
             'type' => 'purchase',
             'quantity' => (float) $item->quantity,
+            ...UnitCostSnapshot::forMovement($material, 'purchase', $paidCost),
             'user_id' => $actor?->id ?? $order->received_by,
             'reason' => "دریافت سفارش خرید شماره {$order->id} از {$order->supplier->name}",
         ]);

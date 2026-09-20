@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
-import { router, usePage } from '@inertiajs/vue3';
+import { Link, router, usePage } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import StockVial from '@/Components/StockVial.vue';
 import { faDigits, formatToman } from '@/lib/format';
@@ -451,12 +451,12 @@ function itemUnitLabel(id) {
                                 >
                                     ویرایش فرمول
                                 </button>
-                                <a
+                                <Link
                                     :href="route('admin.products.recipe-versions', product.id)"
                                     class="cursor-pointer text-center text-xs opacity-50 transition hover:opacity-90"
                                 >
                                     تاریخچه
-                                </a>
+                                </Link>
                             </div>
                         </div>
 
