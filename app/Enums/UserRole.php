@@ -28,7 +28,7 @@ enum UserRole: string
     public function homeRoute(): string
     {
         return match ($this) {
-            self::Admin => 'dashboard',
+            self::Admin => 'admin.dashboard',
             self::Cashier => 'cashier.index',
             self::Kitchen => 'kitchen.index',
             self::Customer => 'welcome',
