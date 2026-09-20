@@ -20,7 +20,10 @@ Direct pushes to `main` or `production` never happen; merges from `testing` only
 
 ## [Unreleased]
 
-### Added (Phase 3 — discount domain, step 1)
+### Added (Weekly warehouse report email)
+- The warehouse report now ships itself: a scheduled command (`reports:weekly-warehouse`, every Saturday 07:00 — the Iranian week boundary) emails each active branch's admins the turnover of the seven completed days (Sat → Fri), computed by the exact same `WarehouseReportService` aggregation the on-screen report serves, so the email can never disagree with the panel. The window never includes "today"; branches with an empty window or no admins are skipped; `--from`/`--to` overrides (with swapped-range tolerance) support manual runs.
+- The `WarehouseWeeklyReport` mailable renders a self-contained RTL email (gradient header, outflow/inflow value pipe, per-type tables with signed totals and rial values, valuation footnote, deep link to the admin report).
+- 10 new feature tests (window semantics incl. today/8-days-ago exclusion, recipients admin-only across active branches, empty/inactive/no-admin skips, overrides, HTML render, subject) — 163 tests green overall.
 - The financial loop opens with discounts: a `discounts` table (automatic or coupon code, percentage/fixed, scoped to the entire order / a menu category / a product, with min-order floor, validity window, global + per-user usage ceilings) plus `DiscountType`/`DiscountScope` enums, an eloquent model and a 9-state factory.
 - `DiscountService::bestFor()` always picks the best eligible discount for a priced cart; a coupon code only participates when it is not worse than the best automatic offer — a weaker code is rejected with a Persian message instead of being silently downgraded, and unknown/inactive codes are rejected too. Usage counting is capped at the ceiling, and reaching it notifies the branch's admins (`DiscountLimitReached` database notification).
 - `OrderService::place()` now applies the chosen discount (`discount_total` + `discount_id` on `orders`, new nullable FK migration), accepts an optional `discountCode`, and the guest order endpoint forwards a `discount_code` field.
