@@ -20,6 +20,9 @@ Direct pushes to `main` or `production` never happen; merges from `testing` only
 
 ## [Unreleased]
 
+### Fixed (Custom-range headline could show the wrong end date)
+- The custom-range headline formatted the server's end-of-day ISO boundary with *local* date getters, so in timezones ahead of UTC the «تا …» day slid to the next day (e.g. requested تا ۱۹ rendered as تا ۲۰) while the data, URL and from/to inputs stayed on the requested day. The formatter now reads UTC parts — the same basis as the data window — and a service test locks the `to` bound to the requested date.
+
 ### Changed (Effective unit-cost column reaches the CSV, XLSX and print exports)
 - The item-level «قیمت واحد (تومان)» column added to the on-screen report now travels to every export: the CSV item lines carry the effective unit cost between quantity and value (empty for un-costed materials), the XLSX «اقلام» sheet gained the matching sixth column, and the print page's tables show it with the footnote rewritten to the snapshot-weighted semantics (it previously claimed a stale "last purchase price" basis).
 
