@@ -169,11 +169,11 @@ function downloadExport(format) {
             const objectUrl = URL.createObjectURL(blob);
             const anchor = document.createElement('a');
             anchor.href = objectUrl;
-            anchor.download = `warehouse-report-${toDateInput(props.range.from)}.xlsx`;
+            anchor.download = `warehouse-report-${toDateInput(props.range.from)}.${format === 'csv' ? 'csv' : 'xlsx'}`;
             anchor.click();
             URL.revokeObjectURL(objectUrl);
         })
-        .catch(() => window.alert('دانلود فایل اکسل ناموفق بود. دوباره تلاش کنید.'));
+        .catch(() => window.alert('دانلود فایل ناموفق بود. دوباره تلاش کنید.'));
 }
 
 function openExport(format) {
@@ -257,6 +257,13 @@ function openExport(format) {
                             @click="downloadExport('xlsx')"
                         >
                             دانلود اکسل (XLSX)
+                        </button>
+                        <button
+                            type="button"
+                            class="glass-flat cursor-pointer rounded-xl px-4 py-2 text-xs font-bold transition hover:bg-white/10"
+                            @click="downloadExport('csv')"
+                        >
+                            دانلود CSV
                         </button>
                         <button
                             type="button"
