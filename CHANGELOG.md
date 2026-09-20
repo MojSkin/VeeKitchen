@@ -20,6 +20,9 @@ Direct pushes to `main` or `production` never happen; merges from `testing` only
 
 ## [Unreleased]
 
+### Changed (Effective unit-cost column reaches the CSV, XLSX and print exports)
+- The item-level «قیمت واحد (تومان)» column added to the on-screen report now travels to every export: the CSV item lines carry the effective unit cost between quantity and value (empty for un-costed materials), the XLSX «اقلام» sheet gained the matching sixth column, and the print page's tables show it with the footnote rewritten to the snapshot-weighted semantics (it previously claimed a stale "last purchase price" basis).
+
 ### Added (Effective unit-cost column on the warehouse report)
 - Each material line in every type table now shows the **effective unit cost** behind its rial value: the value-weighted average of the row snapshots (1 kg @40k + 1 kg @60k quotes 50k, not the last-seen price), falling back to the current cost for pre-snapshot rows and «—» for un-costed materials. The value column's tooltip now explains it is `total × effective cost`, sourced from per-movement write-time snapshots.
 - 2 new service tests (weighted merge semantics + legacy fallback alongside the existing value tests).
