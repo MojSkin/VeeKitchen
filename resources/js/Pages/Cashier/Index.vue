@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
-import { router, usePage } from '@inertiajs/vue3';
+import { Link, router, usePage } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { formatTomanWithUnit, statusTone } from '@/lib/format';
 
@@ -141,13 +141,13 @@ function tableLabel(tableId) {
                             {{ tableLabel(order.table?.id) }} · {{ formatTomanWithUnit(order.total) }}
                         </p>
                         <div class="mt-3 flex gap-2">
-                            <a
+                            <Link
                                 :href="route('cashier.receipt', order.id)"
                                 target="_blank"
                                 class="glass-flat rounded-xl px-3 py-2 text-sm"
                             >
                                 فیش
-                            </a>
+                            </Link>
                             <button
                                 type="button"
                                 class="glass-flat rounded-xl px-3 py-2 text-sm"

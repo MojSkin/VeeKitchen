@@ -12,6 +12,7 @@
 - [x] انتقال سند نیازمندی‌ها به docs/REQUIREMENTS.md
 - [x] رفع شکستگی‌های build (ویوی welcome، import زایگی، استاب‌های Vue خالی)
 - [x] کپی اسکیل‌ها: persian-writing، ui-ux-pro-max، frontend-design
+- [x] قوانین SPA: تمام روت‌ها نام‌گذاری شدند (`/` → `home`)؛ فرانت فقط با `route(name)` زگی صدا می‌زند؛ هیچ `<a>` در SPA نیست (ناوبری `<Link>` اینرشیا، خروجی‌ها fetch-blob)
 - [x] ثبت قوانین گیت در .ai/rules
 - [x] README فارسی + CHECKLIST + CHANGELOG
 - [x] ساخت برنچ‌های development / testing / production و پوش اولیه به origin

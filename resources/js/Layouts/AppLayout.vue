@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue';
-import { router, usePage } from '@inertiajs/vue3';
+import { Link, router, usePage } from '@inertiajs/vue3';
 import FlashToasts from '@/Components/FlashToasts.vue';
 import StockAlertBell from '@/Components/StockAlertBell.vue';
 
@@ -9,23 +9,24 @@ const page = usePage();
 const navLinks = computed(() => {
     const role = page.props.auth.user?.role;
 
+    // Route NAMES, never URLs — resolved through Ziggy at render time.
     if (role === 'admin') {
         return [
-            { href: route('admin.dashboard'), label: 'داشبورد' },
-            { href: route('admin.tables'), label: 'میزها' },
-            { href: route('admin.inventory'), label: 'انبار' },
-            { href: route('admin.inventory.report'), label: 'گزارش انبار' },
-            { href: route('admin.purchase-orders'), label: 'خرید' },
-            { href: route('cashier.index'), label: 'صندوق' },
+            { to: 'admin.dashboard', label: 'داشبورد' },
+            { to: 'admin.tables', label: 'میزها' },
+            { to: 'admin.inventory', label: 'انبار' },
+            { to: 'admin.inventory.report', label: 'گزارش انبار' },
+            { to: 'admin.purchase-orders', label: 'خرید' },
+            { to: 'cashier.index', label: 'صندوق' },
         ];
     }
 
     if (role === 'cashier') {
-        return [{ href: route('cashier.index'), label: 'صندوق' }];
+        return [{ to: 'cashier.index', label: 'صندوق' }];
     }
 
     if (role === 'kitchen') {
-        return [{ href: route('kitchen.index'), label: 'آشپزخانه' }];
+        return [{ to: 'kitchen.index', label: 'آشپزخانه' }];
     }
 
     return [];
@@ -45,14 +46,14 @@ function logout() {
                 <div class="flex items-center gap-4">
                     <p class="font-black text-saffron-500">وی‌کیچن</p>
                     <nav class="flex items-center gap-1">
-                        <a
+                        <Link
                             v-for="link in navLinks"
-                            :key="link.href"
-                            :href="link.href"
+                            :key="link.to"
+                            :href="route(link.to)"
                             class="rounded-xl px-3 py-1.5 text-sm opacity-70 transition hover:bg-white/10 hover:opacity-100"
                         >
                             {{ link.label }}
-                        </a>
+                        </Link>
                     </nav>
                 </div>
                 <div class="flex items-center gap-3">
