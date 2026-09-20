@@ -39,9 +39,11 @@ class WarehouseReportService
         // Group by type first, then per material inside each type. Quantities
         // keep their ledger sign — consumption/waste are negative — so each
         // type's `total` shows the real net effect on the warehouse. `value`
-        // fields are always positive Toman figures (|quantity| × unit_cost):
-        // negative quantities are money flowing OUT of the warehouse, so the
-        // UI colours them by the type's direction, not by a minus sign.
+        // fields are always positive Toman figures (|quantity| × the row's
+        // historical unit cost): negative quantities are money flowing OUT
+        // of the warehouse, so the UI colours them by the type's direction,
+        // not by a minus sign. Rows written before cost snapshots existed
+        // fall back to the material's current cost.
         $types = collect(StockMovementType::cases())
             ->map(fn (StockMovementType $type): array => [
                 'type' => $type->value,
@@ -57,7 +59,8 @@ class WarehouseReportService
             $type = $types[$movement->type->value];
             $amount = (float) $movement->quantity;
             $item = $movement->inventoryItem;
-            $value = (int) round(abs($amount) * (float) $item->unit_cost);
+            $cost = UnitCostSnapshot::valuationCost($movement);
+            $value = $cost === null ? 0 : (int) round(abs($amount) * $cost);
 
             $type['total'] += $amount;
             $type['movements'] += 1;

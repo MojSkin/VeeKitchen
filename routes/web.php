@@ -17,7 +17,7 @@ use Inertia\Inertia;
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
-});
+})->name('home');
 
 // ── Guest flow: QR table → menu → cart → order ─────────────────────────────
 Route::get('/menu', [MenuController::class, 'publicMenu'])->name('menu.public');

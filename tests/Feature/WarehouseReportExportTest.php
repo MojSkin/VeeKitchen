@@ -139,3 +139,80 @@ test('exports are admin-only', function () {
         ->get(route('admin.inventory.report.export', ['format' => 'print']))
         ->assertOk();
 });
+
+test('the csv export opens with a BOM and carries the value columns', function () {
+    [$branch, $admin] = exportLab();
+
+    $flour = exportMaterial($branch, 'آرد گندم', MeasurementUnit::Kilogram, 60_000);
+    $cheese = exportMaterial($branch, 'پنیر موزارلا', MeasurementUnit::Kilogram, 320_000);
+
+    // Two consumption rows merge into one line: |−0.4| × 60_000 = 24_000.
+    StockMovement::factory()->create(['inventory_item_id' => $flour->id, 'type' => 'consumption', 'quantity' => -0.25]);
+    StockMovement::factory()->create(['inventory_item_id' => $flour->id, 'type' => 'consumption', 'quantity' => -0.15]);
+    StockMovement::factory()->create(['inventory_item_id' => $cheese->id, 'type' => 'purchase', 'quantity' => 10.0]);
+
+    $response = $this->actingAs($admin)
+        ->get(route('admin.inventory.report.export', ['format' => 'csv', 'range' => 'today']))
+        ->assertOk()
+        ->assertHeader('content-type', 'text/csv; charset=UTF-8');
+
+    $content = $response->streamedContent();
+
+    expect(substr($content, 0, 3))->toBe("\xEF\xBB\xBF");
+
+    $rows = array_map(
+        fn (string $line): array => str_getcsv($line),
+        preg_split('/\r\n/', substr($content, 3), -1, PREG_SPLIT_NO_EMPTY),
+    );
+
+    // Persian text survives raw, un-mangled.
+    expect($rows[0][0])->toBe('گزارش انبار — '.$branch->name);
+
+    $flat = json_encode($rows, JSON_UNESCAPED_UNICODE);
+
+    // Type summary carries the values (24_000 consumption, 3_200_000 purchase).
+    expect($flat)->toContain('"مصرف","-0.4","24000"')
+        ->toContain('"خرید","10","3200000"')
+        // Item lines repeat the type, name, unit and rial value.
+        ->toContain('"مصرف","آرد گندم","کیلوگرم"')
+        ->toContain('"خرید","پنیر موزارلا","کیلوگرم","10","3200000"');
+});
+
+test('the csv export honours a custom range in its filename and bounds', function () {
+    [$branch, $admin] = exportLab();
+
+    $flour = exportMaterial($branch, 'آرد گندم', MeasurementUnit::Kilogram, 60_000);
+
+    StockMovement::factory()->create(['inventory_item_id' => $flour->id, 'type' => 'consumption', 'quantity' => -0.4]);
+
+    $movement = StockMovement::query()->latest('id')->first();
+    $movement->forceFill(['created_at' => now()->subDays(5)])->save();
+
+    $from = now()->subDays(6)->toDateString();
+    $to = now()->toDateString();
+
+    $response = $this->actingAs($admin)
+        ->get(route('admin.inventory.report.export', ['format' => 'csv', 'range' => 'custom', 'from' => $from, 'to' => $to]))
+        ->assertOk();
+
+    $content = $response->streamedContent();
+    $rows = array_map(
+        fn (string $line): array => str_getcsv($line),
+        preg_split('/\r\n/', substr($content, 3), -1, PREG_SPLIT_NO_EMPTY),
+    );
+
+    expect($response->headers->get('content-disposition'))->toContain('.csv')
+        ->toContain($from)
+        // The five-day-old movement is inside the range.
+        ->and(json_encode($rows, JSON_UNESCAPED_UNICODE))->toContain('24000');
+
+    // A single-day request two days ago leaves today's-only data out.
+    $day = now()->subDays(2)->toDateString();
+
+    $narrow = $this->actingAs($admin)
+        ->get(route('admin.inventory.report.export', ['format' => 'csv', 'range' => 'custom', 'from' => $day, 'to' => $day]))
+        ->assertOk()
+        ->streamedContent();
+
+    expect(json_encode($narrow, JSON_UNESCAPED_UNICODE))->not->toContain('24000');
+});

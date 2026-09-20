@@ -1,4 +1,5 @@
 <script setup>
+import { Link } from '@inertiajs/vue3';
 import { usePurchaseOrderForm } from '@/lib/purchaseOrderForm';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import PurchaseOrderFormFields from '@/Components/PurchaseOrderFormFields.vue';
@@ -23,9 +24,9 @@ const { form, submitting, isTaken, hasFreeItems, onLineMaterialChange, addLine, 
     <AppLayout>
         <div class="mx-auto max-w-3xl px-4 py-6">
             <header class="mb-6">
-                <a :href="route('admin.purchase-orders')" class="text-xs opacity-50 transition hover:opacity-90">
+                <Link :href="route('admin.purchase-orders')" class="text-xs opacity-50 transition hover:opacity-90">
                     → بازگشت به سفارش‌های خرید
-                </a>
+                </Link>
                 <h1 class="mt-2 text-2xl font-bold">سفارش خرید جدید</h1>
                 <p class="mt-1 text-sm opacity-60">
                     پیش‌نویس ساخته می‌شود؛ پس از بازبینی، «ثبت نزد تامین‌کننده» را بزنید.

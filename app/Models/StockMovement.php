@@ -22,6 +22,8 @@ class StockMovement extends Model
         'inventory_item_id',
         'type',
         'quantity',
+        'unit_cost_at',
+        'unit_cost_source',
         'order_id',
         'payment_id',
         'reason',
@@ -33,7 +35,18 @@ class StockMovement extends Model
         return [
             'type' => StockMovementType::class,
             'quantity' => 'decimal:3',
+            'unit_cost_at' => 'integer',
         ];
+    }
+
+    /**
+     * The Toman price this row was valued at. Historic rows recorded before
+     * cost snapshots existed (and rows whose fallback found no recorded
+     * cost) return null.
+     */
+    public function unitCostAt(): ?int
+    {
+        return $this->unit_cost_at;
     }
 
     /**

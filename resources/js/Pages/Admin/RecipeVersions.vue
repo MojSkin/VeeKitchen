@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue';
+import { Link } from '@inertiajs/vue3';
 import { faDigits, formatToman } from '@/lib/format';
 
 const props = defineProps({
@@ -108,12 +109,12 @@ function timeLabel(iso) {
                 <h1 class="text-2xl font-bold">تاریخچهٔ فرمول</h1>
                 <p class="mt-1 text-sm opacity-60">{{ product.name }}</p>
             </div>
-            <a
+            <Link
                 :href="route('admin.inventory')"
                 class="glass-flat rounded-xl px-4 py-2 text-sm transition hover:bg-white/10"
             >
                 بازگشت به انبار
-            </a>
+            </Link>
         </header>
 
         <p

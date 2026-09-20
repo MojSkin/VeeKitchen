@@ -45,7 +45,8 @@ class WarehouseReportController extends Controller
 
     /**
      * File exports of the same report: `format=xlsx` streams an Excel
-     * workbook, `format=print` returns a self-contained print page.
+     * workbook, `format=csv` a spreadsheet-ready CSV, and `format=print`
+     * a self-contained print page.
      */
     public function export(Request $request): StreamedResponse
     {
@@ -58,6 +59,14 @@ class WarehouseReportController extends Controller
                 fn () => print $this->exports->printView($branch, $from, $to),
                 'warehouse-report.html',
                 ['Content-Type' => 'text/html; charset=UTF-8'],
+            );
+        }
+
+        if ($request->query('format') === 'csv') {
+            return response()->streamDownload(
+                fn () => print $this->exports->csv($branch, $from, $to),
+                $this->exports->filename($branch, $from, $to, 'csv'),
+                ['Content-Type' => 'text/csv; charset=UTF-8'],
             );
         }
 
