@@ -158,18 +158,75 @@ class WarehouseReportExportService
     }
 
     /**
+     * Spreadsheet-ready CSV of the same report: one header block, the type
+     * summary rows, then one row per item line — all with the rial value
+     * column, exactly mirroring the XLSX layout. A UTF-8 BOM keeps Persian
+     * text readable when the file opens in Excel.
+     */
+    public function csv(Branch $branch, Carbon $from, Carbon $to): string
+    {
+        $packet = $this->packet($branch, $from, $to);
+
+        $lines = [
+            ['گزارش انبار — '.$packet['branch']],
+            ['از', $this->day($packet['from']), 'تا', $this->day($packet['to'])],
+            ['تعداد ردیف دفتر کل', $packet['movement_count']],
+            ['ارزش خروجی (تومان)', $packet['outflow_value']],
+            ['ارزش ورودی (تومان)', $packet['inflow_value']],
+            [],
+            ['نوع حرکت', 'جمع مقدار', 'ارزش ریالی (تومان)'],
+        ];
+
+        foreach ($packet['types'] as $type) {
+            $lines[] = [$type['label'], $type['total'], $type['value']];
+        }
+
+        $lines[] = [];
+        $lines[] = ['نوع حرکت', 'متریال', 'واحد', 'جمع مقدار', 'ارزش ریالی (تومان)'];
+
+        foreach ($packet['types'] as $type) {
+            foreach ($type['items'] as $item) {
+                $lines[] = [$type['label'], $item['name'], $item['unit_label'], $item['total'], $item['value']];
+            }
+        }
+
+        $csv = '';
+
+        foreach ($lines as $line) {
+            $csv .= implode(',', array_map(fn (string $cell): string => $this->csvCell($cell), $line))."\r\n";
+        }
+
+        return "\xEF\xBB\xBF".$csv;
+    }
+
+    /**
+     * RFC 4180 cell escaping: quote anything containing a comma, quote or
+     * newline, and double embedded quotes.
+     */
+    protected function csvCell(string $cell): string
+    {
+        $cell = (string) $cell;
+
+        if (preg_match('/[",\r\n]/', $cell) === 1) {
+            return '"'.str_replace('"', '""', $cell).'"';
+        }
+
+        return $cell;
+    }
+
+    /**
      * A suggested client-side filename for the exported workbook.
      */
-    public function filename(Branch $branch, Carbon $from, Carbon $to): string
+    public function filename(Branch $branch, Carbon $from, Carbon $to, string $extension = 'xlsx'): string
     {
         $from = $from->copy()->startOfDay();
         $to = $to->copy()->startOfDay();
 
         if ($from->equalTo($to)) {
-            return 'warehouse-report-'.$from->format('Y-m-d').'.xlsx';
+            return 'warehouse-report-'.$from->format('Y-m-d').'.'.$extension;
         }
 
-        return 'warehouse-report-'.$from->format('Y-m-d').'_'.$to->format('Y-m-d').'.xlsx';
+        return 'warehouse-report-'.$from->format('Y-m-d').'_'.$to->format('Y-m-d').'.'.$extension;
     }
 
     protected function day(Carbon $date): string

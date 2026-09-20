@@ -20,6 +20,10 @@ Direct pushes to `main` or `production` never happen; merges from `testing` only
 
 ## [Unreleased]
 
+### Added (Warehouse report CSV export)
+- A third export button, «دانلود CSV», on the warehouse report: `format=csv` streams a spreadsheet-ready CSV over the selected range with the same summary/detail layout as the XLSX (type totals, then one row per material line) — including the rial value column, which now reads the historical unit-cost snapshots. A UTF-8 BOM keeps the Persian text readable when the file opens in Excel, cells follow RFC 4180 escaping, and the range-resolved filename (`warehouse-report-<from>[ _<to>].csv`) matches the on-screen report exactly.
+- 2 new feature tests: BOM + value columns with merged per-material lines, and the custom-range test asserting a five-day-old movement lands inside the window while a single-day slice excludes today-only data.
+
 ### Added (Historical unit-cost snapshots on the ledger)
 - Every `stock_movements` row now freezes the Toman price it was valued at: `unit_cost_at` plus a `unit_cost_source` marker distinguishing the price actually paid (`purchase_price`) from the material's current cost at write time (`current_cost`). Rial values in the warehouse reports (and the email/XLSX exports fed by them) are historical facts now — re-running an old report reproduces the same numbers instead of silently re-valuing history with today's prices.
 - Rows written before snapshots existed keep working: the report falls back to the material's current cost, so the transition is invisible. Un-costed materials still value at zero and render «—».

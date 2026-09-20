@@ -14,6 +14,7 @@
 - [x] کپی اسکیل‌ها: persian-writing، ui-ux-pro-max، frontend-design
 - [x] قوانین SPA: تمام روت‌ها نام‌گذاری شدند (`/` → `home`)؛ فرانت فقط با `route(name)` زگی صدا می‌زند؛ هیچ `<a>` در SPA نیست (ناوبری `<Link>` اینرشیا، خروجی‌ها fetch-blob)
 - [x] اسنپ‌شات قیمت واحد در StockMovement (`unit_cost_at` + `unit_cost_source`) — ارزش‌گذاری تاریخی گزارش‌ها دیگر با تغییر قیمت امروز جابه‌جا نمی‌شود؛ ردیف‌های قدیمی با fallback به unit_cost فعلی کار می‌کنند
+- [x] خروجی CSV گزارش انبار (`format=csv`) با ستون ارزش، BOM فمت-۸ و نام فایل بازه‌دار؛ دکمهٔ سوم کنار XLSX و چاپ
 - [x] ثبت قوانین گیت در .ai/rules
 - [x] README فارسی + CHECKLIST + CHANGELOG
 - [x] ساخت برنچ‌های development / testing / production و پوش اولیه به origin
