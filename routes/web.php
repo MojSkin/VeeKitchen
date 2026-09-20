@@ -58,6 +58,7 @@ Route::middleware(['auth', 'role:kitchen,admin'])->prefix('kitchen')->group(func
 // ── Admin ───────────────────────────────────────────────────────────────────
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+    Route::get('/dashboard/export', [DashboardController::class, 'export'])->name('admin.dashboard.export');
     Route::get('/tables', [TableController::class, 'index'])->name('admin.tables');
     Route::get('/tables/{table}/qr', [TableController::class, 'qr'])->name('admin.tables.qr');
     Route::post('/tables/{table}/rotate-token', [TableController::class, 'rotateToken'])

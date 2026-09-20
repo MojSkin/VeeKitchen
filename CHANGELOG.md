@@ -20,7 +20,11 @@ Direct pushes to `main` or `production` never happen; merges from `testing` only
 
 ## [Unreleased]
 
-### Added (Weekly warehouse report email)
+### Added (Dashboard XLSX export)
+- The admin dashboard exports itself: `GET admin/dashboard/export` (admin-only, button on the dashboard header) streams an XLSX workbook mirroring the screen — sheet «KPIها» (today's revenue/orders/average ticket, the order pipeline, the dining-room snapshot, the low-stock board with current vs threshold) and sheet «نمودار فروش» (the exact 14-day daily series incl. zero days, the period totals and the best day).
+- The dashboard's data assembly moved from the controller into `DashboardSnapshotService`, so the page and the workbook read one source and can never disagree; `DashboardExportService` renders the workbook (RTL sheets, bold headers, autosized columns).
+- Fixed a subtle PhpSpreadsheet trap found by the tests: `fromArray()`'s loose null comparison silently drops zero-valued cells — all writes now use strict null comparison so zero revenue rows survive the round-trip.
+- 7 new feature tests (workbook round-trip via the reader, KPI parity with the screen, 14-row chart shape with zero days and yesterday isolation, empty-branch zeros, admin-only guard) — 170 tests green overall.
 - The warehouse report now ships itself: a scheduled command (`reports:weekly-warehouse`, every Saturday 07:00 — the Iranian week boundary) emails each active branch's admins the turnover of the seven completed days (Sat → Fri), computed by the exact same `WarehouseReportService` aggregation the on-screen report serves, so the email can never disagree with the panel. The window never includes "today"; branches with an empty window or no admins are skipped; `--from`/`--to` overrides (with swapped-range tolerance) support manual runs.
 - The `WarehouseWeeklyReport` mailable renders a self-contained RTL email (gradient header, outflow/inflow value pipe, per-type tables with signed totals and rial values, valuation footnote, deep link to the admin report).
 - 10 new feature tests (window semantics incl. today/8-days-ago exclusion, recipients admin-only across active branches, empty/inactive/no-admin skips, overrides, HTML render, subject) — 163 tests green overall.
