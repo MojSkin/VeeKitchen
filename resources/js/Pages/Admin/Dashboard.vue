@@ -103,11 +103,20 @@ function shortNumber(value) {
 <template>
     <AppLayout>
         <div class="mx-auto max-w-6xl px-4 py-6">
-            <header class="mb-6">
-                <h1 class="text-2xl font-bold">داشبورد مدیریتی</h1>
-                <p class="mt-1 text-sm opacity-60">
-                    نگاه یک‌صفحه‌ای به فروش، آشپزخانه و انبار شعبه
-                </p>
+            <header class="mb-6 flex flex-wrap items-end justify-between gap-3">
+                <div>
+                    <h1 class="text-2xl font-bold">داشبورد مدیریتی</h1>
+                    <p class="mt-1 text-sm opacity-60">
+                        نگاه یک‌صفحه‌ای به فروش، آشپزخانه و انبار شعبه
+                    </p>
+                </div>
+                <a
+                    :href="route('admin.dashboard.export')"
+                    class="glass rounded-glass px-4 py-2 text-sm font-bold transition hover:bg-white/10"
+                    title="دانلود همین ارقام به‌صورت اکسل (KPIها + نمودار ۱۴ روز)"
+                >
+                    دانلود اکسل (XLSX) ↓
+                </a>
             </header>
 
             <!-- KPI row -->
