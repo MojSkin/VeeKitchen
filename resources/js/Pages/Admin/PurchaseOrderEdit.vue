@@ -1,4 +1,5 @@
 <script setup>
+import { Link } from '@inertiajs/vue3';
 import { usePurchaseOrderForm } from '@/lib/purchaseOrderForm';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import PurchaseOrderFormFields from '@/Components/PurchaseOrderFormFields.vue';
@@ -35,9 +36,9 @@ const { form, submitting, isTaken, hasFreeItems, onLineMaterialChange, addLine, 
     <AppLayout>
         <div class="mx-auto max-w-3xl px-4 py-6">
             <header class="mb-6">
-                <a :href="route('admin.purchase-orders')" class="text-xs opacity-50 transition hover:opacity-90">
+                <Link :href="route('admin.purchase-orders')" class="text-xs opacity-50 transition hover:opacity-90">
                     → بازگشت به سفارش‌های خرید
-                </a>
+                </Link>
                 <h1 class="mt-2 text-2xl font-bold">ویرایش پیش‌نویس سفارش #{{ order.id }}</h1>
                 <p class="mt-1 text-sm opacity-60">
                     تغییرات روی پیش‌نویس ذخیره می‌شود؛ تا پیش از «ثبت نزد تامین‌کننده» می‌توانید دوباره ویرایش کنید.

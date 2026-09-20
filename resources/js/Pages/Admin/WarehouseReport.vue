@@ -141,16 +141,43 @@ function refresh() {
 }
 
 /**
- * Export links carry the *server-resolved* bounds of the visible report
+ * Exports carry the *server-resolved* bounds of the visible report
  * (not the raw preset) so the file always matches what's on screen.
+ * Both are binary responses — triggered via JS so the SPA never falls
+ * back to a full-page <a> navigation.
  */
-function exportUrl(format) {
-    return route('admin.inventory.report.export', {
+function exportQuery(format) {
+    return {
         format,
         range: props.range.preset,
         from: toDateInput(props.range.from),
         to: toDateInput(props.range.to),
-    });
+    };
+}
+
+function downloadExport(format) {
+    fetch(route('admin.inventory.report.export', exportQuery(format)), {
+        credentials: 'same-origin',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+    })
+        .then((response) => {
+            if (!response.ok) throw new Error(`export failed: ${response.status}`);
+
+            return response.blob();
+        })
+        .then((blob) => {
+            const objectUrl = URL.createObjectURL(blob);
+            const anchor = document.createElement('a');
+            anchor.href = objectUrl;
+            anchor.download = `warehouse-report-${toDateInput(props.range.from)}.xlsx`;
+            anchor.click();
+            URL.revokeObjectURL(objectUrl);
+        })
+        .catch(() => window.alert('دانلود فایل اکسل ناموفق بود. دوباره تلاش کنید.'));
+}
+
+function openExport(format) {
+    window.open(route('admin.inventory.report.export', exportQuery(format)), '_blank', 'noopener');
 }
 </script>
 
@@ -224,20 +251,20 @@ function exportUrl(format) {
                     </button>
 
                     <div class="flex flex-wrap items-center gap-2">
-                        <a
-                            :href="exportUrl('xlsx')"
+                        <button
+                            type="button"
                             class="glass-flat cursor-pointer rounded-xl px-4 py-2 text-xs font-bold transition hover:bg-white/10"
+                            @click="downloadExport('xlsx')"
                         >
                             دانلود اکسل (XLSX)
-                        </a>
-                        <a
-                            :href="exportUrl('print')"
-                            target="_blank"
-                            rel="noopener"
+                        </button>
+                        <button
+                            type="button"
                             class="glass-flat cursor-pointer rounded-xl px-4 py-2 text-xs font-bold transition hover:bg-white/10"
+                            @click="openExport('print')"
                         >
                             نسخهٔ چاپی
-                        </a>
+                        </button>
                     </div>
                 </div>
             </section>

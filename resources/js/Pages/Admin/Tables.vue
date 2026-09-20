@@ -16,6 +16,14 @@ const toneClasses = {
     violet: 'bg-violet-500/15 text-violet-600 dark:text-violet-400',
 };
 
+/**
+ * The QR sheet is a printable Inertia page — opened in a fresh tab so the
+ * table grid stays put.
+ */
+function openQr(table) {
+    window.open(route('admin.tables.qr', table.id), '_blank');
+}
+
 function rotateToken(table) {
     busyTableId.value = table.id;
 
@@ -61,13 +69,13 @@ function rotateToken(table) {
                     </p>
 
                     <footer class="mt-4 flex gap-2">
-                        <a
-                            :href="route('admin.tables.qr', table.id)"
-                            target="_blank"
+                        <button
+                            type="button"
                             class="glass-flat flex-1 rounded-xl px-3 py-2 text-center text-sm"
+                            @click="openQr(table)"
                         >
                             QR
-                        </a>
+                        </button>
                         <button
                             type="button"
                             class="glass-flat flex-1 rounded-xl px-3 py-2 text-sm disabled:opacity-40"

@@ -20,6 +20,10 @@ Direct pushes to `main` or `production` never happen; merges from `testing` only
 
 ## [Unreleased]
 
+### Changed (SPA routing hygiene)
+- The frontend now calls every route by its **name** through Ziggy's global `route()` — raw URL strings are gone from all Vue pages. The one unnamed route (`/`) was named `home`, completing the contract that every route is addressable by name.
+- Zero `<a>` tags remain in the SPA: all in-app navigation renders through Inertia's `<Link>` (the last offender, the cashier receipt link, is now a `Link`), and the two binary exports that previously fell back to full-page navigation (`window.location.href` on the dashboard, `:href` anchors on the warehouse report) are now `fetch()`-based blob downloads / `window.open` — the SPA state is never disturbed by a hard navigation. Verified live: clicking a nav link keeps JS state alive (no full reload) and lands on the same page the URL would.
+
 ### Fixed (Admin login redirect)
 - Signing in as an admin 500'd on the redirect: `UserRole::homeRoute()` still returned the pre-dashboard `dashboard` route name while the actual route is `admin.dashboard`. The session survived the exception, so the bug hid behind manual URL navigation — now the admin lands on the admin dashboard, and a new login-redirect test locks every staff role's home route (admin, cashier) plus a guard that all home routes exist.
 
