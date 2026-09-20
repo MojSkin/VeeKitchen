@@ -14,6 +14,7 @@ use App\Models\StockMovement;
 use App\Services\CostCalculator;
 use App\Services\InventoryService;
 use App\Services\RecipeVersionService;
+use App\Services\UnitCostSnapshot;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -133,6 +134,7 @@ class InventoryController extends Controller
             'inventory_item_id' => $item->id,
             'type' => 'adjustment',
             'quantity' => $delta,
+            ...UnitCostSnapshot::forMovement($item, 'adjustment'),
             'user_id' => $request->user()->id,
             'reason' => $validated['reason'],
         ]);
@@ -162,6 +164,7 @@ class InventoryController extends Controller
             'inventory_item_id' => $item->id,
             'type' => 'adjustment',
             'quantity' => (float) $validated['current_stock'],
+            ...UnitCostSnapshot::forMovement($item, 'adjustment'),
             'user_id' => $request->user()->id,
             'reason' => 'ثبت اولیهٔ متریال',
         ]);

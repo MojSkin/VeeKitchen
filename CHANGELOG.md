@@ -20,6 +20,11 @@ Direct pushes to `main` or `production` never happen; merges from `testing` only
 
 ## [Unreleased]
 
+### Added (Historical unit-cost snapshots on the ledger)
+- Every `stock_movements` row now freezes the Toman price it was valued at: `unit_cost_at` plus a `unit_cost_source` marker distinguishing the price actually paid (`purchase_price`) from the material's current cost at write time (`current_cost`). Rial values in the warehouse reports (and the email/XLSX exports fed by them) are historical facts now — re-running an old report reproduces the same numbers instead of silently re-valuing history with today's prices.
+- Rows written before snapshots existed keep working: the report falls back to the material's current cost, so the transition is invisible. Un-costed materials still value at zero and render «—».
+- 6 new feature tests: purchase rows snapshot the paid price, auto-deduction and waste/adjustment/return stamp the current cost at write time, legacy rows fall back, and the historic-divergence test proves an old row keeps its 150k valuation while today's row carries 210k after the price rose.
+
 ### Changed (SPA routing hygiene)
 - The frontend now calls every route by its **name** through Ziggy's global `route()` — raw URL strings are gone from all Vue pages. The one unnamed route (`/`) was named `home`, completing the contract that every route is addressable by name.
 - Zero `<a>` tags remain in the SPA: all in-app navigation renders through Inertia's `<Link>` (the last offender, the cashier receipt link, is now a `Link`), and the two binary exports that previously fell back to full-page navigation (`window.location.href` on the dashboard, `:href` anchors on the warehouse report) are now `fetch()`-based blob downloads / `window.open` — the SPA state is never disturbed by a hard navigation. Verified live: clicking a nav link keeps JS state alive (no full reload) and lands on the same page the URL would.

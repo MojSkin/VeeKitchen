@@ -13,6 +13,7 @@
 - [x] رفع شکستگی‌های build (ویوی welcome، import زایگی، استاب‌های Vue خالی)
 - [x] کپی اسکیل‌ها: persian-writing، ui-ux-pro-max، frontend-design
 - [x] قوانین SPA: تمام روت‌ها نام‌گذاری شدند (`/` → `home`)؛ فرانت فقط با `route(name)` زگی صدا می‌زند؛ هیچ `<a>` در SPA نیست (ناوبری `<Link>` اینرشیا، خروجی‌ها fetch-blob)
+- [x] اسنپ‌شات قیمت واحد در StockMovement (`unit_cost_at` + `unit_cost_source`) — ارزش‌گذاری تاریخی گزارش‌ها دیگر با تغییر قیمت امروز جابه‌جا نمی‌شود؛ ردیف‌های قدیمی با fallback به unit_cost فعلی کار می‌کنند
 - [x] ثبت قوانین گیت در .ai/rules
 - [x] README فارسی + CHECKLIST + CHANGELOG
 - [x] ساخت برنچ‌های development / testing / production و پوش اولیه به origin

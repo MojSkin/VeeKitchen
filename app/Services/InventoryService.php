@@ -116,6 +116,7 @@ class InventoryService
                 'inventory_item_id' => $item->id,
                 'type' => StockMovementType::Return,
                 'quantity' => $requirement['amount'],
+                ...UnitCostSnapshot::forMovement($item, 'return'),
                 'order_id' => $order->id,
                 'user_id' => $actor?->id,
                 'reason' => "بازگشت متریال کنسلی سفارش شماره {$order->order_number}",
@@ -162,6 +163,7 @@ class InventoryService
                 'inventory_item_id' => $item->id,
                 'type' => StockMovementType::Waste,
                 'quantity' => -1 * $quantity,
+                ...UnitCostSnapshot::forMovement($item, 'waste'),
                 'user_id' => $actor?->id,
                 'reason' => "ضایعات: {$reason}",
             ]);
@@ -208,6 +210,7 @@ class InventoryService
                 'inventory_item_id' => $item->id,
                 'type' => StockMovementType::Consumption,
                 'quantity' => -1 * $amount,
+                ...UnitCostSnapshot::forMovement($item, 'consumption'),
                 'order_id' => $order->id,
                 'payment_id' => $payment->id,
                 'user_id' => $actorId,

@@ -33,6 +33,28 @@ class StockMovementFactory extends Factory
         ];
     }
 
+    /**
+     * Stamp the row with an explicit historical unit cost.
+     */
+    public function unitCost(int $cost, string $source = 'test'): static
+    {
+        return $this->state(fn () => [
+            'unit_cost_at' => $cost,
+            'unit_cost_source' => $source,
+        ]);
+    }
+
+    /**
+     * Clear the snapshot so the row falls back to the item's current cost.
+     */
+    public function withoutCostSnapshot(): static
+    {
+        return $this->state(fn () => [
+            'unit_cost_at' => null,
+            'unit_cost_source' => null,
+        ]);
+    }
+
     public function consumption(float $quantity): static
     {
         return $this->state(fn () => [
