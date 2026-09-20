@@ -23,6 +23,11 @@ yarn-error.log
 
 # Local agent workspace (preview logs, one-shot tooling) — never commit
 /.freebuff
+/.codex
+/.cursor
+
+# Local-only assets
+/public/audio
 
 # Dependencies & local files (large, regenerable)
 /vendor
