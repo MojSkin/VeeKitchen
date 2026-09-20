@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DiscountController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\PurchaseOrderController;
@@ -93,6 +94,14 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
         ->name('admin.purchase-orders.receive');
     Route::post('/purchase-orders/{order}/cancel', [PurchaseOrderController::class, 'cancel'])
         ->name('admin.purchase-orders.cancel');
+
+    Route::get('/discounts', [DiscountController::class, 'index'])->name('admin.discounts');
+    Route::post('/discounts', [DiscountController::class, 'store'])->name('admin.discounts.store');
+    Route::put('/discounts/{discount}', [DiscountController::class, 'update'])->name('admin.discounts.update');
+    Route::post('/discounts/{discount}/toggle', [DiscountController::class, 'toggle'])
+        ->name('admin.discounts.toggle');
+    Route::delete('/discounts/{discount}', [DiscountController::class, 'destroy'])
+        ->name('admin.discounts.destroy');
 });
 
 // ── Public pickup display (no login) ────────────────────────────────────────
