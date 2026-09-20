@@ -20,7 +20,12 @@ Direct pushes to `main` or `production` never happen; merges from `testing` only
 
 ## [Unreleased]
 
-### Added (Phase 2 — warehouse report XLSX & print export)
+### Added (Phase 3 — discount domain, step 1)
+- The financial loop opens with discounts: a `discounts` table (automatic or coupon code, percentage/fixed, scoped to the entire order / a menu category / a product, with min-order floor, validity window, global + per-user usage ceilings) plus `DiscountType`/`DiscountScope` enums, an eloquent model and a 9-state factory.
+- `DiscountService::bestFor()` always picks the best eligible discount for a priced cart; a coupon code only participates when it is not worse than the best automatic offer — a weaker code is rejected with a Persian message instead of being silently downgraded, and unknown/inactive codes are rejected too. Usage counting is capped at the ceiling, and reaching it notifies the branch's admins (`DiscountLimitReached` database notification).
+- `OrderService::place()` now applies the chosen discount (`discount_total` + `discount_id` on `orders`, new nullable FK migration), accepts an optional `discountCode`, and the guest order endpoint forwards a `discount_code` field.
+- Stock deduction is now discount-scaled: materials are deducted by `(subtotal − discount_total) ÷ subtotal` of the raw recipe amounts, so a half-price cart consumes half the real materials — a zero-total giveaway deducts nothing.
+- 16 new feature tests (auto/best/category scoping, coupon accept/reject/unknown, expiry, exhaustion, global + per-user ceilings with guest semantics, admin notification, zero-floor totals, scaled deduction incl. the giveaway case) — 153 tests green overall.
 - The warehouse report gained file exports of exactly what's on screen: `GET admin/inventory/report/export?format=xlsx` streams an Excel workbook (sheet «خلاصه» with the range bounds, ledger row count, outflow/inflow values and the per-type summary; sheet «اقلام» with one row per material line) and `format=print` opens a self-contained A4 print document (RTL, print CSS, auto print dialog, valuation footnote). Both honor the active date range, are admin-only, and the XLSX filename carries the range (`warehouse-report-2026-09-20.xlsx` / `..._from_to.xlsx`).
 - New dependency: `phpoffice/phpspreadsheet` (v5.10, MIT) — added with the product owner's approval for Excel output.
 - 4 new feature tests (workbook round-trip via the PhpSpreadsheet reader incl. RTL sheets and Persian headers, print HTML contents, custom-range bounds in payload + filename, admin-only guard) — 137 tests green overall.

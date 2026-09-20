@@ -8,6 +8,7 @@ use App\Enums\TableStatus;
 use App\Events\OrderPaid;
 use App\Events\OrderPlaced;
 use App\Events\OrderStatusChanged;
+use App\Models\Discount;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\RestaurantTable;
@@ -28,6 +29,7 @@ class OrderService
     public function __construct(
         protected QuoteService $quotes,
         protected InventoryService $inventory,
+        protected DiscountService $discounts,
     ) {}
 
     /**
@@ -42,6 +44,7 @@ class OrderService
         array $cart,
         ?string $guestName = null,
         ?string $notes = null,
+        ?string $discountCode = null,
     ): Order {
         if ($cart === []) {
             throw new InvalidArgumentException('سبد خرید خالی است.');
@@ -52,15 +55,23 @@ class OrderService
         }
 
         $quoted = $this->quotes->quote($branchId, $cart);
-        $total = $quoted['subtotal']->roundUp();
+        $applied = $this->discounts->bestFor(
+            $branchId,
+            $quoted['lines'],
+            $quoted['subtotal'],
+            $discountCode,
+            $customer?->id,
+        );
 
-        return DB::transaction(function () use ($branchId, $table, $customer, $quoted, $total, $guestName, $notes): Order {
+        $total = $quoted['subtotal']->minus($applied['amount'])->roundUp();
+
+        return DB::transaction(function () use ($branchId, $table, $customer, $quoted, $applied, $total, $guestName, $notes): Order {
             $order = new Order([
                 'guest_token' => bin2hex(random_bytes(20)),
                 'guest_name' => $guestName,
                 'status' => OrderStatus::AwaitingPayment,
                 'subtotal' => $quoted['subtotal']->toman,
-                'discount_total' => 0,
+                'discount_total' => $applied['amount']->toman,
                 'total' => $total->toman,
                 'notes' => $notes,
                 'placed_at' => now(),
@@ -69,7 +80,12 @@ class OrderService
             $order->branch_id = $branchId;
             $order->restaurant_table_id = $table?->id;
             $order->customer_id = $customer?->id;
+            $order->discount_id = $applied['discount']?->id;
             $order->save();
+
+            if ($applied['discount'] instanceof Discount) {
+                $this->discounts->recordUsage($applied['discount'], $customer?->id);
+            }
 
             foreach ($quoted['lines'] as $line) {
                 $order->items()->create([

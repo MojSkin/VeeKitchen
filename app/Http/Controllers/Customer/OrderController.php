@@ -31,6 +31,7 @@ class OrderController extends Controller
             'items.*.product_id' => ['required', 'integer', 'exists:products,id'],
             'items.*.quantity' => ['required', 'integer', 'min:1', 'max:99'],
             'items.*.notes' => ['nullable', 'string', 'max:200'],
+            'discount_code' => ['nullable', 'string', 'max:32'],
         ]);
 
         $table = isset($validated['qr_token'])
@@ -44,6 +45,7 @@ class OrderController extends Controller
             cart: $validated['items'],
             guestName: $validated['guest_name'],
             notes: $validated['notes'] ?? null,
+            discountCode: $validated['discount_code'] ?? null,
         );
 
         // Guests follow the order via an unguessable token in the URL.
