@@ -49,7 +49,7 @@
 
 > برنامه: docs/PHASE-3-PLAN.md (نوشته شد؛ در انتظار تایید کارفرما برای ترتیب گام‌ها)
 
-- [ ] گام ۱ — دیتابیس و دامنهٔ تخفیف (discounts + DiscountService + اتصال به Quote/Order + مقیاس کسر انبار)
+- [x] گام ۱ — دیتابیس و دامنهٔ تخفیف: مایگریشن `discounts` (نوع/دامنه/کد/سقف/پنجرهٔ زمانی)، انوم‌های `DiscountType`/`DiscountScope`، مدل + فکتوری با ۹ استیت، `DiscountService::bestFor` (بهترین تخفیف خودکار + گارد کدِ ضعیف‌تر از خودکار با پیام فارسی)، `discount_id` روی `orders`، شمارش اتمیک `used_count` با هشدار `DiscountLimitReached`، و **مقیاس کسر انبار** (`(subtotal − discount_total) ÷ subtotal`) — ۱۶ تست تخفیف
 - [ ] گام ۲ — UI تخفیف (DiscountForm ادمین + DiscountBadge منو + سبد)
 - [ ] گام ۳ — شیفت و تسویه صندوق (staff_shifts + cash_movements + ShiftService + ShiftPanel + قلاب پرداخت)
 - [ ] گام ۴ — خط لولهٔ پایان روز (EndOfDay) + KPI شیفت در داشبورد
