@@ -119,9 +119,11 @@ function quantity(amount) {
 }
 
 function formatDay(iso) {
+    // UTC parts — same basis as the data boundaries and toDateInput, so an
+    // end-of-day boundary never slides the headline into the next day.
     const date = new Date(iso);
 
-    return faDigits(`${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`);
+    return faDigits(`${date.getUTCFullYear()}/${date.getUTCMonth() + 1}/${date.getUTCDate()}`);
 }
 
 const rangeHeadline = computed(() => {

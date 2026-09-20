@@ -257,6 +257,9 @@ test('the custom preset bounds the report to the requested days', function () {
 
     expect($props['range']['preset'])->toBe('custom')
         ->and($props['range']['from'])->toContain($from)
+        // The end-of-day boundary must stay on the requested to-date so the
+        // headline (UTC parts) matches the data window, never sliding a day.
+        ->and($props['range']['to'])->toContain($to)
         ->and($props['report']['movement_count'])->toBe(1)
         ->and(collect($props['report']['types'])->firstWhere('type', 'purchase')['items'][0]['total'])->toBe(12.0)
         // Day boundary: the from date starts at 00:00 local.
