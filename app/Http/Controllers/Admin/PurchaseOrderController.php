@@ -41,6 +41,7 @@ class PurchaseOrderController extends Controller
                 'status' => $order->status->value,
                 'status_label' => $order->status->label(),
                 'total' => $order->total,
+                'is_editable' => $order->status === PurchaseOrderStatus::Draft,
                 'notes' => $order->notes,
                 'ordered_at' => $order->ordered_at?->toIso8601String(),
                 'received_at' => $order->received_at?->toIso8601String(),
@@ -69,9 +70,49 @@ class PurchaseOrderController extends Controller
      */
     public function create(): Response
     {
+        [$branch, $formOptions] = $this->formOptions();
+
+        return Inertia::render('Admin/PurchaseOrderCreate', $formOptions);
+    }
+
+    /**
+     * Edit a draft purchase order: prefilled form + fresh form options.
+     */
+    public function edit(PurchaseOrder $order): Response
+    {
+        $order->loadMissing('items.inventoryItem');
+
+        if ($order->status !== PurchaseOrderStatus::Draft) {
+            abort(403, 'فقط پیش‌نویس قابل ویرایش است.');
+        }
+
+        [, $formOptions] = $this->formOptions();
+
+        return Inertia::render('Admin/PurchaseOrderEdit', array_merge($formOptions, [
+            'order' => [
+                'id' => $order->id,
+                'supplier_id' => $order->supplier_id,
+                'notes' => $order->notes,
+                'items' => $order->items->map(fn ($item) => [
+                    'inventory_item_id' => $item->inventory_item_id,
+                    'quantity' => (float) $item->quantity,
+                    'unit_cost' => $item->unit_cost,
+                ])->values(),
+            ],
+        ]));
+    }
+
+    /**
+     * Shared payload for the create/edit forms: active suppliers and
+     * purchasable materials with units + last purchase costs.
+     *
+     * @return array{0: Branch, 1: array<string, mixed>}
+     */
+    protected function formOptions(): array
+    {
         $branch = Branch::query()->orderBy('id')->firstOrFail();
 
-        return Inertia::render('Admin/PurchaseOrderCreate', [
+        return [$branch, [
             'suppliers' => Supplier::query()->where('is_active', true)->orderBy('name')->get()
                 ->map(fn (Supplier $supplier) => [
                     'id' => $supplier->id,
@@ -88,7 +129,7 @@ class PurchaseOrderController extends Controller
                     'unit_label' => $item->unit->label(),
                     'unit_cost' => $item->unit_cost,
                 ]),
-        ]);
+        ]];
     }
 
     /**
@@ -133,6 +174,44 @@ class PurchaseOrderController extends Controller
         return redirect()
             ->route('admin.purchase-orders')
             ->with('success', "پیش‌نویس سفارش خرید برای «{$supplier->name}» ساخته شد.");
+    }
+
+    /**
+     * Update a draft purchase order (lines, supplier, notes).
+     */
+    public function update(Request $request, PurchaseOrder $order): RedirectResponse
+    {
+        $validated = $request->validate([
+            'supplier_id' => ['required', 'integer', 'exists:suppliers,id'],
+            'notes' => ['nullable', 'string', 'max:1000'],
+            'lines' => ['required', 'array', 'min:1'],
+            'lines.*.inventory_item_id' => ['required', 'integer', 'exists:inventory_items,id'],
+            'lines.*.quantity' => ['required', 'numeric', 'gt:0'],
+            'lines.*.unit_cost' => ['nullable', 'integer', 'min:0'],
+        ]);
+
+        $lines = collect($validated['lines']);
+
+        if ($lines->pluck('inventory_item_id')->duplicates()->isNotEmpty()) {
+            throw ValidationException::withMessages([
+                'lines' => 'هر متریال فقط یک‌بار در سفارش می‌آید؛ برای اصلاح مقدار همان خط را ویرایش کنید.',
+            ]);
+        }
+
+        try {
+            $this->purchaseOrders->updateDraft(
+                $order,
+                $validated['lines'],
+                Supplier::query()->findOrFail((int) $validated['supplier_id']),
+                $validated['notes'] ?? null,
+            );
+        } catch (RuntimeException|InvalidArgumentException $e) {
+            return back()->with('error', $e->getMessage())->withInput();
+        }
+
+        return redirect()
+            ->route('admin.purchase-orders')
+            ->with('success', "پیش‌نویس سفارش شماره {$order->id} به‌روزرسانی شد.");
     }
 
     /**

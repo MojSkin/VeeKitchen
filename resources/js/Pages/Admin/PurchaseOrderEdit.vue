@@ -2,9 +2,10 @@
 import { usePurchaseOrderForm } from '@/lib/purchaseOrderForm';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import PurchaseOrderFormFields from '@/Components/PurchaseOrderFormFields.vue';
-import { faDigits, formatToman } from '@/lib/format';
+import { formatToman } from '@/lib/format';
 
 const props = defineProps({
+    order: { type: Object, required: true },
     suppliers: { type: Array, required: true },
     items: { type: Array, required: true },
 });
@@ -12,7 +13,18 @@ const props = defineProps({
 const formState = usePurchaseOrderForm({
     suppliers: props.suppliers,
     items: props.items,
-    submitRouteName: 'admin.purchase-orders.store',
+    initial: {
+        supplier_id: props.order.supplier_id,
+        notes: props.order.notes ?? '',
+        lines: props.order.items.map((item) => ({
+            inventory_item_id: item.inventory_item_id,
+            quantity: String(item.quantity),
+            unit_cost: String(item.unit_cost),
+        })),
+    },
+    submitRouteName: 'admin.purchase-orders.update',
+    routeParams: { order: props.order.id },
+    spoofMethod: 'put',
 });
 
 const { form, submitting, isTaken, hasFreeItems, onLineMaterialChange, addLine, removeLine, liveTotal, filledLineCount, submit } =
@@ -26,9 +38,9 @@ const { form, submitting, isTaken, hasFreeItems, onLineMaterialChange, addLine, 
                 <a :href="route('admin.purchase-orders')" class="text-xs opacity-50 transition hover:opacity-90">
                     → بازگشت به سفارش‌های خرید
                 </a>
-                <h1 class="mt-2 text-2xl font-bold">سفارش خرید جدید</h1>
+                <h1 class="mt-2 text-2xl font-bold">ویرایش پیش‌نویس سفارش #{{ order.id }}</h1>
                 <p class="mt-1 text-sm opacity-60">
-                    پیش‌نویس ساخته می‌شود؛ پس از بازبینی، «ثبت نزد تامین‌کننده» را بزنید.
+                    تغییرات روی پیش‌نویس ذخیره می‌شود؛ تا پیش از «ثبت نزد تامین‌کننده» می‌توانید دوباره ویرایش کنید.
                 </p>
             </header>
 
@@ -45,7 +57,7 @@ const { form, submitting, isTaken, hasFreeItems, onLineMaterialChange, addLine, 
                     :live-total="liveTotal"
                     :filled-line-count="filledLineCount"
                     :submitting="submitting"
-                    submit-label="ثبت پیش‌نویس سفارش"
+                    submit-label="ذخیرهٔ تغییرات پیش‌نویس"
                 />
             </form>
         </div>
