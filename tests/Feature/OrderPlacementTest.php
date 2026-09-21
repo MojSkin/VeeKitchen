@@ -83,10 +83,11 @@ test('the store endpoint throttles rapid submissions', function () {
         'items' => [['product_id' => $product->id, 'quantity' => 1]],
     ];
 
-    foreach (range(1, 10) as $attempt) {
+    foreach (range(1, 30) as $attempt) {
         $this->post(route('orders.store'), $payload);
     }
 
-    // The 11th request inside one minute is throttled (429).
+    // The 31st request inside one minute is throttled (429) — the shared
+    // cart/order limiter is 30/min so the live quote can breathe.
     $this->post(route('orders.store'), $payload)->assertStatus(429);
 });

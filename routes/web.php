@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\WarehouseReportController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Cashier\CashierController;
 use App\Http\Controllers\Cashier\ShiftController;
+use App\Http\Controllers\Customer\CartPreviewController;
 use App\Http\Controllers\Customer\MenuController;
 use App\Http\Controllers\Customer\OrderController;
 use App\Http\Controllers\Kitchen\KitchenController;
@@ -26,8 +27,9 @@ Route::get('/menu', [MenuController::class, 'publicMenu'])->name('menu.public');
 Route::get('/t/{qrToken}', [MenuController::class, 'reserveTable'])->name('table.reserve');
 Route::get('/t/{qrToken}/menu', [MenuController::class, 'tableMenu'])->name('menu.table');
 
-Route::middleware('throttle:10,1')->group(function () {
+Route::middleware('throttle:30,1')->group(function () {
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+    Route::post('/cart/quote', [CartPreviewController::class, 'quote'])->name('cart.quote');
 });
 Route::get('/orders/track/{order}/{guestToken}', [OrderController::class, 'track'])
     ->name('orders.track');
