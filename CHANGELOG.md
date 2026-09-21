@@ -20,6 +20,12 @@ Direct pushes to `main` or `production` never happen; merges from `testing` only
 
 ## [Unreleased]
 
+### Added (Guest coupon entry with live cart quote — phase 3 step 2 follow-up)
+- The guest menu's cart bar now carries a coupon field with **live totals** priced through the exact order pipeline: a debounced `POST cart/quote` returns subtotal / discount / payable plus a human chip («کد «VIP30» اعمال شد» or the honest refusal «این کد تخفیف کمتر از تخفیف خودکار فعلی است و اعمال نشد»). The quoted `discount_code` travels with the placement, so the numbers the guest saw are the numbers charged.
+- The tracking page shows the discount line explicitly (struck-through subtotal, discount amount, payable) whenever a discount was applied.
+- Fixed: the losing-coupon refusal at placement time surfaced as a 500 — it now lands as a `discount_code` field error. The quote endpoint filters unknown product ids like a forged placement would be, and the shared orders/cart rate limit widened to 30/min so the debounced quote can breathe (throttle test updated accordingly).
+- 8 new tests: quote pricing with the best automatic offer, winning-coupon acceptance (case-insensitive), losing/unknown/expired-code refusals with Persian messages, unknown-product filtering, coupon-carrying placement with usage recording, losing-code placement rejection, and the per-user ceiling blocking a repeat customer while skipping unattributable guests.
+
 ### Added (Shifts and cash drawer — phase 3 step 3)
 - The golden phase-3 rule is enforced: **a payment only settles inside the receiver's open shift.** `staff_shifts` (opening/closing/expected cash, discrepancy, closer) and `cash_movements` (withdrawal/deposit/adjustment with a mandatory reason) migrations, `ShiftStatus`/`CashMovementType` enums, models, and factories; `shift_id` now stamps every `payments` row.
 - `ShiftService`: one open shift per branch+user enforced inside locked transactions; `expectedCash = opening + cash payments − withdrawals + deposits` (card money never enters the drawer); withdrawals that would overdraw the drawer are refused; closing freezes expected/counted/discrepancy and is idempotent-locked. Payments flow the guard through the `CashShiftGuard` contract (bound in `AppServiceProvider`) so headless/console payments without an acting user still settle un-stamped.

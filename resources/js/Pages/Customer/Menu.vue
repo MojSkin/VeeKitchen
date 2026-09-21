@@ -19,6 +19,72 @@ const submitting = ref(false);
 const placedOrder = ref(null);
 const activeCategory = ref(props.categories[0]?.id ?? null);
 
+/* ── Coupon + live totals ─────────────────────────────────────── */
+
+const couponCode = ref('');
+const quote = ref(null);
+const quoting = ref(false);
+let quoteTimer = null;
+
+/**
+ * Debounced quote: any cart/typing change re-prices through the same
+ * server pipeline the order will follow.
+ */
+watch([cart, couponCode], () => {
+    if (quoteTimer) {
+        clearTimeout(quoteTimer);
+    }
+
+    if (cart.value.length === 0) {
+        quote.value = null;
+        return;
+    }
+
+    quoteTimer = setTimeout(fetchQuote, 350);
+}, { deep: true });
+
+/**
+ * Raw fetch — the quote endpoint is a partial-props service, not an
+ * Inertia page, so the Inertia router's component handshake (409 on a
+ * prop-only POST) does not apply here.
+ */
+function fetchQuote() {
+    quoting.value = true;
+
+    const xsrf = decodeURIComponent(
+        (document.cookie.split(';').find((row) => row.trim().startsWith('XSRF-TOKEN=')) ?? '')
+            .split('=').slice(1).join('='),
+    );
+
+    fetch(route('cart.quote'), {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-XSRF-TOKEN': xsrf,
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+            items: cart.value.map((line) => ({
+                product_id: line.productId,
+                quantity: line.quantity,
+            })),
+            discount_code: couponCode.value.trim() || null,
+        }),
+    })
+        .then((response) => (response.ok ? response.json() : null))
+        .then((data) => {
+            quote.value = data;
+        })
+        .catch(() => {
+            quote.value = null;
+        })
+        .finally(() => {
+            quoting.value = false;
+        });
+}
+
 watch(scope, (value) => {
     cart.value = loadCart(value);
 });
@@ -50,6 +116,7 @@ function placeOrder() {
         qr_token: props.table?.qr_token,
         guest_name: guestName.value,
         notes: notes.value,
+        discount_code: couponCode.value.trim() || null,
         items: cart.value.map((line) => ({
             product_id: line.productId,
             quantity: line.quantity,
@@ -58,6 +125,8 @@ function placeOrder() {
         onSuccess: () => {
             clearCart(scope.value);
             cart.value = [];
+            quote.value = null;
+            couponCode.value = '';
         },
         onFinish: () => {
             submitting.value = false;
@@ -174,16 +243,57 @@ function placeOrder() {
                     </p>
                 </template>
                 <template v-else>
+                    <!-- Live quote: subtotal / discount / total -->
+                    <div
+                        v-if="quote"
+                        class="mb-2 rounded-xl bg-white/5 px-3 py-2 text-sm"
+                    >
+                        <div class="flex items-center justify-between">
+                            <span class="opacity-60">جمع سبد</span>
+                            <span :class="quote.discount_total > 0 ? 'line-through opacity-50' : ''">
+                                {{ formatTomanWithUnit(quote.subtotal) }}
+                            </span>
+                        </div>
+                        <div
+                            v-if="quote.discount_total > 0"
+                            class="flex items-center justify-between text-saffron-600 dark:text-saffron-400"
+                        >
+                            <span>تخفیف</span>
+                            <span>−{{ formatTomanWithUnit(quote.discount_total) }}</span>
+                        </div>
+                        <div class="mt-1 flex items-center justify-between border-t border-white/10 pt-1 font-bold">
+                            <span>قابل پرداخت</span>
+                            <span>{{ formatTomanWithUnit(quote.total) }}</span>
+                        </div>
+                        <p
+                            v-if="quote.message"
+                            class="mt-1 text-xs"
+                            :class="quote.valid ? 'text-pistachio-600 dark:text-pistachio-400' : 'text-red-500'"
+                        >
+                            {{ quote.message }}
+                        </p>
+                    </div>
+
                     <div class="flex items-center justify-between gap-3">
-                        <div>
+                        <div class="min-w-0 flex-1">
                             <p class="text-sm opacity-70">
-                                {{ cartCount }} آیتم · {{ formatTomanWithUnit(cartTotal(cart)) }}
+                                {{ cartCount }} آیتم
+                                <template v-if="!quote">
+                                    · {{ formatTomanWithUnit(cartTotal(cart)) }}
+                                </template>
                             </p>
                             <input
                                 v-model="guestName"
                                 type="text"
                                 placeholder="نام شما"
                                 class="glass-flat mt-2 w-full rounded-xl px-3 py-2 text-sm outline-none"
+                            >
+                            <input
+                                v-model="couponCode"
+                                type="text"
+                                placeholder="کد تخفیف (اختیاری)"
+                                class="glass-flat mt-2 w-full rounded-xl px-3 py-2 text-sm outline-none"
+                                dir="ltr"
                             >
                         </div>
                         <button
