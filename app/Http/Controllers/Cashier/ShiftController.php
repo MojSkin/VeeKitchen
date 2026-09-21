@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+use InvalidArgumentException;
 use RuntimeException;
 
 /**
@@ -82,12 +83,16 @@ class ShiftController extends Controller
     }
 
     /**
-     * Close the shift with a counted balance; the discrepancy is frozen.
+     * Close the shift with a counted balance; the discrepancy is frozen —
+     * or reconciled through a ledger-only adjustment row when the closer
+     * ticks "جبران دفتری".
      */
     public function close(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'counted_cash' => ['required', 'integer', 'min:0'],
+            'compensate' => ['nullable', 'boolean'],
+            'compensation_reason' => ['required_if:compensate,true', 'nullable', 'string', 'max:500'],
         ]);
 
         $shift = $this->shifts->openShiftFor($request->user(), $this->branchId($request->user()));
@@ -96,16 +101,26 @@ class ShiftController extends Controller
             return back()->with('error', 'شیفت بازی ندارید.');
         }
 
+        $compensate = (bool) ($validated['compensate'] ?? false);
+
         try {
-            $result = $this->shifts->close($shift, $request->user(), (int) $validated['counted_cash']);
+            $result = $this->shifts->close(
+                $shift,
+                $request->user(),
+                (int) $validated['counted_cash'],
+                $compensate,
+                $validated['compensation_reason'] ?? null,
+            );
         } catch (RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
+        } catch (InvalidArgumentException $e) {
             return back()->with('error', $e->getMessage());
         }
 
         $discrepancy = $result['discrepancy'];
 
         $message = $discrepancy === 0
-            ? 'شیفت با مغایرت صفر بسته شد.'
+            ? ($compensate ? 'شیفت با جبران دفتریِ مغایرت بسته شد؛ صندوقِ انتظار با شمارش آشتی شد.' : 'شیفت با مغایرت صفر بسته شد.')
             : ($discrepancy > 0
                 ? 'شیفت بسته شد؛ مازاد صندوق: '.number_format($discrepancy).' تومان.'
                 : 'شیفت بسته شد؛ کسری صندوق: '.number_format(abs($discrepancy)).' تومان.');
@@ -177,5 +192,14 @@ class ShiftController extends Controller
         abort_if($branch === null, 503, 'هیچ شعبه فعالی ثبت نشده است.');
 
         return $branch->id;
+    }
+
+    /**
+     * Public hook for sibling controllers (kitchen shift) that share the
+     * branch resolution but live behind a different role middleware.
+     */
+    public function branchIdFor($user): int
+    {
+        return $this->branchId($user);
     }
 }

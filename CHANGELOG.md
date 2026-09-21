@@ -20,6 +20,25 @@ Direct pushes to `main` or `production` never happen; merges from `testing` only
 
 ## [Unreleased]
 
+### Added (Shift settlement exports — phase 3 settlement step)
+- Every closed cashier shift now exports itself two ways from the end-of-day board: `GET admin/end-of-day/shifts/{shift}/export?format=xlsx` streams a two-sheet workbook (sheet «تسویه» with the money trail — opening, cash, card, movements net, expected, counted, discrepancy — and sheet «حرکات نقدی» with every documented movement and its author), and `format=print` opens a self-contained A4 RTL page with the print dialog. The exports read `ShiftService::settlementSummary()`, so the workbook can never disagree with the screen. Admin-only and branch-scoped: a forged shift id from another branch is a 404, never a leak.
+- The zero-discrepancy trap from the dashboard export resurfaced here and is handled at the source: PhpSpreadsheet's loose `fromArray` null comparison drops zero cells, so the settlement sheet writes with strict null comparison — a clean shift's «مغایرت صفر» survives the round-trip.
+
+### Added (Book-only discrepancy compensation on shift close)
+- Closing a shift with a counted-vs-expected gap can now reconcile itself: tick «جبران دفتریِ مغایرت» on the cashier panel, give a mandatory reason, and `ShiftService::close` books the exact signed gap as a ledger-only `Adjustment` row inside the same locked transaction — a counted shortage books negative, a surplus positive. No physical money moves, but the frozen expectation lands on the count and the shift closes at zero discrepancy, honestly labelled in the flash message («با جبران دفتریِ مغایرت بسته شد»). Without the flag nothing changes: the raw discrepancy freezes as before.
+- The endpoint validates the compensation reason (`required_if`), and the compensation row records its author.
+
+### Added (Kitchen presence shifts)
+- `staff_shifts.station` (`cashier` default | `kitchen`): the kitchen registers entry/exit — «شروع شیفت» / «پایان شیفت» strip on the KDS — with a zero float and no cash settlement. Kitchen shifts refuse an opening float, refuse cash movements («شیفت آشپزخانه صندوق ندارد»), and the payment guard refuses to stamp them («پرداخت فقط با شیفت صندوق ثبت می‌شود») — the golden rule now also blocks paying into the wrong station's shift.
+- The end-of-day board labels kitchen shifts «آشپزخانه» and shows a «شیفت حضور — بدون تسویهٔ صندوق» line instead of the money grid; settlement exports only render for till shifts.
+
+### Added (PWA manifest)
+- `public/manifest.webmanifest` is real now (Persian name, RTL, standalone display, lajvard theme colours, the SVG icon) — the blade shell's manifest link had been pointing at an empty file; `public/icons/icon.svg` is filled too (the Persian و on a lajvard tile), and the apple-touch-icon points at it instead of a missing PNG. The service worker itself stays a phase-4 item (`public/sw.js` still empty by design).
+
+### Changed (Collapsible neomorphic sidebar + icon nav)
+- `AppLayout` is now a floating glass sidebar: brand tile, stroke-icon navigation (new `NavIcon` — single-stroke Heroicons v2 outlines drawn with currentColor so links tint them), a user card and logout, with a collapse toggle down to an icons-only 4.5rem rail; the active route highlights through `route().current()`. Admin nav gained the «پایان روز» entry it was missing.
+- The theme toggle regains its click handler (it had been lost during the icon-swap rework — the button flipped nothing) and cross-fades its sun/moon icon on the neo-click surface; login card, flash toasts and the stock bell restyled on the neomorphic vocabulary; the Inertia progress bar recoloured to lajvard azure; `app.css` trimmed the palette to the tokens in use and tuned the dark wells.
+
 ### Added (End-of-day pipeline and shift KPIs — phase 3 step 4)
 - `EndOfDayService` builds the day's settlement pipeline: every branch shift touching today (opened today, closed today, or a still-open shift spanning midnight) with opening/cash/card/movements/expected/counted/discrepancy, plus the day's order counters (placed/paid/cancelled).
 - The admin dashboard carries a live «شیفت‌های امروز» KPI card (open / closed / discrepancy-bearing shifts + total discrepancy) linking to the new `admin/end-of-day` pipeline page — the page and the KPI read the same service, so they can never disagree.

@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\EndOfDayController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\PurchaseOrderController;
+use App\Http\Controllers\Admin\ShiftSettlementExportController;
 use App\Http\Controllers\Admin\TableController;
 use App\Http\Controllers\Admin\WarehouseReportController;
 use App\Http\Controllers\Auth\LoginController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\Customer\CartPreviewController;
 use App\Http\Controllers\Customer\MenuController;
 use App\Http\Controllers\Customer\OrderController;
 use App\Http\Controllers\Kitchen\KitchenController;
+use App\Http\Controllers\Kitchen\KitchenShiftController;
 use App\Http\Controllers\PickupDisplayController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -63,6 +65,10 @@ Route::middleware(['auth', 'role:kitchen,admin'])->prefix('kitchen')->group(func
     Route::get('/', [KitchenController::class, 'index'])->name('kitchen.index');
     Route::post('/orders/{order}/start', [KitchenController::class, 'start'])->name('kitchen.start');
     Route::post('/orders/{order}/ready', [KitchenController::class, 'ready'])->name('kitchen.ready');
+
+    // Presence-only shift: entry/exit with no cash settlement.
+    Route::post('/shift/open', [KitchenShiftController::class, 'open'])->name('kitchen.shift.open');
+    Route::post('/shift/close', [KitchenShiftController::class, 'close'])->name('kitchen.shift.close');
 });
 
 // ── Admin ───────────────────────────────────────────────────────────────────
@@ -70,6 +76,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/dashboard/export', [DashboardController::class, 'export'])->name('admin.dashboard.export');
     Route::get('/end-of-day', [EndOfDayController::class, 'index'])->name('admin.end-of-day');
+    // No {branch} segment: StaffShift belongsTo Branch would trigger scoped
+    // binding and 404 every request. The controller checks the shift's own
+    // branch scope against the requesting admin instead.
+    Route::get('/end-of-day/shifts/{shift}/export', [ShiftSettlementExportController::class, 'show'])
+        ->scopeBindings(false)
+        ->name('admin.shift-settlement.export');
     Route::get('/tables', [TableController::class, 'index'])->name('admin.tables');
     Route::get('/tables/{table}/qr', [TableController::class, 'qr'])->name('admin.tables.qr');
     Route::post('/tables/{table}/rotate-token', [TableController::class, 'rotateToken'])
