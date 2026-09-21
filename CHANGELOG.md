@@ -18,6 +18,13 @@ A version is **released** only when this cycle completes:
 
 Direct pushes to `main` or `production` never happen; merges from `testing` only.
 
+## [Unreleased]
+
+### Added (Today's warehouse ledger in the demo seed)
+- `DatabaseSeeder` now writes eight realistic `StockMovement` rows dated **today**, spread across the day, so the warehouse report is alive on the very first run: two purchases (flour at the same 62k the draft purchase order quotes, soda cans at a fresh 35k cost), the margherita recipe consumption ×6 (flour, mozzarella, sauce with the recipe line «مصرف فرمول — ۶ پیتزا مارگاریتا»), a gram-precise mushroom waste, a grounded-meat count adjustment, and a cancelled-order sauce return — covering all five movement types.
+- Every demo row carries the same unit-cost snapshots the real pipeline writes (`purchase_price` for buys, `current_cost` elsewhere), so rial values reproduce exactly.
+- Demo opening stock levels now include the day's ledger, keeping the inventory board and the warehouse report consistent — mozzarella lands below its alert threshold so the board ships with a live low-stock vial.
+
 ## [0.6.0] — 2026-09-21
 
 ### Added (Guest coupon entry with live cart quote — phase 3 step 2 follow-up)
