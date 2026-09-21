@@ -31,7 +31,7 @@ enum UserRole: string
             self::Admin => 'admin.dashboard',
             self::Cashier => 'cashier.index',
             self::Kitchen => 'kitchen.index',
-            self::Customer => 'welcome',
+            self::Customer => 'home',
         };
     }
 

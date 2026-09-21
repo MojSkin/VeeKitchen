@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { faDigits, formatToman } from '@/lib/format';
+import { formatJalaliDay } from '@/lib/jalali';
 
 const props = defineProps({
     product: { type: Object, required: true },
@@ -92,13 +93,7 @@ const diffRows = computed(() => {
 });
 
 function timeLabel(iso) {
-    if (! iso) {
-        return '';
-    }
-
-    const date = new Date(iso);
-
-    return faDigits(`${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`);
+    return formatJalaliDay(iso);
 }
 </script>
 
@@ -119,7 +114,7 @@ function timeLabel(iso) {
 
         <p
             v-if="versions.length === 0"
-            class="glass rounded-glass p-8 text-center opacity-60"
+            class="glass rounded-2xl p-8 text-center opacity-60"
         >
             هنوز نسخه‌ای ثبت نشده — با اولین ذخیرهٔ فرمول، یک نسخه ساخته می‌شود.
         </p>
@@ -130,15 +125,15 @@ function timeLabel(iso) {
                 <article
                     v-for="version in versions"
                     :key="version.id"
-                    class="glass rounded-glass p-4"
-                    :class="isSelected(version) ? 'ring-1 ring-saffron-500/70' : ''"
+                    class="glass rounded-2xl p-4"
+                    :class="isSelected(version) ? 'ring-1 ring-lajvard-500/70' : ''"
                 >
                     <div class="flex flex-wrap items-center justify-between gap-2">
                         <label class="flex cursor-pointer items-center gap-3">
                             <input
                                 type="checkbox"
                                 :checked="isSelected(version)"
-                                class="h-4 w-4 accent-saffron-500"
+                                class="h-4 w-4 accent-lajvard-600"
                                 :aria-label="`انتخاب نسخهٔ ${version.version_number} برای مقایسه`"
                                 @change="toggleSelect(version)"
                             >
@@ -168,7 +163,7 @@ function timeLabel(iso) {
             </div>
 
             <!-- Compare -->
-            <section v-if="compareA && compareB" class="glass rounded-glass p-5">
+            <section v-if="compareA && compareB" class="glass rounded-2xl p-5">
                 <h2 class="mb-4 text-lg font-bold">
                     مقایسهٔ نسخهٔ {{ faDigits(compareA.version_number) }} با نسخهٔ {{ faDigits(compareB.version_number) }}
                 </h2>
@@ -207,7 +202,7 @@ function timeLabel(iso) {
                 </div>
             </section>
 
-            <p v-else class="glass rounded-glass p-4 text-center text-sm opacity-60">
+            <p v-else class="glass rounded-2xl p-4 text-center text-sm opacity-60">
                 برای مقایسه، دو نسخه را تیک بزنید.
             </p>
         </div>

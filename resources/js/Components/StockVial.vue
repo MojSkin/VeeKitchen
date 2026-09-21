@@ -39,9 +39,9 @@ const fillHeight = computed(() => `${faDigits(Math.round(fillPercent.value))}٪`
 
 <template>
     <div class="flex items-stretch gap-3">
-        <!-- The vial: reads as a tipped measuring glass, RTL pour from the right -->
+        <!-- The vial: a sunken well with the fill rising inside -->
         <div
-            class="glass-flat relative w-9 shrink-0 overflow-hidden rounded-full"
+            class="neo-pressed relative w-9 shrink-0 overflow-hidden rounded-full"
             role="img"
             :aria-label="`موجودی ${name}: ${fillHeight}`"
         >

@@ -10,7 +10,7 @@ const props = defineProps({
 const busyTableId = ref(null);
 
 const toneClasses = {
-    green: 'bg-pistachio-500/15 text-pistachio-600 dark:text-pistachio-400',
+    green: 'bg-pistachio-600/15 text-pistachio-600 dark:text-pistachio-400',
     sky: 'bg-sky-500/15 text-sky-600 dark:text-sky-400',
     amber: 'bg-amber-500/15 text-amber-600 dark:text-amber-400',
     violet: 'bg-violet-500/15 text-violet-600 dark:text-violet-400',
@@ -49,7 +49,7 @@ function rotateToken(table) {
                 <article
                     v-for="table in tables"
                     :key="table.id"
-                    class="glass rounded-glass p-5"
+                    class="glass rounded-2xl p-5"
                 >
                     <header class="flex items-center justify-between">
                         <h2 class="text-lg font-bold">{{ table.label }}</h2>
