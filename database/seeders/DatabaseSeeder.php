@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Enums\MeasurementUnit;
+use App\Enums\StockMovementType;
 use App\Models\Branch;
 use App\Models\CostComponent;
 use App\Models\InventoryItem;
@@ -13,15 +14,18 @@ use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
 use App\Models\RestaurantTable;
 use App\Models\Setting;
+use App\Models\StockMovement;
 use App\Models\Supplier;
 use App\Models\User;
+use App\Services\UnitCostSnapshot;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Carbon;
 
 class DatabaseSeeder extends Seeder
 {
     /**
      * Seed the demo restaurant: one branch, staff accounts, a menu,
-     * tables, and the TTS/print defaults.
+     * tables, the TTS/print defaults, and today's warehouse ledger.
      */
     public function run(): void
     {
@@ -117,18 +121,20 @@ class DatabaseSeeder extends Seeder
         Setting::put($branch->id, 'printer_connection', 'browser');
         Setting::put($branch->id, 'order_number_prefix', '');
 
-        // Warehouse materials with realistic stock levels; the second entry
-        // sits right on its alert threshold so the inventory board shows a
-        // live low-stock vial out of the box.
+        // Warehouse materials with realistic stock levels. The numbers below
+        // already include today's demo ledger (seeded further down), so the
+        // inventory board and the warehouse report never contradict each
+        // other. Mozzarella lands below its threshold — a live low-stock
+        // vial on the board out of the box.
         $materials = [
-            ['آرد گندم', MeasurementUnit::Kilogram, 80.0, 20.0],
-            ['پنیر موزارلا', MeasurementUnit::Kilogram, 4.0, 4.0],
-            ['گوشت چرخ‌کرده', MeasurementUnit::Kilogram, 25.0, 10.0],
+            ['آرد گندم', MeasurementUnit::Kilogram, 117.6, 20.0],
+            ['پنیر موزارلا', MeasurementUnit::Kilogram, 3.1, 4.0],
+            ['گوشت چرخ‌کرده', MeasurementUnit::Kilogram, 26.5, 10.0],
             ['فیله مرغ', MeasurementUnit::Kilogram, 18.0, 8.0],
-            ['سس گوجه', MeasurementUnit::Liter, 12.0, 3.0],
-            ['قارچ', MeasurementUnit::Gram, 6000.0, 2000.0],
+            ['سس گوجه', MeasurementUnit::Liter, 11.9, 3.0],
+            ['قارچ', MeasurementUnit::Gram, 5500.0, 2000.0],
             ['نان بریوش', MeasurementUnit::Piece, 40.0, 10.0],
-            ['قوطی نوشابه', MeasurementUnit::Piece, 120.0, 24.0],
+            ['قوطی نوشابه', MeasurementUnit::Piece, 168.0, 24.0],
         ];
 
         foreach ($materials as [$name, $unit, $stock, $threshold]) {
@@ -189,6 +195,63 @@ class DatabaseSeeder extends Seeder
         ]);
         PurchaseOrderItem::factory()->forOrder($ordered)->forItem($cheese, 10.0, 330_000)->create();
         $ordered->recalculateTotal();
+
+        // Today's warehouse ledger so the report page is alive on first run:
+        // every movement type carries at least one realistic line, valued
+        // with the same unit-cost snapshots the real pipeline writes.
+        $admin = User::query()->where('email', 'admin@veekitchen.local')->firstOrFail();
+
+        InventoryItem::query()->where('name', 'قوطی نوشابه')->update(['unit_cost' => 35_000]);
+        InventoryItem::query()->where('name', 'قارچ')->update(['unit_cost' => 180]);
+        InventoryItem::query()->where('name', 'گوشت چرخ‌کرده')->update(['unit_cost' => 850_000]);
+
+        // Stamps spread across the day; a seeder run right after midnight
+        // clamps back to 00:00 so every row stays inside "today".
+        $today = now()->startOfDay();
+        $stampFor = function (int $minutesAgo) use ($today): Carbon {
+            $stamp = now()->subMinutes($minutesAgo);
+
+            return $stamp->lt($today) ? $today->copy() : $stamp;
+        };
+
+        $ledger = function (
+            InventoryItem $item,
+            StockMovementType $type,
+            float $quantity,
+            int $unitCost,
+            string $source,
+            string $reason,
+            int $minutesAgo,
+        ) use ($admin, $stampFor): void {
+            StockMovement::create([
+                'inventory_item_id' => $item->id,
+                'type' => $type,
+                'quantity' => $quantity,
+                'unit_cost_at' => $unitCost,
+                'unit_cost_source' => $source,
+                'reason' => $reason,
+                'user_id' => $admin->id,
+            ])->forceFill([
+                'created_at' => $stampFor($minutesAgo),
+                'updated_at' => $stampFor($minutesAgo),
+            ])->save();
+        };
+
+        $item = fn (string $name): InventoryItem => InventoryItem::query()->where('name', $name)->firstOrFail();
+
+        // Purchases in — flour at the same 62k the draft order quotes.
+        $ledger($item('آرد گندم'), StockMovementType::Purchase, 40.0, 62_000, UnitCostSnapshot::SOURCE_PURCHASE, 'خرید هفتگی — پخش نور', 300);
+        $ledger($item('قوطی نوشابه'), StockMovementType::Purchase, 48.0, 35_000, UnitCostSnapshot::SOURCE_PURCHASE, 'شارژ یخچال نوشیدنی', 260);
+
+        // Consumption out — exactly the margherita recipe times six.
+        $consumptionReason = 'مصرف فرمول — ۶ پیتزا مارگاریتا';
+        $ledger($item('آرد گندم'), StockMovementType::Consumption, -2.4, 60_000, UnitCostSnapshot::SOURCE_CURRENT, $consumptionReason, 180);
+        $ledger($item('پنیر موزارلا'), StockMovementType::Consumption, -0.9, 320_000, UnitCostSnapshot::SOURCE_CURRENT, $consumptionReason, 180);
+        $ledger($item('سس گوجه'), StockMovementType::Consumption, -0.6, 180_000, UnitCostSnapshot::SOURCE_CURRENT, $consumptionReason, 179);
+
+        $ledger($item('قارچ'), StockMovementType::Waste, -500.0, 180, UnitCostSnapshot::SOURCE_CURRENT, 'ضایعات تاریخ‌گذشته', 120);
+        $ledger($item('گوشت چرخ‌کرده'), StockMovementType::Adjustment, 1.5, 850_000, UnitCostSnapshot::SOURCE_CURRENT, 'اصلاح شمارش دوره‌ای', 90);
+        $ledger($item('سس گوجه'), StockMovementType::Return, 0.5, 180_000, UnitCostSnapshot::SOURCE_CURRENT, 'بازگشت سفارش لغوشده', 45);
 
         // Demo discounts: automatic banner, coupon, and a product badge.
         $this->call(DiscountSeeder::class);
