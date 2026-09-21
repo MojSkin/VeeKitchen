@@ -9,6 +9,7 @@ const props = defineProps({
     pendingOrders: { type: Array, required: true },
     activeOrders: { type: Array, required: true },
     tables: { type: Array, required: true },
+    shift: { type: Object, default: null },
 });
 
 const pending = ref([...props.pendingOrders]);
@@ -66,8 +67,23 @@ function tableLabel(tableId) {
 <template>
     <AppLayout>
         <div class="mx-auto max-w-6xl px-4 py-6">
-            <div class="mb-6 flex items-center justify-between">
+            <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
                 <h1 class="text-2xl font-bold">صندوق</h1>
+
+                <!-- Shift status strip -->
+                <Link
+                    :href="route('cashier.shift')"
+                    class="glass-flat rounded-xl px-4 py-2 text-sm transition hover:bg-white/10"
+                    :class="shift ? '' : 'text-amber-600 dark:text-amber-400'"
+                >
+                    <template v-if="shift">
+                        شیفت باز · انتظار {{ formatTomanWithUnit(shift.expected_cash) }}
+                    </template>
+                    <template v-else>
+                        ⚠ شیفت بازی ندارید — پرداخت قفل است
+                    </template>
+                </Link>
+
                 <label class="glass-flat flex items-center gap-2 rounded-xl px-3 py-2 text-sm">
                     روش پرداخت:
                     <select v-model="payMethod" class="bg-transparent outline-none">

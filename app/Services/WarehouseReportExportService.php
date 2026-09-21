@@ -24,7 +24,7 @@ class WarehouseReportExportService
     /**
      * Build a flat representation both exporters consume.
      *
-     * @return array{branch: string, label: string, from: Carbon, to: Carbon, movement_count: int, outflow_value: int, inflow_value: int, types: array<int, array{label: string, total: float, value: int, items: array<int, array{name: string, unit_label: string, total: float, value: int}>}>}
+     * @return array{branch: string, label: string, from: Carbon, to: Carbon, movement_count: int, outflow_value: int, inflow_value: int, types: array<int, array{label: string, total: float, value: int, items: array<int, array{name: string, unit_label: string, total: float, value: int, effective_cost: int|null}>}>}
      */
     public function packet(Branch $branch, Carbon $from, Carbon $to): array
     {
@@ -92,9 +92,9 @@ class WarehouseReportExportService
         $detail->setTitle('اقلام');
         $detail->setRightToLeft(true);
         $detail->fromArray([
-            ['نوع حرکت', 'متریال', 'واحد', 'جمع مقدار', 'ارزش ریالی (تومان)'],
+            ['نوع حرکت', 'متریال', 'واحد', 'جمع مقدار', 'قیمت واحد (تومان)', 'ارزش ریالی (تومان)'],
         ], null, 'A1');
-        $detail->getStyle('A1:E1')->getFont()->setBold(true);
+        $detail->getStyle('A1:F1')->getFont()->setBold(true);
 
         $row = 2;
         foreach ($packet['types'] as $type) {
@@ -104,13 +104,14 @@ class WarehouseReportExportService
                     $item['name'],
                     $item['unit_label'],
                     $item['total'],
+                    $item['effective_cost'] ?? '',
                     $item['value'],
-                ], null, "A{$row}");
+                ], null, "A{$row}", true);
                 $row++;
             }
         }
 
-        foreach (['A', 'B', 'C', 'D', 'E'] as $column) {
+        foreach (['A', 'B', 'C', 'D', 'E', 'F'] as $column) {
             $detail->getColumnDimension($column)->setAutoSize(true);
         }
 
@@ -133,10 +134,15 @@ class WarehouseReportExportService
         foreach ($packet['types'] as $type) {
             $rows = '';
             foreach ($type['items'] as $item) {
+                $unitCost = ($item['effective_cost'] ?? null) > 0
+                    ? number_format((float) $item['effective_cost'])
+                    : '—';
+
                 $rows .= '<tr>'
                     .'<td>'.htmlspecialchars($item['name'], ENT_QUOTES, 'UTF-8').'</td>'
                     .'<td>'.htmlspecialchars($item['unit_label'], ENT_QUOTES, 'UTF-8').'</td>'
                     .'<td>'.number_format(abs((float) $item['total']), 3).'</td>'
+                    .'<td class="num">'.$unitCost.'</td>'
                     .'<td class="num">'.number_format((float) $item['value']).'</td>'
                     .'</tr>';
             }
@@ -144,7 +150,7 @@ class WarehouseReportExportService
             $typeSections .= '<section>'
                 .'<h2>'.htmlspecialchars($type['label'], ENT_QUOTES, 'UTF-8')
                 .' <small>ارزش: '.number_format((float) $type['value']).' تومان</small></h2>'
-                .'<table><thead><tr><th>متریال</th><th>واحد</th><th>جمع مقدار</th><th>ارزش ریالی (تومان)</th></tr></thead>'
+                .'<table><thead><tr><th>متریال</th><th>واحد</th><th>جمع مقدار</th><th>قیمت واحد (تومان)</th><th>ارزش ریالی (تومان)</th></tr></thead>'
                 .'<tbody>'.$rows.'</tbody></table>'
                 .'</section>';
         }
@@ -182,11 +188,18 @@ class WarehouseReportExportService
         }
 
         $lines[] = [];
-        $lines[] = ['نوع حرکت', 'متریال', 'واحد', 'جمع مقدار', 'ارزش ریالی (تومان)'];
+        $lines[] = ['نوع حرکت', 'متریال', 'واحد', 'جمع مقدار', 'قیمت واحد (تومان)', 'ارزش ریالی (تومان)'];
 
         foreach ($packet['types'] as $type) {
             foreach ($type['items'] as $item) {
-                $lines[] = [$type['label'], $item['name'], $item['unit_label'], $item['total'], $item['value']];
+                $lines[] = [
+                    $type['label'],
+                    $item['name'],
+                    $item['unit_label'],
+                    $item['total'],
+                    $item['effective_cost'] ?? '',
+                    $item['value'],
+                ];
             }
         }
 

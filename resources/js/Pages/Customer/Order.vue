@@ -77,9 +77,22 @@ onBeforeUnmount(() => {
                     {{ STEPS[currentStep]?.label ?? 'کنسل شده' }}
                 </p>
 
-                <p class="mt-1 text-sm opacity-60">
-                    {{ formatTomanWithUnit(order.total) }}
-                </p>
+                <div class="mt-3 text-sm">
+                    <template v-if="order.discount_total > 0">
+                        <p class="opacity-60">
+                            جمع: <span class="line-through">{{ formatTomanWithUnit(order.subtotal) }}</span>
+                        </p>
+                        <p class="font-bold text-saffron-600 dark:text-saffron-400">
+                            تخفیف: −{{ formatTomanWithUnit(order.discount_total) }}
+                        </p>
+                        <p class="mt-1 text-lg font-bold">
+                            {{ formatTomanWithUnit(order.total) }}
+                        </p>
+                    </template>
+                    <p v-else class="opacity-60">
+                        {{ formatTomanWithUnit(order.total) }}
+                    </p>
+                </div>
             </div>
 
             <!-- Progress steps -->
