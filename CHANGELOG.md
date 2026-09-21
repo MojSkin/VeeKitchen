@@ -18,7 +18,7 @@ A version is **released** only when this cycle completes:
 
 Direct pushes to `main` or `production` never happen; merges from `testing` only.
 
-## [Unreleased]
+## [0.6.0] — 2026-09-21
 
 ### Added (Guest coupon entry with live cart quote — phase 3 step 2 follow-up)
 - The guest menu's cart bar now carries a coupon field with **live totals** priced through the exact order pipeline: a debounced `POST cart/quote` returns subtotal / discount / payable plus a human chip («کد «VIP30» اعمال شد» or the honest refusal «این کد تخفیف کمتر از تخفیف خودکار فعلی است و اعمال نشد»). The quoted `discount_code` travels with the placement, so the numbers the guest saw are the numbers charged.
@@ -225,7 +225,8 @@ Direct pushes to `main` or `production` never happen; merges from `testing` only
 - `ziggy-js` import moved from the removed `ziggy-js/vue` subpath to the module root (2.x exports).
 - Empty `.vue` page stubs replaced with minimal valid SFCs so `vite build` passes; added `pwa.js` service-worker registrar.
 
-[Unreleased]: https://github.com/MojSkin/VeeKitchen/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/MojSkin/VeeKitchen/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/MojSkin/VeeKitchen/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/MojSkin/VeeKitchen/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/MojSkin/VeeKitchen/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/MojSkin/VeeKitchen/compare/v0.2.0...v0.3.0
