@@ -11,6 +11,7 @@ use App\Services\OrderService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use RuntimeException;
 
 class OrderController extends Controller
 {
@@ -38,15 +39,21 @@ class OrderController extends Controller
             ? RestaurantTable::query()->where('qr_token', $validated['qr_token'])->first()
             : null;
 
-        $order = $this->orders->place(
-            branchId: $table->branch_id ?? $this->firstBranchId(),
-            table: $table,
-            customer: $request->user(),
-            cart: $validated['items'],
-            guestName: $validated['guest_name'],
-            notes: $validated['notes'] ?? null,
-            discountCode: $validated['discount_code'] ?? null,
-        );
+        try {
+            $order = $this->orders->place(
+                branchId: $table->branch_id ?? $this->firstBranchId(),
+                table: $table,
+                customer: $request->user(),
+                cart: $validated['items'],
+                guestName: $validated['guest_name'],
+                notes: $validated['notes'] ?? null,
+                discountCode: $validated['discount_code'] ?? null,
+            );
+        } catch (RuntimeException $e) {
+            // A coupon that loses to the automatic offer (or any domain
+            // refusal) surfaces as a field error, not a 500.
+            return back()->withErrors(['discount_code' => $e->getMessage()])->withInput();
+        }
 
         // Guests follow the order via an unguessable token in the URL.
         $trackUrl = route('orders.track', [$order, $order->guest_token]);

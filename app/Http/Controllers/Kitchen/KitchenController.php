@@ -42,8 +42,10 @@ class KitchenController extends Controller
             ->get();
 
         return Inertia::render('Kitchen/Index', [
-            'queue' => OrderResource::collection($queue),
-            'ready' => OrderResource::collection($ready),
+            // resolve() unwraps the resource collection — inside Inertia
+            // props a collection would otherwise serialize as {data: [...]}.
+            'queue' => OrderResource::collection($queue)->resolve(),
+            'ready' => OrderResource::collection($ready)->resolve(),
         ]);
     }
 

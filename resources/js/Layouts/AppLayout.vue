@@ -17,6 +17,7 @@ const navLinks = computed(() => {
             { to: 'admin.inventory', label: 'انبار' },
             { to: 'admin.inventory.report', label: 'گزارش انبار' },
             { to: 'admin.purchase-orders', label: 'خرید' },
+            { to: 'admin.discounts', label: 'تخفیف‌ها' },
             { to: 'cashier.index', label: 'صندوق' },
         ];
     }

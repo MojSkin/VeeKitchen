@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DiscountController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\PurchaseOrderController;
@@ -8,6 +9,8 @@ use App\Http\Controllers\Admin\TableController;
 use App\Http\Controllers\Admin\WarehouseReportController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Cashier\CashierController;
+use App\Http\Controllers\Cashier\ShiftController;
+use App\Http\Controllers\Customer\CartPreviewController;
 use App\Http\Controllers\Customer\MenuController;
 use App\Http\Controllers\Customer\OrderController;
 use App\Http\Controllers\Kitchen\KitchenController;
@@ -24,8 +27,9 @@ Route::get('/menu', [MenuController::class, 'publicMenu'])->name('menu.public');
 Route::get('/t/{qrToken}', [MenuController::class, 'reserveTable'])->name('table.reserve');
 Route::get('/t/{qrToken}/menu', [MenuController::class, 'tableMenu'])->name('menu.table');
 
-Route::middleware('throttle:10,1')->group(function () {
+Route::middleware('throttle:30,1')->group(function () {
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+    Route::post('/cart/quote', [CartPreviewController::class, 'quote'])->name('cart.quote');
 });
 Route::get('/orders/track/{order}/{guestToken}', [OrderController::class, 'track'])
     ->name('orders.track');
@@ -46,6 +50,11 @@ Route::middleware(['auth', 'role:cashier,admin'])->prefix('cashier')->group(func
         ->name('cashier.repeat');
     Route::post('/tables/{table}/release', [CashierController::class, 'releaseTable'])
         ->name('cashier.tables.release');
+
+    Route::get('/shift', [ShiftController::class, 'index'])->name('cashier.shift');
+    Route::post('/shift/open', [ShiftController::class, 'open'])->name('cashier.shift.open');
+    Route::post('/shift/movement', [ShiftController::class, 'movement'])->name('cashier.shift.movement');
+    Route::post('/shift/close', [ShiftController::class, 'close'])->name('cashier.shift.close');
 });
 
 // ── Kitchen display ─────────────────────────────────────────────────────────
@@ -93,6 +102,14 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
         ->name('admin.purchase-orders.receive');
     Route::post('/purchase-orders/{order}/cancel', [PurchaseOrderController::class, 'cancel'])
         ->name('admin.purchase-orders.cancel');
+
+    Route::get('/discounts', [DiscountController::class, 'index'])->name('admin.discounts');
+    Route::post('/discounts', [DiscountController::class, 'store'])->name('admin.discounts.store');
+    Route::put('/discounts/{discount}', [DiscountController::class, 'update'])->name('admin.discounts.update');
+    Route::post('/discounts/{discount}/toggle', [DiscountController::class, 'toggle'])
+        ->name('admin.discounts.toggle');
+    Route::delete('/discounts/{discount}', [DiscountController::class, 'destroy'])
+        ->name('admin.discounts.destroy');
 });
 
 // ── Public pickup display (no login) ────────────────────────────────────────
