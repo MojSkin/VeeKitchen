@@ -20,6 +20,19 @@ Direct pushes to `main` or `production` never happen; merges from `testing` only
 
 ## [Unreleased]
 
+### Added (End-of-day pipeline and shift KPIs — phase 3 step 4)
+- `EndOfDayService` builds the day's settlement pipeline: every branch shift touching today (opened today, closed today, or a still-open shift spanning midnight) with opening/cash/card/movements/expected/counted/discrepancy, plus the day's order counters (placed/paid/cancelled).
+- The admin dashboard carries a live «شیفت‌های امروز» KPI card (open / closed / discrepancy-bearing shifts + total discrepancy) linking to the new `admin/end-of-day` pipeline page — the page and the KPI read the same service, so they can never disagree.
+- 6 new tests: open/closed grouping with settlement numbers, midnight-spanning open shifts, yesterday's closed shifts dropping off, dashboard KPI discrepancy flagging, the page payload for admins, and admin-only access.
+
+### Added (Jalali-only dates and the VeePanel date picker)
+- Every rendered date in the app is now Jalali: a new `lib/jalali.js` presentation layer (day, day+clock, short chart labels) on `date-fns-jalali` replaces the Gregorian slicing in the discounts board, purchase orders, recipe versions, the shift panel, the warehouse report headline, the receipt, and the dashboard chart axis («۱ مهر»).
+- `JalaliDatePicker` — a port of VeePanel's `VeeDatePicker` restyled for the neomorphic theme — replaces the four `<input type="date">` fields (discount window, custom report range). Persian-first: month names, Saturday-led weeks, Persian digits everywhere; values still serialize to the same Gregorian Y-m-d wire format the backend validates.
+
+### Changed (Neomorphic lajvard theme + dark mode)
+- The glassmorphism look is rebuilt as **neomorphism on the lajvard palette** (borrowed from VeePanel): raised surfaces with soft dual shadows (dark drop + white kiss), pressed-in wells for controls, and the sharp saffron/pistachio oranges and greens softened into tile-gold and calm teal. The legacy `glass*` utility names remain the surface vocabulary, so 95+ call sites moved without touching components.
+- **Dark mode toggle** in the staff header and floating on the public menu: the blade shell already resolved `veekitchen.theme` before first paint; a new `lib/theme.js` keeps the DOM synced, persists the choice, and follows the OS scheme while no preference is stored. All surfaces consume theme tokens, so the whole app flips cleanly between light and dark.
+
 ### Added (Today's warehouse ledger in the demo seed)
 - `DatabaseSeeder` now writes eight realistic `StockMovement` rows dated **today**, spread across the day, so the warehouse report is alive on the very first run: two purchases (flour at the same 62k the draft purchase order quotes, soda cans at a fresh 35k cost), the margherita recipe consumption ×6 (flour, mozzarella, sauce with the recipe line «مصرف فرمول — ۶ پیتزا مارگاریتا»), a gram-precise mushroom waste, a grounded-meat count adjustment, and a cancelled-order sauce return — covering all five movement types.
 - Every demo row carries the same unit-cost snapshots the real pipeline writes (`purchase_price` for buys, `current_cost` elsewhere), so rial values reproduce exactly.
