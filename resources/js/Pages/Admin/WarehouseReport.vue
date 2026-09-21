@@ -113,11 +113,11 @@ const activeTypes = computed(() =>
 );
 
 const typeTone = {
-    consumption: 'bg-saffron-500/15 text-saffron-600 dark:text-saffron-400',
+    consumption: 'bg-lajvard-600/15 text-saffron-600 dark:text-saffron-400',
     waste: 'bg-red-500/15 text-red-500 dark:text-red-400',
     adjustment: 'bg-night-500/15 text-night-700 dark:text-night-300',
-    purchase: 'bg-pistachio-500/15 text-pistachio-600 dark:text-pistachio-400',
-    return: 'bg-pistachio-500/15 text-pistachio-600 dark:text-pistachio-400',
+    purchase: 'bg-pistachio-600/15 text-pistachio-600 dark:text-pistachio-400',
+    return: 'bg-pistachio-600/15 text-pistachio-600 dark:text-pistachio-400',
 };
 
 function quantity(amount) {
@@ -211,14 +211,14 @@ function openExport(format) {
             </header>
 
             <!-- Range controls -->
-            <section class="glass mb-4 rounded-glass p-4">
+            <section class="glass mb-4 rounded-2xl p-4">
                 <div class="flex flex-wrap items-center gap-2">
                     <button
                         v-for="preset in presets"
                         :key="preset.value"
                         type="button"
                         class="glass-flat cursor-pointer rounded-xl px-3 py-1.5 text-xs font-bold transition disabled:cursor-default"
-                        :class="activePreset === preset.value ? 'ring-1 ring-saffron-400/70' : 'hover:bg-white/10'"
+                        :class="activePreset === preset.value ? 'ring-1 ring-lajvard-500/60' : 'hover:bg-white/10'"
                         :disabled="applying"
                         @click="applyPreset(preset.value)"
                     >
@@ -246,7 +246,7 @@ function openExport(format) {
                     </label>
                     <button
                         type="button"
-                        class="cursor-pointer rounded-xl bg-saffron-500 px-4 py-2 text-sm font-bold text-white transition hover:bg-saffron-600 disabled:opacity-40"
+                        class="cursor-pointer rounded-xl bg-lajvard-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-lajvard-700 disabled:opacity-40"
                         :disabled="applying || customFrom === null || customTo === null"
                         @click="applyCustom"
                     >
@@ -293,9 +293,9 @@ function openExport(format) {
             </section>
 
             <!-- Balance pipe -->
-            <section class="glass mb-6 rounded-glass p-5">
+            <section class="glass mb-6 rounded-2xl p-5">
                 <div class="flex flex-wrap items-center gap-3">
-                    <div class="min-w-28 flex-1 rounded-2xl bg-pistachio-500/15 p-4 text-center">
+                    <div class="min-w-28 flex-1 rounded-2xl bg-pistachio-600/15 p-4 text-center">
                         <p class="text-xs opacity-60">ورودی بازه</p>
                         <p class="mt-1 text-2xl font-bold text-pistachio-600 dark:text-pistachio-400">
                             {{ quantity(inflow) }}
@@ -345,7 +345,7 @@ function openExport(format) {
                 <section
                     v-for="type in activeTypes"
                     :key="type.type"
-                    class="glass rounded-glass p-5"
+                    class="glass rounded-2xl p-5"
                 >
                     <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
                         <div class="flex items-center gap-2">
@@ -401,7 +401,7 @@ function openExport(format) {
 
                 <p
                     v-if="!hasMovements"
-                    class="glass rounded-glass p-8 text-center opacity-60"
+                    class="glass rounded-2xl p-8 text-center opacity-60"
                 >
                     در این بازه حرکتی در انبار ثبت نشده است.
                 </p>

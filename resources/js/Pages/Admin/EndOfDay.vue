@@ -41,7 +41,7 @@ function signedMoney(value) {
             </header>
 
             <!-- Day summary -->
-            <section class="glass mb-4 grid gap-4 rounded-glass p-5 sm:grid-cols-2 lg:grid-cols-4">
+            <section class="glass mb-4 grid gap-4 rounded-2xl p-5 sm:grid-cols-2 lg:grid-cols-4">
                 <div>
                     <p class="text-xs opacity-60">شیفت باز</p>
                     <p class="mt-1 text-2xl font-black text-pistachio-600 dark:text-pistachio-400">
@@ -75,7 +75,7 @@ function signedMoney(value) {
                 <article
                     v-for="shift in pipeline.shifts"
                     :key="shift.id"
-                    class="glass rounded-glass p-5"
+                    class="glass rounded-2xl p-5"
                 >
                     <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
                         <div class="flex items-center gap-3">
@@ -83,7 +83,7 @@ function signedMoney(value) {
                             <span
                                 class="rounded-full px-3 py-1 text-xs font-bold"
                                 :class="shift.is_open
-                                    ? 'bg-pistachio-500/15 text-pistachio-600 dark:text-pistachio-400'
+                                    ? 'bg-pistachio-600/15 text-pistachio-600 dark:text-pistachio-400'
                                     : 'bg-night-500/15 text-night-700 dark:text-night-300'"
                             >
                                 {{ shift.is_open ? 'باز' : 'بسته' }}
@@ -143,7 +143,7 @@ function signedMoney(value) {
 
                 <p
                     v-if="pipeline.shifts.length === 0"
-                    class="glass rounded-glass p-8 text-center text-sm opacity-60"
+                    class="glass rounded-2xl p-8 text-center text-sm opacity-60"
                 >
                     امروز شیفتِ ثبت‌شده‌ای نیست.
                 </p>

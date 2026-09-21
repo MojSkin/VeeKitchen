@@ -135,7 +135,7 @@ function discrepancyText(value) {
             <!-- No open shift: the opening card -->
             <section
                 v-if="!shift"
-                class="glass rounded-glass p-6"
+                class="glass rounded-2xl p-6"
             >
                 <h2 class="text-lg font-bold">شروع شیفت</h2>
                 <p class="mt-1 text-sm opacity-60">
@@ -154,7 +154,7 @@ function discrepancyText(value) {
                     >
                     <button
                         type="button"
-                        class="cursor-pointer rounded-xl bg-pistachio-500 px-6 py-2 text-sm font-bold text-white transition hover:bg-pistachio-600 disabled:opacity-40"
+                        class="cursor-pointer rounded-xl bg-pistachio-600 px-6 py-2 text-sm font-bold text-white transition hover:bg-pistachio-700 disabled:opacity-40"
                         :disabled="opening || openingCash === ''"
                         @click="submitOpen"
                     >
@@ -165,10 +165,10 @@ function discrepancyText(value) {
 
             <!-- Open shift: live till -->
             <template v-else>
-                <section class="glass rounded-glass p-6">
+                <section class="glass rounded-2xl p-6">
                     <div class="flex items-center justify-between">
                         <h2 class="text-lg font-bold">شیفت باز</h2>
-                        <span class="rounded-full bg-pistachio-500/15 px-3 py-1 text-xs font-bold text-pistachio-600 dark:text-pistachio-400">
+                        <span class="rounded-full bg-pistachio-600/15 px-3 py-1 text-xs font-bold text-pistachio-600 dark:text-pistachio-400">
                             از {{ dayTime(shift.opened_at) }}
                         </span>
                     </div>
@@ -190,7 +190,7 @@ function discrepancyText(value) {
                             <dt class="opacity-60">حرکات نقدی (خالص)</dt>
                             <dd class="mt-1 font-bold">{{ formatTomanWithUnit(shift.movements_net) }}</dd>
                         </div>
-                        <div class="glass-flat col-span-2 rounded-xl p-3 ring-1 ring-saffron-400/50">
+                        <div class="glass-flat col-span-2 rounded-xl p-3 ring-1 ring-lajvard-500/40">
                             <dt class="opacity-60">موجودی مورد انتظار صندوق</dt>
                             <dd class="mt-1 text-lg font-black text-saffron-600 dark:text-saffron-400">{{ formatTomanWithUnit(shift.expected_cash) }}</dd>
                         </div>
@@ -198,7 +198,7 @@ function discrepancyText(value) {
                 </section>
 
                 <!-- Cash movement -->
-                <section class="glass mt-4 rounded-glass p-6">
+                <section class="glass mt-4 rounded-2xl p-6">
                     <h2 class="text-lg font-bold">حرکت نقدی</h2>
                     <p class="mt-1 text-sm opacity-60">
                         برداشت از صندوق یا شارژ آن — هر حرکت با دلیل ثبت می‌شود.
@@ -232,7 +232,7 @@ function discrepancyText(value) {
                         >
                         <button
                             type="button"
-                            class="cursor-pointer rounded-xl bg-saffron-500 px-4 py-2 text-sm font-bold text-white transition hover:bg-saffron-600 disabled:opacity-40"
+                            class="cursor-pointer rounded-xl bg-lajvard-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-lajvard-700 disabled:opacity-40"
                             :disabled="moving || movement.amount === '' || movement.reason.trim() === ''"
                             @click="submitMovement"
                         >
@@ -242,7 +242,7 @@ function discrepancyText(value) {
                 </section>
 
                 <!-- Close -->
-                <section class="glass mt-4 rounded-glass p-6">
+                <section class="glass mt-4 rounded-2xl p-6">
                     <h2 class="text-lg font-bold">پایان شیفت</h2>
                     <p class="mt-1 text-sm opacity-60">
                         پول صندوق را بشمارید و عدد واقعی را وارد کنید؛ مغایرت خودکار محاسبه و ثبت می‌شود.
@@ -272,7 +272,7 @@ function discrepancyText(value) {
                         v-if="liveDiscrepancy !== null"
                         class="mt-3 rounded-xl px-3 py-2 text-sm font-bold"
                         :class="liveDiscrepancy === 0
-                            ? 'bg-pistachio-500/15 text-pistachio-600 dark:text-pistachio-400'
+                            ? 'bg-pistachio-600/15 text-pistachio-600 dark:text-pistachio-400'
                             : 'bg-red-500/15 text-red-500'"
                     >
                         {{ discrepancyText(liveDiscrepancy) }}
@@ -300,7 +300,7 @@ function discrepancyText(value) {
                             <span
                                 class="rounded-full px-3 py-1 text-xs font-bold"
                                 :class="past.discrepancy === 0
-                                    ? 'bg-pistachio-500/15 text-pistachio-600 dark:text-pistachio-400'
+                                    ? 'bg-pistachio-600/15 text-pistachio-600 dark:text-pistachio-400'
                                     : 'bg-red-500/15 text-red-500'"
                             >
                                 {{ discrepancyText(past.discrepancy) }}
