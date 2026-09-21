@@ -65,6 +65,8 @@ function submitMovement() {
 /* ── Close form ─────────────────────────────────────────────────── */
 
 const countedCash = ref('');
+const compensate = ref(false);
+const compensationReason = ref('');
 const closing = ref(false);
 
 const expectedCash = computed(() => props.shift?.expected_cash ?? 0);
@@ -78,6 +80,11 @@ const liveDiscrepancy = computed(() => {
 });
 
 function submitClose() {
+    if (compensate.value && compensationReason.value.trim() === '') {
+        window.alert('برای جبران دفتریِ مغایرت، ثبت دلیل الزامی است.');
+        return;
+    }
+
     if (!window.confirm('شیفت بسته شود؟ بعد از بستن، پرداخت جدید تا شیفت بعدی ممکن نیست.')) {
         return;
     }
@@ -86,10 +93,14 @@ function submitClose() {
 
     router.post(route('cashier.shift.close'), {
         counted_cash: Math.round(Number(countedCash.value) || 0),
+        compensate: compensate.value ? 1 : 0,
+        compensation_reason: compensate.value ? compensationReason.value : null,
     }, {
         preserveScroll: true,
         onSuccess: () => {
             countedCash.value = '';
+            compensate.value = false;
+            compensationReason.value = '';
         },
         onFinish: () => {
             closing.value = false;
@@ -277,6 +288,32 @@ function discrepancyText(value) {
                     >
                         {{ discrepancyText(liveDiscrepancy) }}
                     </p>
+
+                    <!-- Book-only reconciliation: fold the gap into the expectation. -->
+                    <div
+                        v-if="liveDiscrepancy !== null && liveDiscrepancy !== 0"
+                        class="mt-4 rounded-xl border border-dashed border-lajvard-400/50 p-3"
+                    >
+                        <label class="flex cursor-pointer items-center gap-2 text-sm font-bold">
+                            <input
+                                v-model="compensate"
+                                type="checkbox"
+                                class="size-4 accent-lajvard-600"
+                            >
+                            جبران دفتریِ مغایرت (بدون جابه‌جایی پول فیزیکی)
+                        </label>
+                        <p class="mt-1 text-xs opacity-60">
+                            با این گزینه مغایرت با یک ردیف اصلاح دفتری آشتی داده می‌شود و مغایرتِ ثبت‌شده صفر می‌خواند.
+                        </p>
+                        <input
+                            v-if="compensate"
+                            v-model="compensationReason"
+                            type="text"
+                            required
+                            placeholder="دلیل جبران (مثلاً پول آبنبات جاافتاده)"
+                            class="glass-flat mt-2 w-full rounded-xl px-3 py-2 text-sm outline-none"
+                        >
+                    </div>
                 </section>
             </template>
 
