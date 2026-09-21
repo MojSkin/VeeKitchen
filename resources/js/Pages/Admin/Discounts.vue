@@ -188,7 +188,7 @@ function windowLabel(discount) {
 
             <!-- New discount -->
             <form
-                class="glass mb-8 rounded-glass p-4"
+                class="glass mb-8 rounded-2xl p-4"
                 @submit.prevent="submit"
             >
                 <h2 class="mb-3 text-lg font-bold">تخفیف جدید</h2>
@@ -295,7 +295,7 @@ function windowLabel(discount) {
 
                 <button
                     type="submit"
-                    class="mt-3 cursor-pointer rounded-xl bg-saffron-500 px-6 py-2 text-sm font-bold text-white transition hover:bg-saffron-600 disabled:opacity-40"
+                    class="mt-3 cursor-pointer rounded-xl bg-lajvard-600 px-6 py-2 text-sm font-bold text-white transition hover:bg-lajvard-700 disabled:opacity-40"
                     :disabled="saving"
                 >
                     ساخت تخفیف
@@ -306,7 +306,7 @@ function windowLabel(discount) {
             <div class="space-y-3">
                 <p
                     v-if="discounts.length === 0"
-                    class="glass rounded-glass p-8 text-center text-sm opacity-60"
+                    class="glass rounded-2xl p-8 text-center text-sm opacity-60"
                 >
                     هنوز تخفیفی ثبت نشده است.
                 </p>
@@ -314,7 +314,7 @@ function windowLabel(discount) {
                 <article
                     v-for="discount in discounts"
                     :key="discount.id"
-                    class="glass rounded-glass p-4"
+                    class="glass rounded-2xl p-4"
                     :class="discount.currently_active ? '' : 'opacity-70'"
                 >
                     <div class="flex flex-wrap items-center justify-between gap-3">
@@ -333,7 +333,7 @@ function windowLabel(discount) {
                                 <span
                                     class="rounded-full px-2 py-0.5 text-xs font-bold"
                                     :class="discount.currently_active
-                                        ? 'bg-pistachio-500/15 text-pistachio-600 dark:text-pistachio-400'
+                                        ? 'bg-pistachio-600/15 text-pistachio-600 dark:text-pistachio-400'
                                         : 'bg-night-500/20 opacity-70'"
                                 >
                                     {{ discount.currently_active ? 'فعال' : 'غیرفعال' }}
@@ -454,7 +454,7 @@ function windowLabel(discount) {
                         <div class="flex flex-wrap gap-2 pt-1">
                             <button
                                 type="button"
-                                class="cursor-pointer rounded-xl bg-pistachio-500 px-4 py-2 text-sm font-bold text-white transition hover:bg-pistachio-600 disabled:opacity-40"
+                                class="cursor-pointer rounded-xl bg-pistachio-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-pistachio-700 disabled:opacity-40"
                                 :disabled="busyId === discount.id"
                                 @click="saveEdit(discount)"
                             >

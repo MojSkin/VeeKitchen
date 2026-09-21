@@ -10,12 +10,7 @@
     --font-sans: 'Vazirmatn Variable', 'Vazirmatn', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
         'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
-    /*
-     * لاجورد — borrowed from VeePanel's lajvard palette (oklch).
-     * Lapis-lazuli blues: deep mineral blues for text/surfaces, a
-     * luminous azure as the interactive brand color, and the golden
-     * "tile gold" accent standing in for the old saffron.
-     */
+    /* ── لاجورد — VeePanel palette 2, verbatim oklch values ───────── */
     --color-lajvard-50: oklch(0.972 0.008 250);
     --color-lajvard-100: oklch(0.945 0.014 250);
     --color-lajvard-200: oklch(0.906 0.024 250);
@@ -28,119 +23,125 @@
     --color-lajvard-900: oklch(0.246 0.07 260);
     --color-lajvard-950: oklch(0.135 0.015 250);
 
-    /* زر کاشی — tile gold, the softer stand-in for the old saffron. */
-    --color-zar-50: oklch(0.981 0.014 85);
-    --color-zar-100: oklch(0.958 0.028 84);
-    --color-zar-200: oklch(0.918 0.055 82);
+    /* زر کاشی — VeePanel accent (tile gold), the single warm counterpoint. */
     --color-zar-300: oklch(0.856 0.09 78);
     --color-zar-400: oklch(0.806 0.12 76);
     --color-zar-500: oklch(0.756 0.14 75);
     --color-zar-600: oklch(0.656 0.14 75);
     --color-zar-700: oklch(0.536 0.11 76);
-    --color-zar-800: oklch(0.426 0.08 78);
-    --color-zar-900: oklch(0.326 0.06 80);
-    --color-zar-950: oklch(0.206 0.04 82);
 
-    /*
-     * Compatibility aliases — components written against the saffron
-     * palette keep rendering while they migrate to lajvard/zar.
-     */
-    --color-saffron-50: var(--color-zar-50);
-    --color-saffron-100: var(--color-zar-100);
-    --color-saffron-200: var(--color-zar-200);
+    /* Compatibility aliases — saffron call sites keep rendering. */
+    --color-saffron-50: var(--color-lajvard-50);
+    --color-saffron-100: var(--color-lajvard-100);
+    --color-saffron-200: var(--color-lajvard-200);
     --color-saffron-300: var(--color-zar-300);
     --color-saffron-400: var(--color-zar-400);
     --color-saffron-500: var(--color-zar-500);
     --color-saffron-600: var(--color-zar-600);
     --color-saffron-700: var(--color-zar-700);
-    --color-saffron-800: var(--color-zar-800);
-    --color-saffron-900: var(--color-zar-900);
-    --color-saffron-950: var(--color-zar-950);
+    --color-saffron-800: var(--color-lajvard-800);
+    --color-saffron-900: var(--color-lajvard-900);
+    --color-saffron-950: var(--color-lajvard-950);
 
-    /* pistachio softens into a calm teal so greens stop shouting. */
-    --color-pistachio-50: oklch(0.972 0.008 180);
-    --color-pistachio-100: oklch(0.945 0.016 180);
-    --color-pistachio-200: oklch(0.906 0.03 180);
-    --color-pistachio-300: oklch(0.842 0.052 180);
-    --color-pistachio-400: oklch(0.756 0.08 181);
-    --color-pistachio-500: oklch(0.68 0.102 182);
-    --color-pistachio-600: oklch(0.576 0.096 184);
-    --color-pistachio-700: oklch(0.476 0.078 186);
-    --color-pistachio-800: oklch(0.386 0.06 188);
-    --color-pistachio-900: oklch(0.306 0.046 190);
-    --color-pistachio-950: oklch(0.186 0.03 192);
+    /* Success — VeePanel success (calm green). */
+    --color-pistachio-300: oklch(0.842 0.062 165);
+    --color-pistachio-400: oklch(0.756 0.09 165);
+    --color-pistachio-500: oklch(0.656 0.11 165);
+    --color-pistachio-600: oklch(0.556 0.09 165);
+    --color-pistachio-700: oklch(0.476 0.075 165);
 
-    /*
-     * Night becomes the lajvard-tinted canvas (VeePanel's lajvard dark
-     * surface tones), replacing the plum night scale.
-     */
-    --color-night-50: oklch(0.968 0.006 250);
-    --color-night-100: oklch(0.938 0.01 250);
-    --color-night-200: oklch(0.898 0.016 250);
-    --color-night-300: oklch(0.816 0.026 251);
-    --color-night-400: oklch(0.706 0.04 252);
-    --color-night-500: oklch(0.586 0.05 253);
-    --color-night-600: oklch(0.476 0.055 255);
-    --color-night-700: oklch(0.386 0.05 257);
-    --color-night-800: oklch(0.286 0.038 258);
-    --color-night-900: oklch(0.216 0.028 258);
-    --color-night-950: oklch(0.135 0.015 250);
+    /* Cool mist scale — canvas + text (VeePanel background/foreground hue). */
+    --color-night-50: oklch(0.98 0.004 250);
+    --color-night-100: oklch(0.965 0.008 250);
+    --color-night-200: oklch(0.93 0.01 250);
+    --color-night-300: oklch(0.875 0.01 250);
+    --color-night-400: oklch(0.706 0.012 250);
+    --color-night-500: oklch(0.606 0.015 250);
+    --color-night-600: oklch(0.506 0.015 250);
+    --color-night-700: oklch(0.386 0.016 250);
+    --color-night-800: oklch(0.285 0.015 250);
+    --color-night-900: oklch(0.205 0.018 250);
+    --color-night-950: oklch(0.145 0.02 250);
 
-    --radius-glass: 1.25rem;
+    /* ── Motion — transitions.dev shared scale ────────────────────── */
+    --duration-stagger: 40ms;
+    --duration-micro: 80ms;
+    --duration-quick: 150ms;
+    --duration-fast: 250ms;
+    --duration-medium: 350ms;
+    --duration-slow: 400ms;
 
-    /* Neomorphic dual shadows: dark drop + white kiss from the top-left. */
-    --shadow-glass: 8px 8px 20px rgb(30 41 79 / 0.14), -6px -6px 16px rgb(255 255 255 / 0.85),
-        inset 0 0 0 1px rgb(255 255 255 / 0.35);
-    --shadow-glass-lg: 12px 12px 32px rgb(30 41 79 / 0.18), -8px -8px 24px rgb(255 255 255 / 0.9),
-        inset 0 0 0 1px rgb(255 255 255 / 0.4);
+    --ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-bounce: cubic-bezier(0.34, 1.36, 0.64, 1);
 
-    /* Pressed variant for controls that are "in" the surface. */
-    --shadow-inset: inset 4px 4px 10px rgb(30 41 79 / 0.12), inset -4px -4px 10px rgb(255 255 255 / 0.8);
+    --blur-t: 2px;
+    --blur-page: 3px;
 
     --ease-glass: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/*
- * Theme tokens — each surface consumes variables only, so the whole app
- * flips between light and dark by re-pointing them under `.dark`.
- */
+/* ═══ The world — neomorphic glass on lajvard ═══════════════════════
+   One light source, top of frame. Every raised surface shares the
+   canvas colour and is sculpted purely by a light/dark shadow pair;
+   glass adds a faint tinted translucency over the single glow. A
+   theme swap re-tunes the tokens, never the components. */
 @layer base {
     :root {
         color-scheme: light;
 
-        /* Neomorphic surface chemistry (light). */
-        --neo-drop: rgb(30 41 79 / 0.14);
-        --neo-kiss: rgb(255 255 255 / 0.85);
-        --neo-surface: var(--color-lajvard-50);
-        --neo-surface-raised: #fbfcff;
-        --neo-surface-pressed: var(--color-lajvard-100);
+        /* VeePanel lajvard: background + foreground + muted. */
+        --canvas: oklch(0.972 0.008 250);
+        --ink: oklch(0.145 0.02 250);
+        --ink-soft: oklch(0.506 0.015 250);
 
-        --glass-tint: 251 252 255;
-        --glass-alpha: 0.92;
-        --glass-border: 255 255 255;
-        --glass-border-alpha: 0.6;
-        --glass-blur: 14px;
+        /* Neomorphic pair — cool drop below, warm-white kiss above. */
+        --drop: rgb(59 74 117 / 0.11);
+        --drop-soft: rgb(59 74 117 / 0.07);
+        --kiss: rgb(255 255 255 / 0.92);
+        --kiss-soft: rgb(255 255 255 / 0.6);
+        --well-dark: rgb(59 74 117 / 0.1);
+        --well-light: rgb(255 255 255 / 0.85);
 
-        --focus-ring: var(--color-lajvard-600);
+        /* Glass pane (VeePanel glass tokens). */
+        --glass-tint: 255 255 255;
+        --glass-alpha: 0.58;
+        --glass-alpha-strong: 0.82;
+        --glass-edge: 255 255 255;
+        --glass-edge-alpha: 0.62;
+        --glass-blur: 16px;
+        --glass-saturate: 150%;
+
+        /* The one glow — lajvard light from the top. */
+        --glow: radial-gradient(120rem 48rem at 50% -12rem, oklch(0.93 0.035 255) 0%, transparent 70%);
+
+        --ring: var(--color-lajvard-600);
     }
 
     .dark {
         color-scheme: dark;
 
-        /* Dark neomorphism: the drop deepens, the kiss dims to a glint. */
-        --neo-drop: rgb(2 6 23 / 0.6);
-        --neo-kiss: rgb(148 163 216 / 0.1);
-        --neo-surface: var(--color-night-950);
-        --neo-surface-raised: var(--color-night-900);
-        --neo-surface-pressed: oklch(0.11 0.014 250);
+        --canvas: oklch(0.135 0.015 250);
+        --ink: oklch(0.93 0.008 250);
+        --ink-soft: oklch(0.606 0.015 250);
 
-        --glass-tint: 22 28 51;
-        --glass-alpha: 0.9;
-        --glass-border: 148 163 216;
-        --glass-border-alpha: 0.16;
-        --glass-blur: 16px;
+        --drop: rgb(1 5 16 / 0.6);
+        --drop-soft: rgb(1 5 16 / 0.42);
+        --kiss: rgb(147 170 232 / 0.075);
+        --kiss-soft: rgb(147 170 232 / 0.05);
+        --well-dark: rgb(1 5 16 / 0.5);
+        --well-light: rgb(147 170 232 / 0.055);
 
-        --focus-ring: var(--color-lajvard-400);
+        --glass-tint: 28 37 64;
+        --glass-alpha: 0.52;
+        --glass-alpha-strong: 0.78;
+        --glass-edge: 158 182 240;
+        --glass-edge-alpha: 0.13;
+        --glass-blur: 18px;
+        --glass-saturate: 140%;
+
+        --glow: radial-gradient(120rem 48rem at 50% -14rem, oklch(0.29 0.07 258 / 0.55) 0%, transparent 70%);
+
+        --ring: var(--color-lajvard-400);
     }
 
     html {
@@ -149,78 +150,121 @@
     }
 
     body {
-        @apply min-h-dvh bg-night-100 font-sans text-night-900 antialiased dark:bg-night-950 dark:text-night-50;
+        background-color: var(--canvas);
+        color: var(--ink);
+        min-height: 100dvh;
+        font-family: var(--font-sans);
+        -webkit-font-smoothing: antialiased;
         text-wrap: pretty;
-    }        /* Soft lajvard wash behind every screen — depth without the
-       saturated saffron/pistachio glows of the old theme. */
+    }
+
+    /* The glow — the single reason glass reads as glass. */
     body::before {
         content: '';
         position: fixed;
         inset: 0;
         z-index: -1;
         pointer-events: none;
-        background:
-            radial-gradient(60rem 40rem at 12% -10%, oklch(0.9 0.05 255) 0%, transparent 60%),
-            radial-gradient(50rem 36rem at 95% 5%, oklch(0.93 0.04 200) 0%, transparent 55%),
-            radial-gradient(45rem 45rem at 50% 115%, oklch(0.86 0.03 80) 0%, transparent 60%);
-        opacity: 0.7;
+        background: var(--glow);
     }
 
-    .dark body::before {
-        background:
-            radial-gradient(60rem 40rem at 12% -10%, oklch(0.28 0.07 258) 0%, transparent 60%),
-            radial-gradient(50rem 36rem at 95% 5%, oklch(0.24 0.05 235) 0%, transparent 55%),
-            radial-gradient(45rem 45rem at 50% 115%, oklch(0.26 0.04 90) 0%, transparent 60%);
-        opacity: 0.9;
-    }
-
-    /* Persian digits everywhere numbers are rendered as text. */
     :lang(fa) {
         font-variant-numeric: tabular-nums;
     }
 
+    /* Browser surfaces belong to the design too. */
     ::selection {
-        @apply bg-lajvard-200 text-lajvard-950 dark:bg-lajvard-800 dark:text-lajvard-50;
+        background: color-mix(in oklab, var(--color-lajvard-500) 24%, transparent);
     }
 
     *:focus-visible {
-        @apply outline-2 outline-offset-2;
-        outline-color: var(--focus-ring);
+        outline: 2px solid var(--ring);
+        outline-offset: 2px;
+        border-radius: 4px;
+    }
+
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: color-mix(in oklab, var(--ink) 18%, transparent) transparent;
     }
 }
 
-/*
- * Neomorphic surfaces. The legacy `glass*` names stay as the app's
- * surface vocabulary (95+ call sites), but they now render soft raised
- * panels instead of translucent panes.
- */
-@utility glass {
-    background-color: var(--neo-surface-raised);
-    border: 1px solid rgb(255 255 255 / 0.55);
-    box-shadow: var(--shadow-glass);
+/* ═══ Neomorphic surfaces ═══ */
+@utility neo {
+    /* Raised card — the default surface. */
+    background-color: var(--canvas);
+    box-shadow: 5px 5px 14px var(--drop), -4px -4px 10px var(--kiss);
 }
 
+@utility neo-soft {
+    /* Barely lifted — list rows, quiet groupings. */
+    background-color: var(--canvas);
+    box-shadow: 3px 3px 8px var(--drop-soft), -2px -2px 6px var(--kiss-soft);
+}
+
+@utility neo-strong {
+    /* Floating chrome — dropdowns, modals, the toast. */
+    background-color: var(--canvas);
+    box-shadow: 9px 9px 24px var(--drop), -6px -6px 16px var(--kiss);
+}
+
+@utility neo-pressed {
+    /* Wells — inputs, filter trays, sunken toolbars. */
+    background-color: var(--canvas);
+    box-shadow: inset 3px 3px 7px var(--well-dark), inset -3px -3px 7px var(--well-light);
+}
+
+@utility neo-click {
+    /* Pressable controls: rise at rest, sink when held. */
+    background-color: var(--canvas);
+    box-shadow: 4px 4px 10px var(--drop), -3px -3px 8px var(--kiss);
+    transition:
+        box-shadow var(--duration-quick) var(--ease-smooth-out),
+        transform var(--duration-quick) var(--ease-smooth-out);
+
+    &:active {
+        box-shadow: inset 3px 3px 6px var(--well-dark), inset -2px -2px 5px var(--well-light);
+        transform: scale(0.98);
+    }
+}
+
+/* ═══ Glass layer ═══ */
+@utility glass {
+    /* Translucent pane over the glow — layout chrome, sidebars. */
+    background-color: rgb(var(--glass-tint) / var(--glass-alpha));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    border: 1px solid rgb(var(--glass-edge) / var(--glass-edge-alpha));
+    box-shadow: 5px 5px 16px var(--drop-soft), -4px -4px 12px var(--kiss-soft);
+}
+
+@utility glass-strong {
+    /* Opaque-ish pane — modals, dropdowns, the toast. */
+    background-color: rgb(var(--glass-tint) / var(--glass-alpha-strong));
+    backdrop-filter: blur(calc(var(--glass-blur) + 4px)) saturate(var(--glass-saturate));
+    -webkit-backdrop-filter: blur(calc(var(--glass-blur) + 4px)) saturate(var(--glass-saturate));
+    border: 1px solid rgb(var(--glass-edge) / calc(var(--glass-edge-alpha) * 1.4));
+    box-shadow: 9px 9px 24px var(--drop), -6px -6px 16px var(--kiss);
+}
+
+/* Legacy aliases — pre-redesign call sites keep rendering. */
 @utility glass-flat {
-    background-color: var(--neo-surface);
-    border: 1px solid rgb(255 255 255 / 0.4);
-    box-shadow: var(--shadow-glass);
+    background-color: rgb(var(--glass-tint) / var(--glass-alpha));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    border: 1px solid rgb(var(--glass-edge) / var(--glass-edge-alpha));
 }
 
 @utility glass-raised {
-    background-color: var(--neo-surface-raised);
-    border: 1px solid rgb(255 255 255 / 0.65);
-    box-shadow: var(--shadow-glass-lg);
+    background-color: rgb(var(--glass-tint) / var(--glass-alpha-strong));
+    backdrop-filter: blur(calc(var(--glass-blur) + 4px)) saturate(var(--glass-saturate));
+    -webkit-backdrop-filter: blur(calc(var(--glass-blur) + 4px)) saturate(var(--glass-saturate));
+    border: 1px solid rgb(var(--glass-edge) / calc(var(--glass-edge-alpha) * 1.4));
+    box-shadow: 9px 9px 24px var(--drop), -6px -6px 16px var(--kiss);
 }
 
-/* Pressed-in control well (inputs, segmented buttons, dead toggles). */
-@utility neo-pressed {
-    background-color: var(--neo-surface-pressed);
-    box-shadow: var(--shadow-inset);
-    border: 1px solid rgb(255 255 255 / 0.35);
-}
-
-/* Hairline highlight along the top edge — kept from the glass era. */
 @utility glass-sheen {
+    /* Hairline of light along the top edge. */
     position: relative;
     isolation: isolate;
 
@@ -230,8 +274,89 @@
         inset: 0;
         border-radius: inherit;
         pointer-events: none;
-        background: linear-gradient(to bottom, rgb(255 255 255 / 0.5), transparent 35%);
+        background: linear-gradient(to bottom, rgb(255 255 255 / 0.5), transparent 30%);
         mix-blend-mode: overlay;
+    }
+}
+
+/* ═══ Motion — transitions.dev t-* vocabulary ═══ */
+@utility t-dropdown {
+    transform-origin: top center;
+    transform: scale(0.97) translateY(-4px);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+        transform var(--duration-fast) var(--ease-smooth-out),
+        opacity var(--duration-fast) var(--ease-smooth-out);
+    will-change: transform, opacity;
+
+    &.is-open {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+    }
+}
+
+@utility t-panel {
+    transform: translateY(12px);
+    opacity: 0;
+    filter: blur(var(--blur-t));
+    pointer-events: none;
+    transition:
+        transform var(--duration-slow) var(--ease-smooth-out),
+        opacity var(--duration-slow) var(--ease-smooth-out),
+        filter var(--duration-slow) var(--ease-smooth-out);
+    will-change: transform, opacity, filter;
+
+    &.is-open {
+        transform: translateY(0);
+        opacity: 1;
+        filter: blur(0);
+        pointer-events: auto;
+    }
+}
+
+@utility t-toast {
+    transform: translateY(16px) scale(0.97);
+    opacity: 0;
+    filter: blur(var(--blur-t));
+    transition:
+        transform var(--duration-medium) var(--ease-smooth-out),
+        opacity var(--duration-medium) var(--ease-smooth-out),
+        filter var(--duration-medium) var(--ease-smooth-out);
+    will-change: transform, opacity, filter;
+}
+
+@utility t-icon-swap {
+    transition:
+        transform var(--duration-fast) ease-in-out,
+        opacity var(--duration-fast) ease-in-out,
+        filter var(--duration-fast) ease-in-out;
+    will-change: transform, opacity, filter;
+
+    &.is-entering {
+        transform: scale(0.25);
+        filter: blur(var(--blur-t));
+        opacity: 0;
+    }
+}
+
+/* Inertia page transitions. */
+@utility page-enter {
+    animation: page-in var(--duration-fast) var(--ease-smooth-out) both;
+}
+
+@keyframes page-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+        filter: blur(var(--blur-page));
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
     }
 }
 
@@ -249,5 +374,14 @@
 
     &::-webkit-scrollbar {
         display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
     }
 }

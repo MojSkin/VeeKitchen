@@ -256,7 +256,7 @@ const minutesOptions = computed(() => Array.from({ length: 60 }, (_, i) => i));
 
         <button
             type="button"
-            class="neo-pressed flex w-full items-center gap-2 rounded-xl px-3 py-2 text-start text-sm transition disabled:opacity-50"
+            class="neo-pressed flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-start text-sm transition disabled:opacity-50"
             :disabled="disabled"
             :aria-haspopup="'dialog'"
             :aria-expanded="isOpen"
@@ -294,7 +294,8 @@ const minutesOptions = computed(() => Array.from({ length: 60 }, (_, i) => i));
                 v-if="isOpen"
                 role="dialog"
                 aria-label="تقویم جلالی"
-                class="glass-raised absolute start-0 top-full z-40 mt-2 w-full min-w-72 rounded-glass p-3"
+                class="t-dropdown glass-strong absolute start-0 top-full z-40 mt-2 w-full min-w-72 rounded-2xl p-3 is-open"
+                data-origin="top-left"
                 @keydown.esc="isOpen = false"
             >
                 <!-- Month navigation -->

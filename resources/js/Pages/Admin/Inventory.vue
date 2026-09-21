@@ -258,7 +258,7 @@ function itemUnitLabel(id) {
                     <article
                         v-for="item in items"
                         :key="item.id"
-                        class="glass rounded-glass p-4"
+                        class="glass rounded-2xl p-4"
                         :class="item.is_low && item.is_active ? 'ring-1 ring-red-400/60' : ''"
                     >
                         <StockVial
@@ -350,7 +350,7 @@ function itemUnitLabel(id) {
 
                 <!-- New material -->
                 <form
-                    class="glass mt-4 grid gap-3 rounded-glass p-4 sm:grid-cols-[2fr_1fr_1fr_1fr_auto]"
+                    class="glass mt-4 grid gap-3 rounded-2xl p-4 sm:grid-cols-[2fr_1fr_1fr_1fr_auto]"
                     @submit.prevent="submitNewItem"
                 >
                     <input
@@ -391,7 +391,7 @@ function itemUnitLabel(id) {
                     >
                     <button
                         type="submit"
-                        class="cursor-pointer rounded-xl bg-saffron-500 px-4 py-2 text-sm font-bold text-white transition hover:bg-saffron-600 disabled:opacity-40"
+                        class="cursor-pointer rounded-xl bg-lajvard-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-lajvard-700 disabled:opacity-40"
                         :disabled="addingItem"
                     >
                         افزودن
@@ -407,7 +407,7 @@ function itemUnitLabel(id) {
                     <article
                         v-for="product in products"
                         :key="product.id"
-                        class="glass rounded-glass p-4"
+                        class="glass rounded-2xl p-4"
                     >
                         <div class="flex flex-wrap items-center justify-between gap-3">
                             <div class="min-w-0">
@@ -533,7 +533,7 @@ function itemUnitLabel(id) {
                                 </button>
                                 <button
                                     type="button"
-                                    class="cursor-pointer rounded-xl bg-pistachio-500 px-4 py-2 text-sm font-bold text-white transition hover:bg-pistachio-600"
+                                    class="cursor-pointer rounded-xl bg-pistachio-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-pistachio-700"
                                     @click="saveRecipe(product)"
                                 >
                                     ذخیرهٔ فرمول

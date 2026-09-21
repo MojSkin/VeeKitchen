@@ -89,7 +89,7 @@ function markReady(order) {
                         <article
                             v-for="order in queue"
                             :key="order.id"
-                            class="glass glass-sheen rounded-glass p-5"
+                            class="glass glass-sheen rounded-2xl p-5"
                         >
                             <header class="flex items-start justify-between">
                                 <div>
@@ -131,7 +131,7 @@ function markReady(order) {
                                 <button
                                     v-else
                                     type="button"
-                                    class="flex-1 rounded-2xl bg-pistachio-500 py-3 text-lg font-bold text-white transition hover:bg-pistachio-600"
+                                    class="flex-1 rounded-2xl bg-pistachio-600 py-3 text-lg font-bold text-white transition hover:bg-pistachio-700"
                                     @click="markReady(order)"
                                 >
                                     آماده شد
@@ -139,7 +139,7 @@ function markReady(order) {
                             </footer>
                         </article>
 
-                        <p v-if="queue.length === 0" class="glass rounded-glass p-6 text-center opacity-50">
+                        <p v-if="queue.length === 0" class="glass rounded-2xl p-6 text-center opacity-50">
                             صف خالی است ✨
                         </p>
                     </div>
@@ -155,7 +155,7 @@ function markReady(order) {
                         <article
                             v-for="order in ready"
                             :key="order.id"
-                            class="glass rounded-glass p-5 text-center"
+                            class="glass rounded-2xl p-5 text-center"
                         >
                             <p class="text-4xl font-black text-pistachio-500">{{ order.order_number }}</p>
                             <p class="mt-1 text-sm opacity-70">{{ order.table?.label ?? 'بیرون‌بر' }}</p>

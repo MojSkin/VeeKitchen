@@ -71,7 +71,7 @@ function announceAgain(order) {
             <button
                 v-if="!soundEnabled"
                 type="button"
-                class="rounded-2xl bg-saffron-500 px-6 py-3 text-lg font-bold text-white"
+                class="rounded-2xl bg-lajvard-600 px-6 py-3 text-lg font-bold text-white"
                 @click="enableSound"
             >
                 🔊 فعال‌سازی صدا
@@ -84,7 +84,7 @@ function announceAgain(order) {
             <article
                 v-for="order in readyOrders"
                 :key="order.id"
-                class="glass-raised flex w-80 flex-col items-center rounded-glass bg-white/5 p-10 text-center"
+                class="glass-strong flex w-80 flex-col items-center rounded-2xl bg-white/5 p-10 text-center"
             >
                 <p class="text-xs uppercase tracking-widest opacity-60">آماده تحویل</p>
                 <p class="mt-3 text-8xl font-black text-pistachio-400">
