@@ -10,70 +10,137 @@
     --font-sans: 'Vazirmatn Variable', 'Vazirmatn', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
         'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
-    /* Saffron — primary brand accent */
-    --color-saffron-50: #fff8ed;
-    --color-saffron-100: #ffefd4;
-    --color-saffron-200: #ffdba8;
-    --color-saffron-300: #ffc171;
-    --color-saffron-400: #ff9d38;
-    --color-saffron-500: #fe8012;
-    --color-saffron-600: #ef6508;
-    --color-saffron-700: #c64c09;
-    --color-saffron-800: #9d3c10;
-    --color-saffron-900: #7e3310;
-    --color-saffron-950: #441806;
+    /*
+     * لاجورد — borrowed from VeePanel's lajvard palette (oklch).
+     * Lapis-lazuli blues: deep mineral blues for text/surfaces, a
+     * luminous azure as the interactive brand color, and the golden
+     * "tile gold" accent standing in for the old saffron.
+     */
+    --color-lajvard-50: oklch(0.972 0.008 250);
+    --color-lajvard-100: oklch(0.945 0.014 250);
+    --color-lajvard-200: oklch(0.906 0.024 250);
+    --color-lajvard-300: oklch(0.832 0.044 250);
+    --color-lajvard-400: oklch(0.716 0.082 252);
+    --color-lajvard-500: oklch(0.606 0.132 254);
+    --color-lajvard-600: oklch(0.486 0.22 255);
+    --color-lajvard-700: oklch(0.436 0.2 256);
+    --color-lajvard-800: oklch(0.356 0.16 258);
+    --color-lajvard-900: oklch(0.246 0.07 260);
+    --color-lajvard-950: oklch(0.135 0.015 250);
 
-    /* Pistachio — secondary accent, used for "ready"/success states */
-    --color-pistachio-50: #f1fcf5;
-    --color-pistachio-100: #dff9e8;
-    --color-pistachio-200: #c0f1d2;
-    --color-pistachio-300: #8ee5ae;
-    --color-pistachio-400: #55d083;
-    --color-pistachio-500: #2eb662;
-    --color-pistachio-600: #20944d;
-    --color-pistachio-700: #1c7440;
-    --color-pistachio-800: #1b5c36;
-    --color-pistachio-900: #184c2f;
-    --color-pistachio-950: #072a17;
+    /* زر کاشی — tile gold, the softer stand-in for the old saffron. */
+    --color-zar-50: oklch(0.981 0.014 85);
+    --color-zar-100: oklch(0.958 0.028 84);
+    --color-zar-200: oklch(0.918 0.055 82);
+    --color-zar-300: oklch(0.856 0.09 78);
+    --color-zar-400: oklch(0.806 0.12 76);
+    --color-zar-500: oklch(0.756 0.14 75);
+    --color-zar-600: oklch(0.656 0.14 75);
+    --color-zar-700: oklch(0.536 0.11 76);
+    --color-zar-800: oklch(0.426 0.08 78);
+    --color-zar-900: oklch(0.326 0.06 80);
+    --color-zar-950: oklch(0.206 0.04 82);
 
-    /* Night — the plum/indigo canvas the glass sits on */
-    --color-night-50: #f5f5fa;
-    --color-night-100: #e9e9f2;
-    --color-night-200: #d3d3e4;
-    --color-night-300: #b0b0cd;
-    --color-night-400: #8686b1;
-    --color-night-500: #676798;
-    --color-night-600: #53537d;
-    --color-night-700: #444465;
-    --color-night-800: #2c2c43;
-    --color-night-900: #1c1c2c;
-    --color-night-950: #0e0e18;
+    /*
+     * Compatibility aliases — components written against the saffron
+     * palette keep rendering while they migrate to lajvard/zar.
+     */
+    --color-saffron-50: var(--color-zar-50);
+    --color-saffron-100: var(--color-zar-100);
+    --color-saffron-200: var(--color-zar-200);
+    --color-saffron-300: var(--color-zar-300);
+    --color-saffron-400: var(--color-zar-400);
+    --color-saffron-500: var(--color-zar-500);
+    --color-saffron-600: var(--color-zar-600);
+    --color-saffron-700: var(--color-zar-700);
+    --color-saffron-800: var(--color-zar-800);
+    --color-saffron-900: var(--color-zar-900);
+    --color-saffron-950: var(--color-zar-950);
+
+    /* pistachio softens into a calm teal so greens stop shouting. */
+    --color-pistachio-50: oklch(0.972 0.008 180);
+    --color-pistachio-100: oklch(0.945 0.016 180);
+    --color-pistachio-200: oklch(0.906 0.03 180);
+    --color-pistachio-300: oklch(0.842 0.052 180);
+    --color-pistachio-400: oklch(0.756 0.08 181);
+    --color-pistachio-500: oklch(0.68 0.102 182);
+    --color-pistachio-600: oklch(0.576 0.096 184);
+    --color-pistachio-700: oklch(0.476 0.078 186);
+    --color-pistachio-800: oklch(0.386 0.06 188);
+    --color-pistachio-900: oklch(0.306 0.046 190);
+    --color-pistachio-950: oklch(0.186 0.03 192);
+
+    /*
+     * Night becomes the lajvard-tinted canvas (VeePanel's lajvard dark
+     * surface tones), replacing the plum night scale.
+     */
+    --color-night-50: oklch(0.968 0.006 250);
+    --color-night-100: oklch(0.938 0.01 250);
+    --color-night-200: oklch(0.898 0.016 250);
+    --color-night-300: oklch(0.816 0.026 251);
+    --color-night-400: oklch(0.706 0.04 252);
+    --color-night-500: oklch(0.586 0.05 253);
+    --color-night-600: oklch(0.476 0.055 255);
+    --color-night-700: oklch(0.386 0.05 257);
+    --color-night-800: oklch(0.286 0.038 258);
+    --color-night-900: oklch(0.216 0.028 258);
+    --color-night-950: oklch(0.135 0.015 250);
 
     --radius-glass: 1.25rem;
 
-    --shadow-glass: 0 8px 32px -8px rgb(14 14 24 / 0.35), 0 2px 8px -2px rgb(14 14 24 / 0.2);
-    --shadow-glass-lg: 0 24px 64px -16px rgb(14 14 24 / 0.45), 0 4px 16px -4px rgb(14 14 24 / 0.25);
+    /* Neomorphic dual shadows: dark drop + white kiss from the top-left. */
+    --shadow-glass: 8px 8px 20px rgb(30 41 79 / 0.14), -6px -6px 16px rgb(255 255 255 / 0.85),
+        inset 0 0 0 1px rgb(255 255 255 / 0.35);
+    --shadow-glass-lg: 12px 12px 32px rgb(30 41 79 / 0.18), -8px -8px 24px rgb(255 255 255 / 0.9),
+        inset 0 0 0 1px rgb(255 255 255 / 0.4);
+
+    /* Pressed variant for controls that are "in" the surface. */
+    --shadow-inset: inset 4px 4px 10px rgb(30 41 79 / 0.12), inset -4px -4px 10px rgb(255 255 255 / 0.8);
 
     --ease-glass: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/*
+ * Theme tokens — each surface consumes variables only, so the whole app
+ * flips between light and dark by re-pointing them under `.dark`.
+ */
 @layer base {
     :root {
-        --glass-tint: 255 255 255;
-        --glass-alpha: 0.62;
-        --glass-border: 255 255 255;
-        --glass-border-alpha: 0.7;
-        --glass-blur: 20px;
         color-scheme: light;
+
+        /* Neomorphic surface chemistry (light). */
+        --neo-drop: rgb(30 41 79 / 0.14);
+        --neo-kiss: rgb(255 255 255 / 0.85);
+        --neo-surface: var(--color-lajvard-50);
+        --neo-surface-raised: #fbfcff;
+        --neo-surface-pressed: var(--color-lajvard-100);
+
+        --glass-tint: 251 252 255;
+        --glass-alpha: 0.92;
+        --glass-border: 255 255 255;
+        --glass-border-alpha: 0.6;
+        --glass-blur: 14px;
+
+        --focus-ring: var(--color-lajvard-600);
     }
 
     .dark {
-        --glass-tint: 255 255 255;
-        --glass-alpha: 0.06;
-        --glass-border: 255 255 255;
-        --glass-border-alpha: 0.12;
-        --glass-blur: 24px;
         color-scheme: dark;
+
+        /* Dark neomorphism: the drop deepens, the kiss dims to a glint. */
+        --neo-drop: rgb(2 6 23 / 0.6);
+        --neo-kiss: rgb(148 163 216 / 0.1);
+        --neo-surface: var(--color-night-950);
+        --neo-surface-raised: var(--color-night-900);
+        --neo-surface-pressed: oklch(0.11 0.014 250);
+
+        --glass-tint: 22 28 51;
+        --glass-alpha: 0.9;
+        --glass-border: 148 163 216;
+        --glass-border-alpha: 0.16;
+        --glass-blur: 16px;
+
+        --focus-ring: var(--color-lajvard-400);
     }
 
     html {
@@ -82,12 +149,10 @@
     }
 
     body {
-        @apply min-h-dvh bg-night-50 font-sans text-night-900 antialiased;
-        @apply dark:bg-night-950 dark:text-night-50;
+        @apply min-h-dvh bg-night-100 font-sans text-night-900 antialiased dark:bg-night-950 dark:text-night-50;
         text-wrap: pretty;
-    }
-
-    /* Aurora wash behind every screen — what makes the glass read as glass. */
+    }        /* Soft lajvard wash behind every screen — depth without the
+       saturated saffron/pistachio glows of the old theme. */
     body::before {
         content: '';
         position: fixed;
@@ -95,18 +160,18 @@
         z-index: -1;
         pointer-events: none;
         background:
-            radial-gradient(60rem 40rem at 15% -10%, var(--color-saffron-200) 0%, transparent 60%),
-            radial-gradient(50rem 36rem at 95% 5%, var(--color-pistachio-200) 0%, transparent 55%),
-            radial-gradient(45rem 45rem at 50% 110%, var(--color-night-200) 0%, transparent 60%);
-        opacity: 0.75;
+            radial-gradient(60rem 40rem at 12% -10%, oklch(0.9 0.05 255) 0%, transparent 60%),
+            radial-gradient(50rem 36rem at 95% 5%, oklch(0.93 0.04 200) 0%, transparent 55%),
+            radial-gradient(45rem 45rem at 50% 115%, oklch(0.86 0.03 80) 0%, transparent 60%);
+        opacity: 0.7;
     }
 
     .dark body::before {
         background:
-            radial-gradient(60rem 40rem at 15% -10%, var(--color-saffron-900) 0%, transparent 60%),
-            radial-gradient(50rem 36rem at 95% 5%, var(--color-pistachio-950) 0%, transparent 55%),
-            radial-gradient(45rem 45rem at 50% 110%, var(--color-night-800) 0%, transparent 60%);
-        opacity: 0.85;
+            radial-gradient(60rem 40rem at 12% -10%, oklch(0.28 0.07 258) 0%, transparent 60%),
+            radial-gradient(50rem 36rem at 95% 5%, oklch(0.24 0.05 235) 0%, transparent 55%),
+            radial-gradient(45rem 45rem at 50% 115%, oklch(0.26 0.04 90) 0%, transparent 60%);
+        opacity: 0.9;
     }
 
     /* Persian digits everywhere numbers are rendered as text. */
@@ -115,38 +180,46 @@
     }
 
     ::selection {
-        @apply bg-saffron-300/60 text-night-950;
+        @apply bg-lajvard-200 text-lajvard-950 dark:bg-lajvard-800 dark:text-lajvard-50;
     }
 
     *:focus-visible {
-        @apply outline-2 outline-offset-2 outline-saffron-500;
+        @apply outline-2 outline-offset-2;
+        outline-color: var(--focus-ring);
     }
 }
 
+/*
+ * Neomorphic surfaces. The legacy `glass*` names stay as the app's
+ * surface vocabulary (95+ call sites), but they now render soft raised
+ * panels instead of translucent panes.
+ */
 @utility glass {
-    background-color: rgb(var(--glass-tint) / var(--glass-alpha));
-    border: 1px solid rgb(var(--glass-border) / var(--glass-border-alpha));
-    backdrop-filter: blur(var(--glass-blur)) saturate(180%);
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+    background-color: var(--neo-surface-raised);
+    border: 1px solid rgb(255 255 255 / 0.55);
     box-shadow: var(--shadow-glass);
 }
 
 @utility glass-flat {
-    background-color: rgb(var(--glass-tint) / calc(var(--glass-alpha) * 0.6));
-    border: 1px solid rgb(var(--glass-border) / calc(var(--glass-border-alpha) * 0.7));
-    backdrop-filter: blur(calc(var(--glass-blur) * 0.6)) saturate(150%);
-    -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.6)) saturate(150%);
+    background-color: var(--neo-surface);
+    border: 1px solid rgb(255 255 255 / 0.4);
+    box-shadow: var(--shadow-glass);
 }
 
 @utility glass-raised {
-    background-color: rgb(var(--glass-tint) / calc(var(--glass-alpha) * 1.15));
-    border: 1px solid rgb(var(--glass-border) / var(--glass-border-alpha));
-    backdrop-filter: blur(calc(var(--glass-blur) * 1.4)) saturate(200%);
-    -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 1.4)) saturate(200%);
+    background-color: var(--neo-surface-raised);
+    border: 1px solid rgb(255 255 255 / 0.65);
     box-shadow: var(--shadow-glass-lg);
 }
 
-/* Hairline highlight along the top edge, the way real glass catches light. */
+/* Pressed-in control well (inputs, segmented buttons, dead toggles). */
+@utility neo-pressed {
+    background-color: var(--neo-surface-pressed);
+    box-shadow: var(--shadow-inset);
+    border: 1px solid rgb(255 255 255 / 0.35);
+}
+
+/* Hairline highlight along the top edge — kept from the glass era. */
 @utility glass-sheen {
     position: relative;
     isolation: isolate;
@@ -157,7 +230,7 @@
         inset: 0;
         border-radius: inherit;
         pointer-events: none;
-        background: linear-gradient(to bottom, rgb(255 255 255 / 0.35), transparent 35%);
+        background: linear-gradient(to bottom, rgb(255 255 255 / 0.5), transparent 35%);
         mix-blend-mode: overlay;
     }
 }
