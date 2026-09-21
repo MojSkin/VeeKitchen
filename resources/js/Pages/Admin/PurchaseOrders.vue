@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { faDigits, formatToman } from '@/lib/format';
+import { formatJalaliDay } from '@/lib/jalali';
 
 const props = defineProps({
     orders: { type: Array, required: true },
@@ -56,13 +57,7 @@ function toggleItems(order) {
 }
 
 function formatDay(iso) {
-    if (!iso) {
-        return '';
-    }
-
-    const date = new Date(iso);
-
-    return faDigits(`${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`);
+    return formatJalaliDay(iso);
 }
 </script>
 

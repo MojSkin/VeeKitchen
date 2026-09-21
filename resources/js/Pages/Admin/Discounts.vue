@@ -1,8 +1,11 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { format } from 'date-fns';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import JalaliDatePicker from '@/Components/JalaliDatePicker.vue';
 import { faDigits, formatToman } from '@/lib/format';
+import { formatJalaliDay } from '@/lib/jalali';
 
 const props = defineProps({
     branch: { type: Object, required: true },
@@ -63,10 +66,19 @@ function submit() {
 
 /**
  * Empty strings → null so nullable columns and date windows stay honest.
+ * The picker's Date values serialize to Y-m-d strings — the same Gregorian
+ * wire format the backend has always validated — while presentation stays
+ * Jalali-only.
  */
 function normalize(input) {
     return Object.fromEntries(
-        Object.entries(input).map(([key, value]) => [key, value === '' ? null : value]),
+        Object.entries(input).map(([key, value]) => {
+            if ((key === 'starts_at' || key === 'expires_at') && value instanceof Date) {
+                return [key, format(value, 'yyyy-MM-dd')];
+            }
+
+            return [key, value === '' ? null : value];
+        }),
     );
 }
 
@@ -153,8 +165,8 @@ function windowLabel(discount) {
         return null;
     }
 
-    const from = discount.starts_at === null ? null : dayOf(discount.starts_at);
-    const to = discount.expires_at === null ? null : dayOf(discount.expires_at);
+    const from = discount.starts_at === null ? null : formatJalaliDay(discount.starts_at);
+    const to = discount.expires_at === null ? null : formatJalaliDay(discount.expires_at);
 
     if (from !== null && to !== null) {
         return `از ${from} تا ${to}`;
@@ -163,9 +175,7 @@ function windowLabel(discount) {
     return from !== null ? `از ${from}` : `تا ${to}`;
 }
 
-function dayOf(iso) {
-    return faDigits(new Date(iso).toISOString().slice(0, 10).replaceAll('-', '/'));
-}
+
 </script>
 
 <template>
@@ -257,18 +267,14 @@ function dayOf(iso) {
                         class="glass-flat rounded-xl px-3 py-2 text-sm outline-none"
                         dir="ltr"
                     >
-                    <input
+                    <JalaliDatePicker
                         v-model="form.starts_at"
-                        type="date"
-                        class="glass-flat rounded-xl px-3 py-2 text-sm outline-none"
-                        aria-label="شروع (اختیاری)"
-                    >
-                    <input
+                        placeholder="شروع (اختیاری)"
+                    />
+                    <JalaliDatePicker
                         v-model="form.expires_at"
-                        type="date"
-                        class="glass-flat rounded-xl px-3 py-2 text-sm outline-none"
-                        aria-label="پایان (اختیاری)"
-                    >
+                        placeholder="پایان (اختیاری)"
+                    />
                     <input
                         v-model="form.usage_limit_total"
                         type="number"
