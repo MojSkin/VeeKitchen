@@ -119,7 +119,11 @@ test('the chart sheet carries exactly fourteen daily rows plus the period totals
     // 3 header rows + 14 day rows + totals row + best-day row = 19.
     expect(count($rows))->toBe(19)
         // Today is the last day row (offset 13): [date, label, revenue, orders].
-        ->and($rows[16])->toBe(['2026-09-20', $rows[16][1], 600_000, 1])
+        // The date is asserted relative to `now` so the test survives
+        // midnight and timezones alike.
+        ->and($rows[16][0])->toBe(now()->toDateString())
+        ->and($rows[16][2])->toBe(600_000)
+        ->and($rows[16][3])->toBe(1)
         // Zeros for empty days keep the chart axis honest.
         ->and($rows[5][2])->toBe(0)
         ->and($rows[17])->toBe(['جمع دوره', null, 600_000, 1])

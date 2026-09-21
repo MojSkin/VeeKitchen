@@ -18,6 +18,37 @@ A version is **released** only when this cycle completes:
 
 Direct pushes to `main` or `production` never happen; merges from `testing` only.
 
+## [Unreleased]
+
+### Added (Guest coupon entry with live cart quote — phase 3 step 2 follow-up)
+- The guest menu's cart bar now carries a coupon field with **live totals** priced through the exact order pipeline: a debounced `POST cart/quote` returns subtotal / discount / payable plus a human chip («کد «VIP30» اعمال شد» or the honest refusal «این کد تخفیف کمتر از تخفیف خودکار فعلی است و اعمال نشد»). The quoted `discount_code` travels with the placement, so the numbers the guest saw are the numbers charged.
+- The tracking page shows the discount line explicitly (struck-through subtotal, discount amount, payable) whenever a discount was applied.
+- Fixed: the losing-coupon refusal at placement time surfaced as a 500 — it now lands as a `discount_code` field error. The quote endpoint filters unknown product ids like a forged placement would be, and the shared orders/cart rate limit widened to 30/min so the debounced quote can breathe (throttle test updated accordingly).
+- 8 new tests: quote pricing with the best automatic offer, winning-coupon acceptance (case-insensitive), losing/unknown/expired-code refusals with Persian messages, unknown-product filtering, coupon-carrying placement with usage recording, losing-code placement rejection, and the per-user ceiling blocking a repeat customer while skipping unattributable guests.
+
+### Added (Shifts and cash drawer — phase 3 step 3)
+- The golden phase-3 rule is enforced: **a payment only settles inside the receiver's open shift.** `staff_shifts` (opening/closing/expected cash, discrepancy, closer) and `cash_movements` (withdrawal/deposit/adjustment with a mandatory reason) migrations, `ShiftStatus`/`CashMovementType` enums, models, and factories; `shift_id` now stamps every `payments` row.
+- `ShiftService`: one open shift per branch+user enforced inside locked transactions; `expectedCash = opening + cash payments − withdrawals + deposits` (card money never enters the drawer); withdrawals that would overdraw the drawer are refused; closing freezes expected/counted/discrepancy and is idempotent-locked. Payments flow the guard through the `CashShiftGuard` contract (bound in `AppServiceProvider`) so headless/console payments without an acting user still settle un-stamped.
+- Cashier panel `cashier/shift`: open with the drawer float, live till (opening, cash, card, movements net, expected), documented in-shift movements, close with a live discrepancy preview, and the last-10 closed shifts with their discrepancies. The cashier screen carries a shift status strip linking to the panel.
+- Fixed: `OrderResource::collection()` inside Inertia props serialized as `{data: [...]}` on the cashier and kitchen screens — the cashier page has been erroring in the browser since phase 1 (`q.pendingOrders is not iterable`); collections are now unwrapped with `resolve()`. The no-shift payment guard surfaces as a Persian flash message instead of a 500.
+- 13 new tests: payment guard (message + shift stamping), double-open refusal, reopen after close, the money formula across cash/card/movements, overdraw refusal, movement on closed shift, close freezing with discrepancy, double-close refusal, the HTTP panel round-trip, panel/history payload, cashier strip payload, and movement authoring.
+
+### Added (Discount management panel, menu badges and demo discounts — phase 3 step 2)
+- The admin discounts board (`admin/discounts`, nav «تخفیف‌ها») lists every branch discount with its live state (active / paused / scheduled), coupon chip, scope, minimum, window, and a used-count meter. The create form covers all domain knobs (type, scope + target, code, min order, window, total & per-user ceilings); unused discounts are editable inline and deletable, while used ones lock down to pause-only so recorded usage never drifts.
+- The guest menu now shows what discounts buy: an automatic-discount banner (entire-order chips only) and a best-badge on each product card — the strongest eligible automatic discount per product (entire-order vs category vs product), rendered server-side with Persian digits so percentage and fixed amounts can never be confused client-side. Coupons stay off the public menu; paused, expired and drained discounts drop out.
+- `DiscountSeeder` (wired into `DatabaseSeeder`): an automatic 15% entire-order festival, the `WELCOME` fixed-50k coupon on the drinks category, and a 20% margherita badge expiring in a week.
+- 8 new tests: board access control and live-state presentation, automatic + coupon creation (codes upper-cased before the unique check), scope-target enforcement, duplicate-code rejection, edit/toggle/delete lifecycle, used-discount lock, menu banner/badge selection with hidden paused/expired/coupon rows, and drained-discount removal.
+
+### Fixed (Custom-range headline could show the wrong end date)
+- The custom-range headline formatted the server's end-of-day ISO boundary with *local* date getters, so in timezones ahead of UTC the «تا …» day slid to the next day (e.g. requested تا ۱۹ rendered as تا ۲۰) while the data, URL and from/to inputs stayed on the requested day. The formatter now reads UTC parts — the same basis as the data window — and a service test locks the `to` bound to the requested date.
+
+### Changed (Effective unit-cost column reaches the CSV, XLSX and print exports)
+- The item-level «قیمت واحد (تومان)» column added to the on-screen report now travels to every export: the CSV item lines carry the effective unit cost between quantity and value (empty for un-costed materials), the XLSX «اقلام» sheet gained the matching sixth column, and the print page's tables show it with the footnote rewritten to the snapshot-weighted semantics (it previously claimed a stale "last purchase price" basis).
+
+### Added (Effective unit-cost column on the warehouse report)
+- Each material line in every type table now shows the **effective unit cost** behind its rial value: the value-weighted average of the row snapshots (1 kg @40k + 1 kg @60k quotes 50k, not the last-seen price), falling back to the current cost for pre-snapshot rows and «—» for un-costed materials. The value column's tooltip now explains it is `total × effective cost`, sourced from per-movement write-time snapshots.
+- 2 new service tests (weighted merge semantics + legacy fallback alongside the existing value tests).
+
 ## [0.5.0] — 2026-09-20
 
 ### Added (Warehouse report CSV export)

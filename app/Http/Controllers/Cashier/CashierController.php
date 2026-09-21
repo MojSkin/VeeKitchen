@@ -11,16 +11,19 @@ use App\Http\Resources\OrderResource;
 use App\Models\Order;
 use App\Models\RestaurantTable;
 use App\Services\OrderService;
+use App\Services\ShiftService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
+use RuntimeException;
 
 class CashierController extends Controller
 {
     public function __construct(
         protected OrderService $orders,
+        protected ShiftService $shifts,
     ) {}
 
     /**
@@ -49,15 +52,26 @@ class CashierController extends Controller
             ->orderBy('label')
             ->get();
 
+        $shift = $this->shifts->openShiftFor($request->user(), $branchId);
+
         return Inertia::render('Cashier/Index', [
-            'pendingOrders' => OrderResource::collection($pending),
-            'activeOrders' => OrderResource::collection($active),
+            // resolve() unwraps the resource collection — inside Inertia
+            // props a collection would otherwise serialize as {data: [...]}.
+            'pendingOrders' => OrderResource::collection($pending)->resolve(),
+            'activeOrders' => OrderResource::collection($active)->resolve(),
             'tables' => $tables->map(fn (RestaurantTable $table) => [
                 'id' => $table->id,
                 'label' => $table->label,
                 'status' => $table->status->value,
                 'status_label' => $table->status->label(),
             ]),
+            'shift' => $shift === null ? null : [
+                'id' => $shift->id,
+                'opened_at' => $shift->opened_at?->toIso8601String(),
+                'expected_cash' => $shift->computeExpectedCash(),
+                'cash_payments' => $shift->cashPaymentsTotal(),
+                'card_payments' => $shift->cardPaymentsTotal(),
+            ],
         ]);
     }
 
@@ -70,11 +84,17 @@ class CashierController extends Controller
             'method' => ['required', 'in:cash,card'],
         ]);
 
-        $order = $this->orders->markPaid(
-            $order,
-            PaymentMethod::from($validated['method']),
-            $request->user(),
-        );
+        try {
+            $order = $this->orders->markPaid(
+                $order,
+                PaymentMethod::from($validated['method']),
+                $request->user(),
+            );
+        } catch (RuntimeException $e) {
+            // The no-open-shift guard (and friends) surfaces as a flash,
+            // not a 500 — the cashier sees what to do next.
+            return back()->with('error', $e->getMessage());
+        }
 
         return back()->with('success', "پرداخت سفارش شماره {$order->order_number} تایید شد.");
     }

@@ -8,6 +8,7 @@ use App\Models\Branch;
 use App\Models\MenuCategory;
 use App\Models\Product;
 use App\Models\RestaurantTable;
+use App\Services\MenuDiscountPresenter;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -80,6 +81,9 @@ class MenuController extends Controller
                 ]),
             ]);
 
+        $presenter = new MenuDiscountPresenter;
+        $productIds = $categories->pluck('products')->flatten(1)->pluck('id')->all();
+
         return Inertia::render('Customer/Menu', [
             'table' => $table ? [
                 'id' => $table->id,
@@ -88,6 +92,10 @@ class MenuController extends Controller
                 'status' => $table->status->value,
             ] : null,
             'categories' => $categories,
+            'discounts' => [
+                'banner' => $presenter->activeForMenu($branchId),
+                'product_badges' => $presenter->bestBadgesByProduct($branchId, $productIds),
+            ],
         ]);
     }
 

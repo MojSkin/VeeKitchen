@@ -119,9 +119,11 @@ function quantity(amount) {
 }
 
 function formatDay(iso) {
+    // UTC parts — same basis as the data boundaries and toDateInput, so an
+    // end-of-day boundary never slides the headline into the next day.
     const date = new Date(iso);
 
-    return faDigits(`${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`);
+    return faDigits(`${date.getUTCFullYear()}/${date.getUTCMonth() + 1}/${date.getUTCDate()}`);
 }
 
 const rangeHeadline = computed(() => {
@@ -348,6 +350,7 @@ function openExport(format) {
                             <tr class="text-xs opacity-50">
                                 <th class="pb-2 text-right font-medium">متریال</th>
                                 <th class="pb-2 text-right font-medium">جمع مقدار</th>
+                                <th class="pb-2 text-right font-medium">قیمت واحد</th>
                                 <th class="pb-2 text-left font-medium">ارزش ریالی</th>
                             </tr>
                         </thead>
@@ -362,8 +365,17 @@ function openExport(format) {
                                     {{ quantity(item.total) }}
                                     <span class="opacity-50">{{ item.unit_label }}</span>
                                 </td>
+                                <td class="py-2">
+                                    <span
+                                        v-if="item.effective_cost > 0"
+                                        title="قیمت واحد مؤثر این گردش — از اسنپ‌شات قیمت لحظهٔ ثبت هر حرکت"
+                                    >
+                                        {{ faDigits(item.effective_cost.toLocaleString('en-US')) }} تومان
+                                    </span>
+                                    <span v-else class="opacity-40" title="قیمتی برای این متریال ثبت نشده">—</span>
+                                </td>
                                 <td class="py-2 text-left">
-                                    <span v-if="item.value > 0" :title="`بر اساس آخرین قیمت خرید`">
+                                    <span v-if="item.value > 0" :title="`جمع مقدار × قیمت واحد مؤثر`">
                                         {{ formatToman(item.value) }} تومان
                                     </span>
                                     <span v-else class="opacity-40">—</span>

@@ -65,8 +65,8 @@ test('the xlsx export streams a readable workbook with summary and detail sheets
     expect($workbook->getSheetNames())->toBe(['خلاصه', 'اقلام'])
         ->and($summary[6][0])->toBe('نوع حرکت')
         ->and(collect($summary)->contains(fn ($row) => $row == ['مصرف', -0.4, 24_000]))->toBeTrue()
-        ->and($detail[0])->toBe(['نوع حرکت', 'متریال', 'واحد', 'جمع مقدار', 'ارزش ریالی (تومان)'])
-        ->and(collect($detail)->contains(fn ($row) => $row == ['خرید', 'پنیر موزارلا', 'کیلوگرم', 10.0, 3_200_000]))->toBeTrue();
+        ->and($detail[0])->toBe(['نوع حرکت', 'متریال', 'واحد', 'جمع مقدار', 'قیمت واحد (تومان)', 'ارزش ریالی (تومان)'])
+        ->and(collect($detail)->contains(fn ($row) => $row == ['خرید', 'پنیر موزارلا', 'کیلوگرم', 10.0, 320_000, 3_200_000]))->toBeTrue();
 
     fclose($temp);
 });
@@ -88,6 +88,10 @@ test('the print export returns self-contained html with report figures', functio
         ->toContain($branch->name)
         ->toContain('آرد گندم')
         ->toContain('24,000')
+        // The per-item effective unit-cost column and the honest footnote.
+        ->toContain('قیمت واحد (تومان)')
+        ->toContain('60,000')
+        ->toContain('اسنپ‌شات')
         ->toContain('window.print()')
         ->toContain('dir="rtl"');
 });
@@ -173,9 +177,9 @@ test('the csv export opens with a BOM and carries the value columns', function (
     // Type summary carries the values (24_000 consumption, 3_200_000 purchase).
     expect($flat)->toContain('"مصرف","-0.4","24000"')
         ->toContain('"خرید","10","3200000"')
-        // Item lines repeat the type, name, unit and rial value.
-        ->toContain('"مصرف","آرد گندم","کیلوگرم"')
-        ->toContain('"خرید","پنیر موزارلا","کیلوگرم","10","3200000"');
+        // Item lines repeat type, name, unit, the effective unit cost and the value.
+        ->toContain('"مصرف","آرد گندم","کیلوگرم","-0.4","60000","24000"')
+        ->toContain('"خرید","پنیر موزارلا","کیلوگرم","10","320000","3200000"');
 });
 
 test('the csv export honours a custom range in its filename and bounds', function () {
