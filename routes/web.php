@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DiscountController;
+use App\Http\Controllers\Admin\EndOfDayController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\PurchaseOrderController;
@@ -68,6 +69,7 @@ Route::middleware(['auth', 'role:kitchen,admin'])->prefix('kitchen')->group(func
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/dashboard/export', [DashboardController::class, 'export'])->name('admin.dashboard.export');
+    Route::get('/end-of-day', [EndOfDayController::class, 'index'])->name('admin.end-of-day');
     Route::get('/tables', [TableController::class, 'index'])->name('admin.tables');
     Route::get('/tables/{table}/qr', [TableController::class, 'qr'])->name('admin.tables.qr');
     Route::post('/tables/{table}/rotate-token', [TableController::class, 'rotateToken'])

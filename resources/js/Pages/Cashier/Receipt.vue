@@ -1,5 +1,6 @@
 <script setup>
 import { formatTomanWithUnit, faDigits } from '@/lib/format';
+import { formatJalaliDayTime } from '@/lib/jalali';
 
 const props = defineProps({
     order: { type: Object, required: true },
@@ -42,7 +43,7 @@ function printReceipt() {
 
         <footer class="mt-4 text-center text-xs opacity-60">
             <p>با تشکر از انتخاب شما 🌿</p>
-            <p class="mt-1">{{ new Date(order.paid_at ?? Date.now()).toLocaleString('fa-IR') }}</p>
+            <p class="mt-1">{{ formatJalaliDayTime(order.paid_at ?? new Date().toISOString()) }}</p>
         </footer>
 
         <button

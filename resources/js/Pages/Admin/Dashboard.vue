@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { faDigits, formatToman } from '@/lib/format';
+import { formatJalaliShort } from '@/lib/jalali';
 
 const props = defineProps({
     salesChart: { type: Object, required: true },
@@ -10,6 +11,7 @@ const props = defineProps({
     orderStatuses: { type: Array, required: true },
     lowStock: { type: Array, required: true },
     tables: { type: Array, required: true },
+    shiftKpis: { type: Object, required: true },
 });
 
 /* ── Sales sparkline geometry ─────────────────────────────────── */
@@ -30,6 +32,7 @@ const chartPoints = computed(() => {
 
     return props.salesChart.days.map((day, index) => ({
         ...day,
+        label: formatJalaliShort(`${day.date}T12:00:00.000Z`),
         x: left + (count === 1 ? innerWidth / 2 : (index / (count - 1)) * innerWidth),
         y: top + innerHeight - (day.revenue / chartMax.value) * innerHeight,
     }));
@@ -238,6 +241,47 @@ function shortNumber(value) {
                                 {{ status.label }}
                             </span>
                             <span class="text-sm font-bold">{{ faDigits(status.count) }}</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Shift KPIs (end-of-day pipeline) -->
+                <section class="glass rounded-glass p-5">
+                    <div class="mb-3 flex items-center justify-between">
+                        <h2 class="font-bold">شیفت‌های امروز</h2>
+                        <Link
+                            :href="route('admin.end-of-day')"
+                            class="text-xs font-bold text-lajvard-600 transition hover:opacity-80 dark:text-lajvard-400"
+                        >
+                            خط لولهٔ پایان روز →
+                        </Link>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between gap-3">
+                            <span class="rounded-full bg-pistachio-500/15 px-3 py-1 text-xs font-bold text-pistachio-600 dark:text-pistachio-400">باز</span>
+                            <span class="text-sm font-bold">{{ faDigits(shiftKpis.open_shifts) }}</span>
+                        </div>
+                        <div class="flex items-center justify-between gap-3">
+                            <span class="rounded-full bg-night-500/15 px-3 py-1 text-xs font-bold text-night-700 dark:text-night-300">بسته</span>
+                            <span class="text-sm font-bold">{{ faDigits(shiftKpis.closed_shifts) }}</span>
+                        </div>
+                        <div class="flex items-center justify-between gap-3">
+                            <span
+                                class="rounded-full px-3 py-1 text-xs font-bold"
+                                :class="shiftKpis.discrepancy_shifts > 0 ? 'bg-red-500/15 text-red-500 dark:text-red-400' : 'bg-pistachio-500/15 text-pistachio-600 dark:text-pistachio-400'"
+                            >
+                                مغایرت‌دار
+                            </span>
+                            <span class="text-sm font-bold">{{ faDigits(shiftKpis.discrepancy_shifts) }}</span>
+                        </div>
+                        <div class="flex items-center justify-between gap-3 border-t border-white/10 pt-2">
+                            <span class="text-xs opacity-60">جمع مغایرت امروز</span>
+                            <span
+                                class="text-sm font-bold"
+                                :class="shiftKpis.total_discrepancy < 0 ? 'text-red-500 dark:text-red-400' : ''"
+                            >
+                                {{ formatToman(shiftKpis.total_discrepancy) }}
+                            </span>
                         </div>
                     </div>
                 </section>

@@ -18,10 +18,14 @@ use App\Models\RestaurantTable;
  */
 class DashboardSnapshotService
 {
+    public function __construct(
+        protected EndOfDayService $endOfDay,
+    ) {}
+
     /**
      * Everything the dashboard page and the export consume.
      *
-     * @return array{salesChart: array, today: array, orderStatuses: array, lowStock: array, tables: array}
+     * @return array{salesChart: array, today: array, orderStatuses: array, lowStock: array, tables: array, shiftKpis: array}
      */
     public function snapshot(Branch $branch): array
     {
@@ -31,6 +35,7 @@ class DashboardSnapshotService
             'orderStatuses' => $this->orderStatuses($branch),
             'lowStock' => $this->lowStock($branch),
             'tables' => $this->tablesSnapshot($branch),
+            'shiftKpis' => $this->endOfDay->dashboardKpis($branch),
         ];
     }
 

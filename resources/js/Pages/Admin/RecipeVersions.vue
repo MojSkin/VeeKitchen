@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { faDigits, formatToman } from '@/lib/format';
+import { formatJalaliDay } from '@/lib/jalali';
 
 const props = defineProps({
     product: { type: Object, required: true },
@@ -92,13 +93,7 @@ const diffRows = computed(() => {
 });
 
 function timeLabel(iso) {
-    if (! iso) {
-        return '';
-    }
-
-    const date = new Date(iso);
-
-    return faDigits(`${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`);
+    return formatJalaliDay(iso);
 }
 </script>
 

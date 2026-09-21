@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { Link, router, usePage } from '@inertiajs/vue3';
 import FlashToasts from '@/Components/FlashToasts.vue';
 import StockAlertBell from '@/Components/StockAlertBell.vue';
+import ThemeToggle from '@/Components/ThemeToggle.vue';
 
 const page = usePage();
 
@@ -58,6 +59,7 @@ function logout() {
                     </nav>
                 </div>
                 <div class="flex items-center gap-3">
+                    <ThemeToggle />
                     <StockAlertBell v-if="page.props.auth.user?.role === 'admin'" />
                     <span v-if="page.props.auth.user" class="text-sm opacity-70">
                         {{ page.props.auth.user.name }} · {{ page.props.auth.user.roleLabel }}

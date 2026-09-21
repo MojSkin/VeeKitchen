@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { faDigits, formatToman, formatTomanWithUnit } from '@/lib/format';
+import { formatJalaliDayTime } from '@/lib/jalali';
 
 const props = defineProps({
     branchId: { type: Number, required: true },
@@ -103,11 +104,7 @@ function dayTime(iso) {
         return '—';
     }
 
-    const date = new Date(iso);
-    const day = faDigits(date.toISOString().slice(0, 10).replaceAll('-', '/'));
-    const time = faDigits(date.toTimeString().slice(0, 5));
-
-    return `${day} · ${time}`;
+    return formatJalaliDayTime(iso);
 }
 
 function discrepancyText(value) {
