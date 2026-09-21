@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\OrderResource;
 use App\Models\Branch;
 use App\Models\Order;
+use App\Models\StaffShift;
 use App\Services\OrderService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -41,11 +42,22 @@ class KitchenController extends Controller
             ->orderBy('ready_at')
             ->get();
 
+        $shift = StaffShift::query()
+            ->where('user_id', $request->user()->id)
+            ->where('branch_id', $branchId)
+            ->whereNull('closed_at')
+            ->first(['id', 'station', 'opened_at']);
+
         return Inertia::render('Kitchen/Index', [
             // resolve() unwraps the resource collection — inside Inertia
             // props a collection would otherwise serialize as {data: [...]}.
             'queue' => OrderResource::collection($queue)->resolve(),
             'ready' => OrderResource::collection($ready)->resolve(),
+            'shift' => $shift === null ? null : [
+                'id' => $shift->id,
+                'station' => $shift->station,
+                'opened_at' => $shift->opened_at->toIso8601String(),
+            ],
         ]);
     }
 

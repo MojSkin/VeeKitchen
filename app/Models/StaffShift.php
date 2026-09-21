@@ -21,6 +21,7 @@ class StaffShift extends Model
     protected $fillable = [
         'branch_id',
         'user_id',
+        'station',
         'opened_at',
         'closed_at',
         'opening_cash',
@@ -88,6 +89,14 @@ class StaffShift extends Model
     public function isOpen(): bool
     {
         return $this->closed_at === null;
+    }
+
+    /**
+     * Cashier-station shifts settle money; kitchen shifts are presence only.
+     */
+    public function settlesCash(): bool
+    {
+        return $this->station === 'cashier';
     }
 
     /**

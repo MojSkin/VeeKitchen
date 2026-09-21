@@ -103,6 +103,8 @@ class EndOfDayService
         return [
             'id' => $shift->id,
             'cashier' => $shift->user?->name ?? '—',
+            'station' => $shift->station,
+            'is_kitchen' => ! $shift->settlesCash(),
             'opened_at' => $shift->opened_at->toIso8601String(),
             'closed_at' => $shift->closed_at?->toIso8601String(),
             'is_open' => $shift->isOpen(),

@@ -20,6 +20,22 @@ function signedMoney(value) {
 
     return (value > 0 ? '+' : '−') + formatToman(Math.abs(value));
 }
+
+/* Binary exports open via window.open — the SPA state stays untouched. */
+function exportUrl(shiftId, format) {
+    return route('admin.shift-settlement.export', {
+        shift: shiftId,
+        format,
+    });
+}
+
+function downloadXlsx(shiftId) {
+    window.open(exportUrl(shiftId, 'xlsx'), '_blank');
+}
+
+function openPrint(shiftId) {
+    window.open(exportUrl(shiftId, 'print'), '_blank');
+}
 </script>
 
 <template>
@@ -89,6 +105,12 @@ function signedMoney(value) {
                                 {{ shift.is_open ? 'باز' : 'بسته' }}
                             </span>
                             <span
+                                v-if="shift.is_kitchen"
+                                class="rounded-full bg-night-500/15 px-3 py-1 text-xs font-bold text-night-700 dark:text-night-300"
+                            >
+                                آشپزخانه
+                            </span>
+                            <span
                                 v-if="! shift.is_open && shift.discrepancy !== 0"
                                 class="rounded-full bg-red-500/15 px-3 py-1 text-xs font-bold text-red-500 dark:text-red-400"
                             >
@@ -109,32 +131,68 @@ function signedMoney(value) {
                             <p class="text-xs opacity-60">موجودی اولیه</p>
                             <p class="mt-0.5 font-bold">{{ money(shift.opening_cash) }}</p>
                         </div>
-                        <div>
-                            <p class="text-xs opacity-60">دریافت نقدی</p>
-                            <p class="mt-0.5 font-bold">{{ money(shift.cash_payments) }}</p>
-                        </div>
-                        <div>
-                            <p class="text-xs opacity-60">دریافت کارت</p>
-                            <p class="mt-0.5 font-bold">{{ money(shift.card_payments) }}</p>
-                        </div>
-                        <div>
-                            <p class="text-xs opacity-60">حرکت نقدی (خالص)</p>
-                            <p class="mt-0.5 font-bold">{{ signedMoney(shift.movements_net) }}</p>
-                        </div>
-                        <div>
-                            <p class="text-xs opacity-60">صندوق انتظار</p>
-                            <p class="mt-0.5 font-bold">{{ money(shift.expected_cash) }}</p>
-                        </div>
-                        <div>
-                            <p class="text-xs opacity-60">{{ shift.is_open ? '— هنوز شمارش نشده' : 'شمارش واقعی' }}</p>
-                            <p class="mt-0.5 font-bold">
-                                {{ shift.is_open ? '—' : money(shift.counted_cash) }}
-                            </p>
+                        <template v-if="! shift.is_kitchen">
+                            <div>
+                                <p class="text-xs opacity-60">دریافت نقدی</p>
+                                <p class="mt-0.5 font-bold">{{ money(shift.cash_payments) }}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs opacity-60">دریافت کارت</p>
+                                <p class="mt-0.5 font-bold">{{ money(shift.card_payments) }}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs opacity-60">حرکت نقدی (خالص)</p>
+                                <p class="mt-0.5 font-bold">{{ signedMoney(shift.movements_net) }}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs opacity-60">صندوق انتظار</p>
+                                <p class="mt-0.5 font-bold">{{ money(shift.expected_cash) }}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs opacity-60">{{ shift.is_open ? '— هنوز شمارش نشده' : 'شمارش واقعی' }}</p>
+                                <p class="mt-0.5 font-bold">
+                                    {{ shift.is_open ? '—' : money(shift.counted_cash) }}
+                                </p>
+                            </div>
+                        </template>
+                        <p
+                            v-else
+                            class="self-center text-xs opacity-50"
+                        >
+                            شیفت حضور آشپزخانه — بدون تسویهٔ صندوق
+                        </p>
+                    </div>
+
+                    <div
+                        v-if="! shift.is_kitchen && ! shift.is_open"
+                        class="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-white/20 pt-3 dark:border-white/5"
+                    >
+                        <p
+                            v-if="shift.closed_by"
+                            class="text-xs opacity-50"
+                        >
+                            بستن توسط {{ shift.closed_by }}
+                        </p>
+                        <div class="flex items-center gap-2">
+                            <button
+                                type="button"
+                                class="glass-flat cursor-pointer rounded-xl px-3 py-1.5 text-xs font-bold transition hover:opacity-80"
+                                @click="openPrint(shift.id)"
+                            >
+                                نسخهٔ چاپی
+                            </button>
+                            <button
+                                type="button"
+                                class="glass-flat cursor-pointer rounded-xl px-3 py-1.5 text-xs font-bold transition hover:opacity-80"
+                                @click="downloadXlsx(shift.id)"
+                            >
+                                دانلود اکسل (XLSX)
+                            </button>
                         </div>
                     </div>
 
                     <p
-                        v-if="! shift.is_open && shift.closed_by"
+                        v-if="! shift.is_open && shift.closed_by && shift.is_kitchen"
                         class="mt-3 text-xs opacity-50"
                     >
                         بستن توسط {{ shift.closed_by }}

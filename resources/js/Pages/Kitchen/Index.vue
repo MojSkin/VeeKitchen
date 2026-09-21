@@ -8,6 +8,7 @@ const props = defineProps({
     branchId: { type: Number, required: true },
     queue: { type: Array, required: true },
     ready: { type: Array, required: true },
+    shift: { type: Object, default: null },
 });
 
 const tick = ref(0);
@@ -70,13 +71,53 @@ function start(order) {
 function markReady(order) {
     router.post(route('kitchen.ready', order.id), {}, { preserveScroll: true });
 }
+
+function openShift() {
+    router.post(route('kitchen.shift.open'), {}, { preserveScroll: true });
+}
+
+function closeShift() {
+    if (!window.confirm('شیفت آشپزخانه بسته شود؟')) {
+        return;
+    }
+
+    router.post(route('kitchen.shift.close'), {}, { preserveScroll: true });
+}
 </script>
 
 <template>
     <AppLayout>
         <!-- tick is intentionally read so the template re-evaluates on clock ticks -->
         <div class="mx-auto max-w-7xl px-4 py-6" :data-tick="tick">
-            <h1 class="mb-6 text-3xl font-bold">صف آشپزخانه</h1>
+            <header class="mb-6 flex flex-wrap items-center justify-between gap-3">
+                <h1 class="text-3xl font-bold">صف آشپزخانه</h1>
+
+                <!-- Presence shift strip: entry/exit with no cash settlement -->
+                <div class="glass flex items-center gap-3 rounded-2xl px-4 py-2.5">
+                    <template v-if="shift">
+                        <span class="rounded-full bg-pistachio-600/15 px-3 py-1 text-xs font-bold text-pistachio-600 dark:text-pistachio-400">
+                            شیفت باز از {{ formatClock(shift.opened_at) }}
+                        </span>
+                        <button
+                            type="button"
+                            class="cursor-pointer rounded-xl bg-red-500/90 px-4 py-1.5 text-sm font-bold text-white transition hover:bg-red-600"
+                            @click="closeShift"
+                        >
+                            پایان شیفت
+                        </button>
+                    </template>
+                    <template v-else>
+                        <span class="text-xs opacity-60">شیفت آشپزخانه بازی ندارید</span>
+                        <button
+                            type="button"
+                            class="cursor-pointer rounded-xl bg-lajvard-600 px-4 py-1.5 text-sm font-bold text-white transition hover:bg-lajvard-700"
+                            @click="openShift"
+                        >
+                            شروع شیفت
+                        </button>
+                    </template>
+                </div>
+            </header>
 
             <div class="grid gap-6 lg:grid-cols-2">
                 <!-- Queue column -->
