@@ -7,7 +7,7 @@
 
     <link rel="manifest" href="{{ asset('manifest.webmanifest') }}">
     <link rel="icon" href="{{ asset('icons/icon.svg') }}" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="{{ asset('icons/icon-192.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('icons/icon.svg') }}">
     <meta name="theme-color" content="#0e0e18" media="(prefers-color-scheme: dark)">
     <meta name="theme-color" content="#fff8ed" media="(prefers-color-scheme: light)">
     <meta name="apple-mobile-web-app-capable" content="yes">
