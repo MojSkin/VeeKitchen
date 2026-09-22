@@ -9,6 +9,7 @@ const alerts = computed(() => page.props.stockAlerts ?? { count: 0, items: [] })
 const count = computed(() => alerts.value.count ?? 0);
 
 const open = ref(false);
+const closing = ref(false);
 let inventoryChannel = null;
 const root = ref(null);
 
@@ -34,7 +35,25 @@ onBeforeUnmount(() => {
 
 function onClickOutside(event) {
     if (open.value && root.value && !root.value.contains(event.target)) {
+        close();
+    }
+}
+
+/** transitions.dev dropdown close: is-closing animates before unmount. */
+function close() {
+    closing.value = true;
+
+    setTimeout(() => {
         open.value = false;
+        closing.value = false;
+    }, 150);
+}
+
+function toggle() {
+    if (open.value) {
+        close();
+    } else {
+        open.value = true;
     }
 }
 
@@ -64,77 +83,91 @@ function timeLabel(iso) {
 </script>
 
 <template>
-    <div ref="root" class="relative">
+    <div
+        ref="root"
+        class="relative"
+    >
         <button
             type="button"
-            class="glass-flat relative cursor-pointer rounded-xl px-3 py-2 transition hover:bg-white/10"
+            class="neo-click relative grid size-9 cursor-pointer place-items-center rounded-xl"
             :aria-label="`اعلان‌ها${count > 0 ? `، ${count} خوانده‌نشده` : ''}`"
             :aria-expanded="open"
-            @click="open = !open"
+            @click="toggle"
         >
             <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="1.8"
-                class="h-5 w-5"
+                stroke-width="1.7"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="size-[18px]"
                 aria-hidden="true"
             >
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"
-                />
+                <path d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
             </svg>
-            <span
-                v-if="count > 0"
-                class="absolute -top-1.5 -left-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[11px] font-black text-white"
+            <!-- transitions.dev badge: diagonal slide with spring pop-in -->
+            <Transition
+                enter-active-class="transition duration-500 ease-bounce"
+                enter-from-class="translate-x-2 translate-y-3 scale-0 opacity-0"
+                enter-to-class="translate-x-0 translate-y-0 scale-100 opacity-100"
+                leave-active-class="transition duration-150 ease-in"
+                leave-to-class="scale-0 opacity-0"
             >
-                {{ faDigits(count > 99 ? '+۹۹' : count) }}
-            </span>
+                <span
+                    v-if="count > 0"
+                    class="absolute -top-1 -left-1 grid h-4.5 min-w-4.5 place-items-center rounded-full bg-red-500 px-1 text-[10px] font-black text-white shadow-sm"
+                >
+                    {{ faDigits(count > 99 ? '+۹۹' : count) }}
+                </span>
+            </Transition>
         </button>
 
-        <Transition
-            enter-active-class="transition duration-200 ease-out"
-            enter-from-class="scale-95 opacity-0"
-            leave-active-class="transition duration-150 ease-in"
-            leave-to-class="opacity-0"
+        <!-- transitions.dev dropdown: origin-aware scale+fade -->
+        <div
+            v-if="open"
+            class="t-dropdown glass-strong absolute left-0 top-full z-40 mt-2 w-80 rounded-2xl p-3"
+            :class="[open && !closing ? 'is-open' : '', closing ? 'opacity-0' : '']"
+            data-origin="top-left"
+            role="dialog"
+            aria-label="هشدار موجودی"
         >
-            <div
-                v-if="open"
-                class="glass glass-raised absolute left-0 top-full z-40 mt-2 w-80 rounded-2xl p-3"
-            >
-                <div class="mb-2 flex items-center justify-between px-1">
-                    <p class="text-sm font-bold">هشدار موجودی</p>
-                    <button
-                        v-if="count > 0"
-                        type="button"
-                        class="cursor-pointer text-xs opacity-60 transition hover:opacity-100"
-                        @click="markAllRead"
-                    >
-                        همه خوانده شد
-                    </button>
-                </div>
-
-                <ul v-if="alerts.items.length > 0" class="space-y-2">
-                    <li
-                        v-for="item in alerts.items"
-                        :key="item.id"
-                        class="glass-flat rounded-xl p-3"
-                    >
-                        <div class="flex items-center justify-between gap-2">
-                            <p class="text-sm font-bold text-red-500">{{ item.title }}</p>
-                            <span class="text-[11px] opacity-50">{{ timeLabel(item.date) }}</span>
-                        </div>
-                        <p class="mt-1 text-xs opacity-80">{{ item.message }}</p>
-                    </li>
-                </ul>
-
-                <p v-else class="px-1 py-4 text-center text-sm opacity-50">
-                    هشدار خوانده‌نشده‌ای نیست.
-                </p>
+            <div class="mb-2 flex items-center justify-between px-1">
+                <p class="text-sm font-bold">هشدار موجودی</p>
+                <button
+                    v-if="count > 0"
+                    type="button"
+                    class="cursor-pointer text-xs opacity-60 transition hover:opacity-100"
+                    @click="markAllRead"
+                >
+                    همه خوانده شد
+                </button>
             </div>
-        </Transition>
+
+            <ul
+                v-if="alerts.items.length > 0"
+                class="space-y-2"
+            >
+                <li
+                    v-for="item in alerts.items"
+                    :key="item.id"
+                    class="neo-pressed rounded-xl p-3"
+                >
+                    <div class="flex items-center justify-between gap-2">
+                        <p class="text-sm font-bold text-red-500">{{ item.title }}</p>
+                        <span class="text-[11px] opacity-50">{{ timeLabel(item.date) }}</span>
+                    </div>
+                    <p class="mt-1 text-xs opacity-80">{{ item.message }}</p>
+                </li>
+            </ul>
+
+            <p
+                v-else
+                class="px-1 py-4 text-center text-sm opacity-50"
+            >
+                هشدار خوانده‌نشده‌ای نیست.
+            </p>
+        </div>
     </div>
 </template>

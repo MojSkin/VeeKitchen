@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { faDigits, formatToman } from '@/lib/format';
+import { formatJalaliDay } from '@/lib/jalali';
 
 const props = defineProps({
     orders: { type: Array, required: true },
@@ -19,7 +20,7 @@ const statusTones = {
 const toneClasses = {
     slate: 'bg-night-500/15 text-night-700 dark:text-night-300',
     amber: 'bg-amber-500/15 text-amber-600 dark:text-amber-400',
-    green: 'bg-pistachio-500/15 text-pistachio-600 dark:text-pistachio-400',
+    green: 'bg-pistachio-600/15 text-pistachio-600 dark:text-pistachio-400',
     red: 'bg-red-500/15 text-red-600 dark:text-red-400',
 };
 
@@ -56,13 +57,7 @@ function toggleItems(order) {
 }
 
 function formatDay(iso) {
-    if (!iso) {
-        return '';
-    }
-
-    const date = new Date(iso);
-
-    return faDigits(`${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`);
+    return formatJalaliDay(iso);
 }
 </script>
 
@@ -73,7 +68,7 @@ function formatDay(iso) {
                 <h1 class="text-2xl font-bold">سفارش‌های خرید</h1>
                 <Link
                     :href="route('admin.purchase-orders.create')"
-                    class="rounded-xl bg-saffron-500 px-4 py-2 text-sm font-bold text-white transition hover:bg-saffron-600"
+                    class="rounded-xl bg-lajvard-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-lajvard-700"
                 >
                     + سفارش جدید
                 </Link>
@@ -93,7 +88,7 @@ function formatDay(iso) {
                 <article
                     v-for="order in orders"
                     :key="order.id"
-                    class="glass rounded-glass p-5"
+                    class="glass rounded-2xl p-5"
                 >
                     <div class="flex flex-wrap items-start justify-between gap-3">
                         <div class="min-w-0">
@@ -133,7 +128,7 @@ function formatDay(iso) {
                             <button
                                 v-if="order.status === 'draft'"
                                 type="button"
-                                class="cursor-pointer rounded-xl bg-saffron-500 px-4 py-2 text-sm font-bold text-white transition hover:bg-saffron-600 disabled:opacity-40"
+                                class="cursor-pointer rounded-xl bg-lajvard-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-lajvard-700 disabled:opacity-40"
                                 :disabled="busyId === order.id"
                                 @click="run(order, 'admin.purchase-orders.submit')"
                             >
@@ -142,7 +137,7 @@ function formatDay(iso) {
                             <button
                                 v-if="order.status === 'ordered'"
                                 type="button"
-                                class="cursor-pointer rounded-xl bg-pistachio-500 px-4 py-2 text-sm font-bold text-white transition hover:bg-pistachio-600 disabled:opacity-40"
+                                class="cursor-pointer rounded-xl bg-pistachio-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-pistachio-700 disabled:opacity-40"
                                 :disabled="busyId === order.id"
                                 @click="run(order, 'admin.purchase-orders.receive')"
                             >
@@ -201,7 +196,7 @@ function formatDay(iso) {
 
                 <p
                     v-if="orders.length === 0"
-                    class="glass rounded-glass p-8 text-center opacity-60"
+                    class="glass rounded-2xl p-8 text-center opacity-60"
                 >
                     هنوز سفارش خریدی ثبت نشده است.
                 </p>

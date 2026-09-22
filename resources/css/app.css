@@ -10,70 +10,138 @@
     --font-sans: 'Vazirmatn Variable', 'Vazirmatn', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
         'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
-    /* Saffron — primary brand accent */
-    --color-saffron-50: #fff8ed;
-    --color-saffron-100: #ffefd4;
-    --color-saffron-200: #ffdba8;
-    --color-saffron-300: #ffc171;
-    --color-saffron-400: #ff9d38;
-    --color-saffron-500: #fe8012;
-    --color-saffron-600: #ef6508;
-    --color-saffron-700: #c64c09;
-    --color-saffron-800: #9d3c10;
-    --color-saffron-900: #7e3310;
-    --color-saffron-950: #441806;
+    /* ── لاجورد — VeePanel palette 2, verbatim oklch values ───────── */
+    --color-lajvard-50: oklch(0.972 0.008 250);
+    --color-lajvard-100: oklch(0.945 0.014 250);
+    --color-lajvard-200: oklch(0.906 0.024 250);
+    --color-lajvard-300: oklch(0.832 0.044 250);
+    --color-lajvard-400: oklch(0.716 0.082 252);
+    --color-lajvard-500: oklch(0.606 0.132 254);
+    --color-lajvard-600: oklch(0.486 0.22 255);
+    --color-lajvard-700: oklch(0.436 0.2 256);
+    --color-lajvard-800: oklch(0.356 0.16 258);
+    --color-lajvard-900: oklch(0.246 0.07 260);
+    --color-lajvard-950: oklch(0.135 0.015 250);
 
-    /* Pistachio — secondary accent, used for "ready"/success states */
-    --color-pistachio-50: #f1fcf5;
-    --color-pistachio-100: #dff9e8;
-    --color-pistachio-200: #c0f1d2;
-    --color-pistachio-300: #8ee5ae;
-    --color-pistachio-400: #55d083;
-    --color-pistachio-500: #2eb662;
-    --color-pistachio-600: #20944d;
-    --color-pistachio-700: #1c7440;
-    --color-pistachio-800: #1b5c36;
-    --color-pistachio-900: #184c2f;
-    --color-pistachio-950: #072a17;
+    /* زر کاشی — VeePanel accent (tile gold), the single warm counterpoint. */
+    --color-zar-300: oklch(0.856 0.09 78);
+    --color-zar-400: oklch(0.806 0.12 76);
+    --color-zar-500: oklch(0.756 0.14 75);
+    --color-zar-600: oklch(0.656 0.14 75);
+    --color-zar-700: oklch(0.536 0.11 76);
 
-    /* Night — the plum/indigo canvas the glass sits on */
-    --color-night-50: #f5f5fa;
-    --color-night-100: #e9e9f2;
-    --color-night-200: #d3d3e4;
-    --color-night-300: #b0b0cd;
-    --color-night-400: #8686b1;
-    --color-night-500: #676798;
-    --color-night-600: #53537d;
-    --color-night-700: #444465;
-    --color-night-800: #2c2c43;
-    --color-night-900: #1c1c2c;
-    --color-night-950: #0e0e18;
+    /* Compatibility aliases — saffron call sites keep rendering. */
+    --color-saffron-50: var(--color-lajvard-50);
+    --color-saffron-100: var(--color-lajvard-100);
+    --color-saffron-200: var(--color-lajvard-200);
+    --color-saffron-300: var(--color-zar-300);
+    --color-saffron-400: var(--color-zar-400);
+    --color-saffron-500: var(--color-zar-500);
+    --color-saffron-600: var(--color-zar-600);
+    --color-saffron-700: var(--color-zar-700);
+    --color-saffron-800: var(--color-lajvard-800);
+    --color-saffron-900: var(--color-lajvard-900);
+    --color-saffron-950: var(--color-lajvard-950);
 
-    --radius-glass: 1.25rem;
+    /* Success — VeePanel success (calm green). */
+    --color-pistachio-300: oklch(0.842 0.062 165);
+    --color-pistachio-400: oklch(0.756 0.09 165);
+    --color-pistachio-500: oklch(0.656 0.11 165);
+    --color-pistachio-600: oklch(0.556 0.09 165);
+    --color-pistachio-700: oklch(0.476 0.075 165);
 
-    --shadow-glass: 0 8px 32px -8px rgb(14 14 24 / 0.35), 0 2px 8px -2px rgb(14 14 24 / 0.2);
-    --shadow-glass-lg: 0 24px 64px -16px rgb(14 14 24 / 0.45), 0 4px 16px -4px rgb(14 14 24 / 0.25);
+    /* Cool mist scale — canvas + text (VeePanel background/foreground hue). */
+    --color-night-50: oklch(0.98 0.004 250);
+    --color-night-100: oklch(0.965 0.008 250);
+    --color-night-200: oklch(0.93 0.01 250);
+    --color-night-300: oklch(0.875 0.01 250);
+    --color-night-400: oklch(0.706 0.012 250);
+    --color-night-500: oklch(0.606 0.015 250);
+    --color-night-600: oklch(0.506 0.015 250);
+    --color-night-700: oklch(0.386 0.016 250);
+    --color-night-800: oklch(0.285 0.015 250);
+    --color-night-900: oklch(0.205 0.018 250);
+    --color-night-950: oklch(0.145 0.02 250);
+
+    /* ── Motion — transitions.dev shared scale ────────────────────── */
+    --duration-stagger: 40ms;
+    --duration-micro: 80ms;
+    --duration-quick: 150ms;
+    --duration-fast: 250ms;
+    --duration-medium: 350ms;
+    --duration-slow: 400ms;
+
+    --ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-bounce: cubic-bezier(0.34, 1.36, 0.64, 1);
+
+    --blur-t: 2px;
+    --blur-page: 3px;
 
     --ease-glass: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* ═══ The world — neomorphic glass on lajvard ═══════════════════════
+   One light source, top of frame. Every raised surface shares the
+   canvas colour and is sculpted purely by a light/dark shadow pair;
+   glass adds a faint tinted translucency over the single glow. A
+   theme swap re-tunes the tokens, never the components. */
 @layer base {
     :root {
-        --glass-tint: 255 255 255;
-        --glass-alpha: 0.62;
-        --glass-border: 255 255 255;
-        --glass-border-alpha: 0.7;
-        --glass-blur: 20px;
         color-scheme: light;
+
+        /* VeePanel lajvard: background + foreground + muted. */
+        --canvas: oklch(0.972 0.008 250);
+        --ink: oklch(0.145 0.02 250);
+        --ink-soft: oklch(0.506 0.015 250);
+
+        /* Neomorphic pair — cool drop below, warm-white kiss above. */
+        --drop: rgb(59 74 117 / 0.11);
+        --drop-soft: rgb(59 74 117 / 0.07);
+        --kiss: rgb(255 255 255 / 0.92);
+        --kiss-soft: rgb(255 255 255 / 0.6);
+        --well-dark: rgb(59 74 117 / 0.1);
+        --well-light: rgb(255 255 255 / 0.85);
+
+        /* Glass pane (VeePanel glass tokens). */
+        --glass-tint: 255 255 255;
+        --glass-alpha: 0.58;
+        --glass-alpha-strong: 0.82;
+        --glass-edge: 255 255 255;
+        --glass-edge-alpha: 0.62;
+        --glass-blur: 16px;
+        --glass-saturate: 150%;
+
+        /* The one glow — lajvard light from the top. */
+        --glow: radial-gradient(120rem 48rem at 50% -12rem, oklch(0.93 0.035 255) 0%, transparent 70%);
+
+        --ring: var(--color-lajvard-600);
     }
 
     .dark {
-        --glass-tint: 255 255 255;
-        --glass-alpha: 0.06;
-        --glass-border: 255 255 255;
-        --glass-border-alpha: 0.12;
-        --glass-blur: 24px;
         color-scheme: dark;
+
+        --canvas: oklch(0.135 0.015 250);
+        --ink: oklch(0.93 0.008 250);
+        --ink-soft: oklch(0.606 0.015 250);
+
+        --drop: rgb(1 5 16 / 0.6);
+        --drop-soft: rgb(1 5 16 / 0.42);
+        --kiss: rgb(147 170 232 / 0.075);
+        --kiss-soft: rgb(147 170 232 / 0.05);
+        --well-dark: rgb(1 5 16 / 0.5);
+        --well-light: rgb(147 170 232 / 0.055);
+
+        --glass-tint: 28 37 64;
+        --glass-alpha: 0.52;
+        --glass-alpha-strong: 0.78;
+        --glass-edge: 158 182 240;
+        --glass-edge-alpha: 0.13;
+        --glass-blur: 18px;
+        --glass-saturate: 140%;
+
+        --glow: radial-gradient(120rem 48rem at 50% -14rem, oklch(0.29 0.07 258 / 0.55) 0%, transparent 70%);
+
+        --ring: var(--color-lajvard-400);
     }
 
     html {
@@ -82,72 +150,121 @@
     }
 
     body {
-        @apply min-h-dvh bg-night-50 font-sans text-night-900 antialiased;
-        @apply dark:bg-night-950 dark:text-night-50;
+        background-color: var(--canvas);
+        color: var(--ink);
+        min-height: 100dvh;
+        font-family: var(--font-sans);
+        -webkit-font-smoothing: antialiased;
         text-wrap: pretty;
     }
 
-    /* Aurora wash behind every screen — what makes the glass read as glass. */
+    /* The glow — the single reason glass reads as glass. */
     body::before {
         content: '';
         position: fixed;
         inset: 0;
         z-index: -1;
         pointer-events: none;
-        background:
-            radial-gradient(60rem 40rem at 15% -10%, var(--color-saffron-200) 0%, transparent 60%),
-            radial-gradient(50rem 36rem at 95% 5%, var(--color-pistachio-200) 0%, transparent 55%),
-            radial-gradient(45rem 45rem at 50% 110%, var(--color-night-200) 0%, transparent 60%);
-        opacity: 0.75;
+        background: var(--glow);
     }
 
-    .dark body::before {
-        background:
-            radial-gradient(60rem 40rem at 15% -10%, var(--color-saffron-900) 0%, transparent 60%),
-            radial-gradient(50rem 36rem at 95% 5%, var(--color-pistachio-950) 0%, transparent 55%),
-            radial-gradient(45rem 45rem at 50% 110%, var(--color-night-800) 0%, transparent 60%);
-        opacity: 0.85;
-    }
-
-    /* Persian digits everywhere numbers are rendered as text. */
     :lang(fa) {
         font-variant-numeric: tabular-nums;
     }
 
+    /* Browser surfaces belong to the design too. */
     ::selection {
-        @apply bg-saffron-300/60 text-night-950;
+        background: color-mix(in oklab, var(--color-lajvard-500) 24%, transparent);
     }
 
     *:focus-visible {
-        @apply outline-2 outline-offset-2 outline-saffron-500;
+        outline: 2px solid var(--ring);
+        outline-offset: 2px;
+        border-radius: 4px;
+    }
+
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: color-mix(in oklab, var(--ink) 18%, transparent) transparent;
     }
 }
 
-@utility glass {
-    background-color: rgb(var(--glass-tint) / var(--glass-alpha));
-    border: 1px solid rgb(var(--glass-border) / var(--glass-border-alpha));
-    backdrop-filter: blur(var(--glass-blur)) saturate(180%);
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
-    box-shadow: var(--shadow-glass);
+/* ═══ Neomorphic surfaces ═══ */
+@utility neo {
+    /* Raised card — the default surface. */
+    background-color: var(--canvas);
+    box-shadow: 5px 5px 14px var(--drop), -4px -4px 10px var(--kiss);
 }
 
+@utility neo-soft {
+    /* Barely lifted — list rows, quiet groupings. */
+    background-color: var(--canvas);
+    box-shadow: 3px 3px 8px var(--drop-soft), -2px -2px 6px var(--kiss-soft);
+}
+
+@utility neo-strong {
+    /* Floating chrome — dropdowns, modals, the toast. */
+    background-color: var(--canvas);
+    box-shadow: 9px 9px 24px var(--drop), -6px -6px 16px var(--kiss);
+}
+
+@utility neo-pressed {
+    /* Wells — inputs, filter trays, sunken toolbars. */
+    background-color: var(--canvas);
+    box-shadow: inset 3px 3px 7px var(--well-dark), inset -3px -3px 7px var(--well-light);
+}
+
+@utility neo-click {
+    /* Pressable controls: rise at rest, sink when held. */
+    background-color: var(--canvas);
+    box-shadow: 4px 4px 10px var(--drop), -3px -3px 8px var(--kiss);
+    transition:
+        box-shadow var(--duration-quick) var(--ease-smooth-out),
+        transform var(--duration-quick) var(--ease-smooth-out);
+
+    &:active {
+        box-shadow: inset 3px 3px 6px var(--well-dark), inset -2px -2px 5px var(--well-light);
+        transform: scale(0.98);
+    }
+}
+
+/* ═══ Glass layer ═══ */
+@utility glass {
+    /* Translucent pane over the glow — layout chrome, sidebars. */
+    background-color: rgb(var(--glass-tint) / var(--glass-alpha));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    border: 1px solid rgb(var(--glass-edge) / var(--glass-edge-alpha));
+    box-shadow: 5px 5px 16px var(--drop-soft), -4px -4px 12px var(--kiss-soft);
+}
+
+@utility glass-strong {
+    /* Opaque-ish pane — modals, dropdowns, the toast. */
+    background-color: rgb(var(--glass-tint) / var(--glass-alpha-strong));
+    backdrop-filter: blur(calc(var(--glass-blur) + 4px)) saturate(var(--glass-saturate));
+    -webkit-backdrop-filter: blur(calc(var(--glass-blur) + 4px)) saturate(var(--glass-saturate));
+    border: 1px solid rgb(var(--glass-edge) / calc(var(--glass-edge-alpha) * 1.4));
+    box-shadow: 9px 9px 24px var(--drop), -6px -6px 16px var(--kiss);
+}
+
+/* Legacy aliases — pre-redesign call sites keep rendering. */
 @utility glass-flat {
-    background-color: rgb(var(--glass-tint) / calc(var(--glass-alpha) * 0.6));
-    border: 1px solid rgb(var(--glass-border) / calc(var(--glass-border-alpha) * 0.7));
-    backdrop-filter: blur(calc(var(--glass-blur) * 0.6)) saturate(150%);
-    -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.6)) saturate(150%);
+    background-color: rgb(var(--glass-tint) / var(--glass-alpha));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    border: 1px solid rgb(var(--glass-edge) / var(--glass-edge-alpha));
 }
 
 @utility glass-raised {
-    background-color: rgb(var(--glass-tint) / calc(var(--glass-alpha) * 1.15));
-    border: 1px solid rgb(var(--glass-border) / var(--glass-border-alpha));
-    backdrop-filter: blur(calc(var(--glass-blur) * 1.4)) saturate(200%);
-    -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 1.4)) saturate(200%);
-    box-shadow: var(--shadow-glass-lg);
+    background-color: rgb(var(--glass-tint) / var(--glass-alpha-strong));
+    backdrop-filter: blur(calc(var(--glass-blur) + 4px)) saturate(var(--glass-saturate));
+    -webkit-backdrop-filter: blur(calc(var(--glass-blur) + 4px)) saturate(var(--glass-saturate));
+    border: 1px solid rgb(var(--glass-edge) / calc(var(--glass-edge-alpha) * 1.4));
+    box-shadow: 9px 9px 24px var(--drop), -6px -6px 16px var(--kiss);
 }
 
-/* Hairline highlight along the top edge, the way real glass catches light. */
 @utility glass-sheen {
+    /* Hairline of light along the top edge. */
     position: relative;
     isolation: isolate;
 
@@ -157,8 +274,89 @@
         inset: 0;
         border-radius: inherit;
         pointer-events: none;
-        background: linear-gradient(to bottom, rgb(255 255 255 / 0.35), transparent 35%);
+        background: linear-gradient(to bottom, rgb(255 255 255 / 0.5), transparent 30%);
         mix-blend-mode: overlay;
+    }
+}
+
+/* ═══ Motion — transitions.dev t-* vocabulary ═══ */
+@utility t-dropdown {
+    transform-origin: top center;
+    transform: scale(0.97) translateY(-4px);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+        transform var(--duration-fast) var(--ease-smooth-out),
+        opacity var(--duration-fast) var(--ease-smooth-out);
+    will-change: transform, opacity;
+
+    &.is-open {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+    }
+}
+
+@utility t-panel {
+    transform: translateY(12px);
+    opacity: 0;
+    filter: blur(var(--blur-t));
+    pointer-events: none;
+    transition:
+        transform var(--duration-slow) var(--ease-smooth-out),
+        opacity var(--duration-slow) var(--ease-smooth-out),
+        filter var(--duration-slow) var(--ease-smooth-out);
+    will-change: transform, opacity, filter;
+
+    &.is-open {
+        transform: translateY(0);
+        opacity: 1;
+        filter: blur(0);
+        pointer-events: auto;
+    }
+}
+
+@utility t-toast {
+    transform: translateY(16px) scale(0.97);
+    opacity: 0;
+    filter: blur(var(--blur-t));
+    transition:
+        transform var(--duration-medium) var(--ease-smooth-out),
+        opacity var(--duration-medium) var(--ease-smooth-out),
+        filter var(--duration-medium) var(--ease-smooth-out);
+    will-change: transform, opacity, filter;
+}
+
+@utility t-icon-swap {
+    transition:
+        transform var(--duration-fast) ease-in-out,
+        opacity var(--duration-fast) ease-in-out,
+        filter var(--duration-fast) ease-in-out;
+    will-change: transform, opacity, filter;
+
+    &.is-entering {
+        transform: scale(0.25);
+        filter: blur(var(--blur-t));
+        opacity: 0;
+    }
+}
+
+/* Inertia page transitions. */
+@utility page-enter {
+    animation: page-in var(--duration-fast) var(--ease-smooth-out) both;
+}
+
+@keyframes page-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+        filter: blur(var(--blur-page));
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
     }
 }
 
@@ -176,5 +374,14 @@
 
     &::-webkit-scrollbar {
         display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
     }
 }

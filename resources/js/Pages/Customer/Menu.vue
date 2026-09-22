@@ -139,7 +139,7 @@ function placeOrder() {
     <PublicLayout>
         <div class="mx-auto max-w-3xl px-4 pb-32">
             <!-- Table banner -->
-            <div v-if="table" class="glass glass-sheen mt-4 rounded-glass p-4 text-center">
+            <div v-if="table" class="glass glass-sheen mt-4 rounded-2xl p-4 text-center">
                 <p class="text-sm opacity-70">منوی</p>
                 <p class="text-xl font-bold">{{ table.label }}</p>
             </div>
@@ -147,13 +147,13 @@ function placeOrder() {
             <!-- Discount banner: active automatic discounts -->
             <div
                 v-if="discounts.banner.length > 0"
-                class="glass mt-4 flex flex-wrap items-center justify-center gap-2 rounded-glass p-4"
+                class="glass mt-4 flex flex-wrap items-center justify-center gap-2 rounded-2xl p-4"
             >
                 <p class="text-xs font-bold text-saffron-600 dark:text-saffron-400">🎉 تخفیف‌های فعال:</p>
                 <span
                     v-for="discount in discounts.banner"
                     :key="discount.id"
-                    class="rounded-full bg-saffron-500/15 px-3 py-1 text-xs font-bold text-saffron-600 dark:text-saffron-400"
+                    class="rounded-full bg-lajvard-600/15 px-3 py-1 text-xs font-bold text-saffron-600 dark:text-saffron-400"
                 >
                     {{ discount.label }}
                     <template v-if="discount.scope === 'entire_order'">روی کل سفارش</template>
@@ -168,7 +168,7 @@ function placeOrder() {
                     :key="category.id"
                     type="button"
                     class="glass-flat shrink-0 rounded-full px-4 py-2 text-sm transition"
-                    :class="activeCategory === category.id ? 'bg-saffron-500/80 text-white' : ''"
+                    :class="activeCategory === category.id ? 'bg-lajvard-600/80 text-white' : ''"
                     @click="activeCategory = category.id"
                 >
                     {{ category.name }}
@@ -186,7 +186,7 @@ function placeOrder() {
                     <article
                         v-for="product in category.products"
                         :key="product.id"
-                        class="glass rounded-glass p-4"
+                        class="glass rounded-2xl p-4"
                     >
                         <div class="flex items-start justify-between gap-2">
                             <div>
@@ -196,7 +196,7 @@ function placeOrder() {
                             <div class="shrink-0 text-left">
                                 <span
                                     v-if="discounts.product_badges[product.id]"
-                                    class="mb-1 block rounded-full bg-saffron-500 px-2 py-0.5 text-center text-[10px] font-bold text-white"
+                                    class="mb-1 block rounded-full bg-lajvard-600 px-2 py-0.5 text-center text-[10px] font-bold text-white"
                                 >
                                     {{ discounts.product_badges[product.id] }}
                                 </span>
@@ -217,13 +217,13 @@ function placeOrder() {
                                 </span>
                                 <button
                                     type="button"
-                                    class="h-8 w-8 rounded-full bg-saffron-500 text-lg leading-none text-white"
+                                    class="h-8 w-8 rounded-full bg-lajvard-600 text-lg leading-none text-white"
                                     @click="changeQty(product.id, cart.find((l) => l.productId === product.id).quantity + 1)"
                                 >+</button>
                             </div>
                             <button
                                 type="button"
-                                class="rounded-full bg-saffron-500 px-5 py-2 text-sm font-medium text-white transition hover:bg-saffron-600"
+                                class="rounded-full bg-lajvard-600 px-5 py-2 text-sm font-medium text-white transition hover:bg-lajvard-700"
                                 @click="add(product)"
                             >
                                 افزودن
@@ -236,7 +236,7 @@ function placeOrder() {
 
         <!-- Sticky cart bar -->
         <div class="safe-bottom fixed inset-x-0 bottom-0 z-10 px-4">
-            <div class="glass glass-raised mx-auto max-w-3xl rounded-glass p-4">
+            <div class="glass glass-strong mx-auto max-w-3xl rounded-2xl p-4">
                 <template v-if="placedOrder">
                     <p class="text-center text-sm font-medium text-pistachio-600 dark:text-pistachio-400">
                         سفارش ثبت شد! لطفاً برای پرداخت به صندوق مراجعه کنید.
@@ -298,7 +298,7 @@ function placeOrder() {
                         </div>
                         <button
                             type="button"
-                            class="shrink-0 rounded-2xl bg-pistachio-500 px-6 py-3 font-bold text-white transition disabled:opacity-40"
+                            class="shrink-0 rounded-2xl bg-pistachio-600 px-6 py-3 font-bold text-white transition disabled:opacity-40"
                             :disabled="cartCount === 0 || !guestName.trim() || submitting"
                             @click="placeOrder"
                         >

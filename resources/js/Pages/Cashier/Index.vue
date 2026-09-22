@@ -21,7 +21,7 @@ const toneClasses = {
     amber: 'bg-amber-500/15 text-amber-600 dark:text-amber-400',
     sky: 'bg-sky-500/15 text-sky-600 dark:text-sky-400',
     violet: 'bg-violet-500/15 text-violet-600 dark:text-violet-400',
-    green: 'bg-pistachio-500/15 text-pistachio-600 dark:text-pistachio-400',
+    green: 'bg-pistachio-600/15 text-pistachio-600 dark:text-pistachio-400',
 };
 
 let cashierChannel = null;
@@ -102,7 +102,7 @@ function tableLabel(tableId) {
                     <article
                         v-for="order in pending"
                         :key="order.id"
-                        class="glass rounded-glass p-4"
+                        class="glass rounded-2xl p-4"
                     >
                         <header class="flex items-center justify-between">
                             <span class="text-sm opacity-70">
@@ -122,7 +122,7 @@ function tableLabel(tableId) {
                             <p class="font-bold">{{ formatTomanWithUnit(order.total) }}</p>
                             <button
                                 type="button"
-                                class="rounded-xl bg-pistachio-500 px-4 py-2 text-sm font-bold text-white disabled:opacity-40"
+                                class="rounded-xl bg-pistachio-600 px-4 py-2 text-sm font-bold text-white disabled:opacity-40"
                                 :disabled="busyOrderId === order.id"
                                 @click="confirmPay(order)"
                             >
@@ -142,7 +142,7 @@ function tableLabel(tableId) {
                     <article
                         v-for="order in active"
                         :key="order.id"
-                        class="glass rounded-glass p-4"
+                        class="glass rounded-2xl p-4"
                     >
                         <header class="flex items-center justify-between">
                             <p class="text-2xl font-black text-saffron-500">{{ order.order_number }}</p>
