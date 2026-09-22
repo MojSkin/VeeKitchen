@@ -20,7 +20,7 @@ defineProps({
 
 <template>
     <!-- Supplier + notes -->
-    <section class="glass grid gap-3 rounded-glass p-5 sm:grid-cols-2">
+    <section class="glass grid gap-3 rounded-2xl p-5 sm:grid-cols-2">
         <label class="block">
             <span class="mb-1 block text-xs opacity-60">تامین‌کننده</span>
             <select
@@ -47,7 +47,7 @@ defineProps({
     </section>
 
     <!-- Lines -->
-    <section class="glass rounded-glass p-5">
+    <section class="glass rounded-2xl p-5">
         <div class="mb-3 flex items-center justify-between">
             <h2 class="font-bold">اقلام سفارش</h2>
             <span class="text-xs opacity-50">{{ faDigits(filledLineCount) }} قلم پرشده</span>

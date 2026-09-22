@@ -1,8 +1,11 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { format } from 'date-fns';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import JalaliDatePicker from '@/Components/JalaliDatePicker.vue';
 import { faDigits, formatToman } from '@/lib/format';
+import { formatJalaliDay } from '@/lib/jalali';
 
 const props = defineProps({
     branch: { type: Object, required: true },
@@ -63,10 +66,19 @@ function submit() {
 
 /**
  * Empty strings → null so nullable columns and date windows stay honest.
+ * The picker's Date values serialize to Y-m-d strings — the same Gregorian
+ * wire format the backend has always validated — while presentation stays
+ * Jalali-only.
  */
 function normalize(input) {
     return Object.fromEntries(
-        Object.entries(input).map(([key, value]) => [key, value === '' ? null : value]),
+        Object.entries(input).map(([key, value]) => {
+            if ((key === 'starts_at' || key === 'expires_at') && value instanceof Date) {
+                return [key, format(value, 'yyyy-MM-dd')];
+            }
+
+            return [key, value === '' ? null : value];
+        }),
     );
 }
 
@@ -153,8 +165,8 @@ function windowLabel(discount) {
         return null;
     }
 
-    const from = discount.starts_at === null ? null : dayOf(discount.starts_at);
-    const to = discount.expires_at === null ? null : dayOf(discount.expires_at);
+    const from = discount.starts_at === null ? null : formatJalaliDay(discount.starts_at);
+    const to = discount.expires_at === null ? null : formatJalaliDay(discount.expires_at);
 
     if (from !== null && to !== null) {
         return `از ${from} تا ${to}`;
@@ -163,9 +175,7 @@ function windowLabel(discount) {
     return from !== null ? `از ${from}` : `تا ${to}`;
 }
 
-function dayOf(iso) {
-    return faDigits(new Date(iso).toISOString().slice(0, 10).replaceAll('-', '/'));
-}
+
 </script>
 
 <template>
@@ -178,7 +188,7 @@ function dayOf(iso) {
 
             <!-- New discount -->
             <form
-                class="glass mb-8 rounded-glass p-4"
+                class="glass mb-8 rounded-2xl p-4"
                 @submit.prevent="submit"
             >
                 <h2 class="mb-3 text-lg font-bold">تخفیف جدید</h2>
@@ -257,18 +267,14 @@ function dayOf(iso) {
                         class="glass-flat rounded-xl px-3 py-2 text-sm outline-none"
                         dir="ltr"
                     >
-                    <input
+                    <JalaliDatePicker
                         v-model="form.starts_at"
-                        type="date"
-                        class="glass-flat rounded-xl px-3 py-2 text-sm outline-none"
-                        aria-label="شروع (اختیاری)"
-                    >
-                    <input
+                        placeholder="شروع (اختیاری)"
+                    />
+                    <JalaliDatePicker
                         v-model="form.expires_at"
-                        type="date"
-                        class="glass-flat rounded-xl px-3 py-2 text-sm outline-none"
-                        aria-label="پایان (اختیاری)"
-                    >
+                        placeholder="پایان (اختیاری)"
+                    />
                     <input
                         v-model="form.usage_limit_total"
                         type="number"
@@ -289,7 +295,7 @@ function dayOf(iso) {
 
                 <button
                     type="submit"
-                    class="mt-3 cursor-pointer rounded-xl bg-saffron-500 px-6 py-2 text-sm font-bold text-white transition hover:bg-saffron-600 disabled:opacity-40"
+                    class="mt-3 cursor-pointer rounded-xl bg-lajvard-600 px-6 py-2 text-sm font-bold text-white transition hover:bg-lajvard-700 disabled:opacity-40"
                     :disabled="saving"
                 >
                     ساخت تخفیف
@@ -300,7 +306,7 @@ function dayOf(iso) {
             <div class="space-y-3">
                 <p
                     v-if="discounts.length === 0"
-                    class="glass rounded-glass p-8 text-center text-sm opacity-60"
+                    class="glass rounded-2xl p-8 text-center text-sm opacity-60"
                 >
                     هنوز تخفیفی ثبت نشده است.
                 </p>
@@ -308,7 +314,7 @@ function dayOf(iso) {
                 <article
                     v-for="discount in discounts"
                     :key="discount.id"
-                    class="glass rounded-glass p-4"
+                    class="glass rounded-2xl p-4"
                     :class="discount.currently_active ? '' : 'opacity-70'"
                 >
                     <div class="flex flex-wrap items-center justify-between gap-3">
@@ -327,7 +333,7 @@ function dayOf(iso) {
                                 <span
                                     class="rounded-full px-2 py-0.5 text-xs font-bold"
                                     :class="discount.currently_active
-                                        ? 'bg-pistachio-500/15 text-pistachio-600 dark:text-pistachio-400'
+                                        ? 'bg-pistachio-600/15 text-pistachio-600 dark:text-pistachio-400'
                                         : 'bg-night-500/20 opacity-70'"
                                 >
                                     {{ discount.currently_active ? 'فعال' : 'غیرفعال' }}
@@ -448,7 +454,7 @@ function dayOf(iso) {
                         <div class="flex flex-wrap gap-2 pt-1">
                             <button
                                 type="button"
-                                class="cursor-pointer rounded-xl bg-pistachio-500 px-4 py-2 text-sm font-bold text-white transition hover:bg-pistachio-600 disabled:opacity-40"
+                                class="cursor-pointer rounded-xl bg-pistachio-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-pistachio-700 disabled:opacity-40"
                                 :disabled="busyId === discount.id"
                                 @click="saveEdit(discount)"
                             >

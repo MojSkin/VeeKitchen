@@ -65,7 +65,7 @@ onBeforeUnmount(() => {
 <template>
     <PublicLayout>
         <div class="mx-auto max-w-2xl px-4 py-8">
-            <div class="glass glass-sheen rounded-glass p-6 text-center">
+            <div class="glass glass-sheen rounded-2xl p-6 text-center">
                 <p class="text-sm opacity-70">سفارش</p>
 
                 <p v-if="orderNumber" class="text-6xl font-black text-saffron-500">
@@ -105,7 +105,7 @@ onBeforeUnmount(() => {
                 >
                     <span
                         class="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold"
-                        :class="index <= currentStep ? 'bg-saffron-500 text-white' : 'bg-night-200 dark:bg-night-800'"
+                        :class="index <= currentStep ? 'bg-lajvard-600 text-white' : 'bg-night-200 dark:bg-night-800'"
                     >
                         {{ index + 1 }}
                     </span>
@@ -113,7 +113,7 @@ onBeforeUnmount(() => {
                 </li>
             </ol>
 
-            <p v-else class="glass mt-6 rounded-glass p-4 text-center text-red-500">
+            <p v-else class="glass mt-6 rounded-2xl p-4 text-center text-red-500">
                 این سفارش کنسل شده است.
             </p>
         </div>
