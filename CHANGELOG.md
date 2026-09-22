@@ -18,7 +18,7 @@ A version is **released** only when this cycle completes:
 
 Direct pushes to `main` or `production` never happen; merges from `testing` only.
 
-## [Unreleased]
+## [0.7.0] — 2026-09-22
 
 ### Added (Shift settlement exports — phase 3 settlement step)
 - Every closed cashier shift now exports itself two ways from the end-of-day board: `GET admin/end-of-day/shifts/{shift}/export?format=xlsx` streams a two-sheet workbook (sheet «تسویه» with the money trail — opening, cash, card, movements net, expected, counted, discrepancy — and sheet «حرکات نقدی» with every documented movement and its author), and `format=print` opens a self-contained A4 RTL page with the print dialog. The exports read `ShiftService::settlementSummary()`, so the workbook can never disagree with the screen. Admin-only and branch-scoped: a forged shift id from another branch is a 404, never a leak.
@@ -264,7 +264,8 @@ Direct pushes to `main` or `production` never happen; merges from `testing` only
 - `ziggy-js` import moved from the removed `ziggy-js/vue` subpath to the module root (2.x exports).
 - Empty `.vue` page stubs replaced with minimal valid SFCs so `vite build` passes; added `pwa.js` service-worker registrar.
 
-[Unreleased]: https://github.com/MojSkin/VeeKitchen/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/MojSkin/VeeKitchen/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/MojSkin/VeeKitchen/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/MojSkin/VeeKitchen/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/MojSkin/VeeKitchen/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/MojSkin/VeeKitchen/compare/v0.3.0...v0.4.0
